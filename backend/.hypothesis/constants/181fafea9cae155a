@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/observables.py
+# hypothesis_version: 6.148.12
+
+[1000, 'ObservableBulkCreate', 'ObservableCreate', 'ObservableResponse', 'ObservableType', 'ObservableUpdate', 'TLP', 'amber', 'clear', 'domain', 'email', 'filename', 'green', 'hash_md5', 'hash_sha1', 'hash_sha256', 'hostname', 'ip', 'red', 'registry_key', 'url']

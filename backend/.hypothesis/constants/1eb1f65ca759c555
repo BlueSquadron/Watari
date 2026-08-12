@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/report.py
+# hypothesis_version: 6.148.12
+
+[255, 1000, 'Case', 'ReportTemplate', 'User', '[]', 'cases.id', 'gen_random_uuid()', 'report_templates', 'report_templates.id', 'reports', 'tenants.id', 'users.id']

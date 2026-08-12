@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/realtime.py
+# hypothesis_version: 6.148.12
+
+['access', 'case_stream error', 'ping', 'pong', 'realtime', 'router', 'tenant_stream error']

@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/realtime/hub.py
+# hypothesis_version: 6.148.12
+
+[':', 'RealtimeEvent', 'WebSocketHub', 'actor', 'case:', 'case:*', 'case:{case_id}', 'case_id', 'channel', 'data', 'display_name', 'get_hub', 'payload', 'pmessage', 'tenant:', 'tenant:*', 'tenant:{tenant_id}', 'tenant_id', 'timestamp', 'type', 'user_id', 'watari.realtime']

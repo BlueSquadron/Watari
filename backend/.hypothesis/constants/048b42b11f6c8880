@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/cases.py
+# hypothesis_version: 6.148.12
+
+['assignee_changed', 'assignee_id', 'case_created', 'case_id', 'cases_merged', 'close_case', 'create_case', 'delete_case', 'description', 'from', 'get_case', 'lifecycle', 'list_cases', 'medium', 'merge_cases', 'outcome', 'severity', 'sort_order', 'source_case_ids', 'status', 'status_changed', 'title', 'to', 'update_case', 'value']

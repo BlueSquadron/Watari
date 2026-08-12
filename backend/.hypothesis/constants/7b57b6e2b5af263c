@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/tenants.py
+# hypothesis_version: 6.148.12
+
+['create_tenant', 'delete_tenant', 'get_tenant', 'list_tenants', 'update_tenant']

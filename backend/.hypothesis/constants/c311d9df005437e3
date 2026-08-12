@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/auth/dependencies.py
+# hypothesis_version: 6.148.12
+
+['/api/v1/auth/login', 'Bearer', 'CurrentUserDep', 'OAUTH2_SCHEME', 'WWW-Authenticate', 'access', 'get_current_user']

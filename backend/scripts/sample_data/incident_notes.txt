@@ -1,0 +1,17 @@
+Preliminary triage notes for the suspicious-login incident.
+
+Initial findings:
+- Source IP 203.0.113.42 attempted dictionary-style brute force against the
+  SSH daemon of prod-web-01 before landing a valid authentication as user
+  "deploy" at 08:14:18Z.
+- Post-login behaviour is consistent with reconnaissance followed by an
+  exfiltration attempt to exfil.badactor.example at 08:15:45Z.
+- The "deploy" account should not have interactive shell privileges in
+  production. Credentials are presumed compromised.
+
+Open questions:
+- Was the "deploy" account password rotated within the last 90 days?
+- Any outbound traffic to 198.51.100.77 from other hosts in the same
+  subnet window?
+- Does the exfil destination match any known Cobalt Strike / Sliver
+  beacon domains?

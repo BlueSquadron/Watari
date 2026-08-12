@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/tenants.py
+# hypothesis_version: 6.148.12
+
+[100, 255, 'TenantCreate', 'TenantResponse', 'TenantUpdate', '^[a-z0-9][a-z0-9-]*$']

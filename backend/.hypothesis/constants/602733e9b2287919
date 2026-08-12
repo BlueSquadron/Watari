@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/task.py
+# hypothesis_version: 6.148.12
+
+[500, '0', 'CASCADE', 'Case', 'User', 'User | None', 'cases.id', 'ck_tasks_status', 'tasks', 'tenants.id', 'todo', 'users.id']

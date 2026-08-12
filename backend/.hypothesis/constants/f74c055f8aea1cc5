@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/geospatial.py
+# hypothesis_version: 6.148.12
+
+[-180, 100, 180, 'GeoMarker', 'GeoResponse']

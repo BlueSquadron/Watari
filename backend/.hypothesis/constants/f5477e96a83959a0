@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/attack.py
+# hypothesis_version: 6.148.12
+
+['/heatmap', '/{mapping_id}', 'attack', 'mappings_router', 'reference_router']

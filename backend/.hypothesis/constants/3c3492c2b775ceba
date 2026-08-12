@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/audit.py
+# hypothesis_version: 6.148.12
+
+[100, 'User', 'audit_logs', 'btree', 'created_at', 'false', 'gen_random_uuid()', 'idx_audit_user', 'tenant_id', 'tenants.id', 'user_id', 'users.id', '{}']

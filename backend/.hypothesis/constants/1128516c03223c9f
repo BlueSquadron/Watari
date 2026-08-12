@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/error_handlers.py
+# hypothesis_version: 6.148.12
+
+['.', '<root>', 'CONFLICT', 'FORBIDDEN', 'INTERNAL_ERROR', 'NOT_FOUND', 'RATE_LIMIT', 'Request failed', 'SERVICE_UNAVAILABLE', 'UNAUTHENTICATED', 'VALIDATION_ERROR', 'duplicate key', 'headers', 'invalid', 'loc', 'msg', 'orig', 'request_id', 'type', 'unique constraint', 'unknown']

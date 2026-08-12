@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/alert.py
+# hypothesis_version: 6.148.12
+
+[255, 500, 'Case', 'Case | None', '[]', 'alerts', 'cases.id', 'ck_alerts_status', 'dedup_key', 'idx_alerts_dedup', 'pending', 'tenant_id', 'tenants.id', '{}']

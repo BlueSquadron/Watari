@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/enrichment.py
+# hypothesis_version: 6.148.12
+
+[100, 255, '30', 'CASCADE', 'EnrichmentResult', 'EnrichmentSource', 'Observable', 'enrichment_results', 'enrichment_sources', 'gen_random_uuid()', 'observables.id', 'results', 'source', 'tenants.id', 'true', '{}']

@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/*
+ * Watari v4 theme.
+ *
+ * The design uses two palettes: a dark (default, "Watari faithful
+ * servant" aesthetic) and a light variant. All component code uses
+ * tokens like `bg-watari-bg-dark` and `text-watari-text-dark-primary`
+ * as if they were semantic names. The values behind those tokens
+ * swap automatically based on whether `<html>` carries the `dark`
+ * class — no code change needed in components.
+ *
+ * `@custom-variant dark (&:where(.dark, .dark *))` lets us also use
+ * explicit `dark:...` utilities where we need extra specificity.
+ */
+
+/* --- Shared palette: brand accents, severity, status ------------------- */
+@theme {
+  /* Accent — muted gold (the Watari signature) */
+  --color-watari-gold: #c4a35a;
+  --color-watari-gold-light: #d4b96a;
+  --color-watari-gold-dark: #a88a42;
+  --color-watari-gold-muted: #8b7340;
+
+  /* Severity colors */
+  --color-severity-critical: #ef4444;
+  --color-severity-high: #f97316;
+  --color-severity-medium: #eab308;
+  --color-severity-low: #3b82f6;
+  --color-severity-informational: #6b7280;
+
+  /* Status colors */
+  --color-status-new: #3b82f6;
+  --color-status-in_progress: #f59e0b;
+  --color-status-pending: #a855f7;
+  --color-status-resolved: #22c55e;
+  --color-status-closed: #6b7280;
+
+  /* Typography families */
+  --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", Consolas, Monaco, monospace;
+
+  /* --- Default palette values (dark theme baseline) ------------------- */
+  /* These are the values used when the `dark` class is on <html>. */
+  --color-watari-bg-dark: #0f1117;
+  --color-watari-bg-dark-secondary: #1a1d27;
+  --color-watari-bg-dark-tertiary: #242836;
+  --color-watari-text-dark-primary: #e8e6e1;
+  --color-watari-text-dark-secondary: #9b9a97;
+
+  /* Light palette also remains directly addressable for explicit opt-in. */
+  --color-watari-bg-light: #f8f7f4;
+  --color-watari-bg-light-secondary: #efeee9;
+  --color-watari-bg-light-tertiary: #e5e4df;
+  --color-watari-text-light-primary: #1a1a1a;
+  --color-watari-text-light-secondary: #5c5c5c;
+}
+
+/* Enable class-based dark mode rather than prefers-color-scheme */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * When <html> does NOT carry the `dark` class, remap the `-dark-`
+ * token aliases onto the light palette so every existing utility
+ * class (bg-watari-bg-dark, text-watari-text-dark-primary, etc.)
+ * renders as the light variant. This keeps every component file
+ * working unchanged while making the toggle actually do something.
+ */
+html:not(.dark) {
+  --color-watari-bg-dark: #f8f7f4;
+  --color-watari-bg-dark-secondary: #efeee9;
+  --color-watari-bg-dark-tertiary: #e5e4df;
+  --color-watari-text-dark-primary: #1a1a1a;
+  --color-watari-text-dark-secondary: #5c5c5c;
+
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-watari-bg-dark text-watari-text-dark-primary antialiased;
+  font-family: var(--font-sans);
+}
+
+/* Subtle scrollbar in both themes — uses tokens so colors adapt */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-watari-bg-dark-tertiary;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-watari-bg-dark-secondary;
+}
+
+/* Page transitions: subtle fade for route changes */
+main {
+  animation: fade-in 180ms ease-out;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0.6;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Code blocks in markdown / report previews */
+code {
+  @apply rounded bg-watari-bg-dark-tertiary px-1 py-0.5 text-[0.9em];
+  font-family: var(--font-mono);
+}

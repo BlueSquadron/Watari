@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/modules.py
+# hypothesis_version: 6.148.12
+
+[255, 500, 'ModuleRegister', 'ModuleResponse', 'ModuleType', 'ModuleUpdate', 'completed', 'failed', 'pipeline', 'processor', 'queued', 'running']

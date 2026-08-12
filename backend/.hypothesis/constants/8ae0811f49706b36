@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/search.py
+# hypothesis_version: 6.148.12
+
+[255, 500, 'SavedViewCreate', 'SavedViewResponse', 'SearchEntityType', 'SearchHit', 'SearchRequest', 'SearchResponse', 'alert', 'asset', 'case', 'note', 'observable']

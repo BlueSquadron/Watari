@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/users.py
+# hypothesis_version: 6.148.12
+
+[100, 255, 10080, 'LoginRequest', 'LoginResponse', 'PasswordChange', 'ServiceAccountCreate', 'TokenRefreshRequest', 'TokenRefreshResponse', 'UserCreate', 'UserResponse', 'UserUpdate', 'bearer']

@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/alerts.py
+# hypothesis_version: 6.148.12
+
+[100, 255, 500, 2004, 5000, 10000, '1.8.0', 'AlertDismiss', 'AlertListFilters', 'AlertPromote', 'AlertResponse', 'AlertStatus', 'Archived', 'Critical', 'Deleted', 'Detection Finding', 'Fatal', 'Findings', 'High', 'In Progress', 'Informational', 'Longer description', 'Low', 'Medium', 'Must be 2 (Findings)', 'New', 'OCSFActivityId', 'OCSFAttack', 'OCSFConfidenceId', 'OCSFFindingInfo', 'OCSFMetadata', 'OCSFObservable', 'OCSFObservableTypeId', 'OCSFProduct', 'OCSFSeverityId', 'OCSFStatusId', 'Other', 'Resolved', 'Suppressed', 'Unknown', 'WatariAlertEnvelope', 'after', 'alert.observable', 'allow', 'dismissed', 'ocsf_status_caption', 'pending', 'promoted']

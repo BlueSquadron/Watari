@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/modules.py
+# hypothesis_version: 6.148.12
+
+[100, 'case_id', 'celery_task_id', 'completed', 'delete_module', 'dispatch_event', 'execute_module', 'failed', 'list_executions', 'list_modules', 'processor', 'queued', 'register_module', 'running', 'update_module', 'watari.modules']

@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/geospatial.py
+# hypothesis_version: 6.148.12
+
+[-180.0, -90.0, 0.0, 1.0, 2.0, 5.0, 10.0, 25.0, 50.0, 90.0, 100.0, 180.0, 250.0, 500.0, 1000.0, 2500.0, 5000.0, 6371.0088, 'Cluster', 'GeoPoint', 'cluster_points', 'cluster_radius_km', 'haversine_km', 'normalize_marker']

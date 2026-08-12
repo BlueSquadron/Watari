@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/__init__.py
+# hypothesis_version: 6.148.12
+
+['alerts', 'assets', 'attack', 'audit', 'auth', 'cases', 'dashboard', 'enrichment', 'evidence', 'modules', 'notes', 'observables', 'realtime', 'reports', 'search', 'tasks', 'templates', 'tenants', 'timeline', 'users']

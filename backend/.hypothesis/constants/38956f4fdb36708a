@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/auth/context.py
+# hypothesis_version: 6.148.12
+
+['analyst', 'api_service_account', 'platform_admin', 'read_only', 'tenant_admin']

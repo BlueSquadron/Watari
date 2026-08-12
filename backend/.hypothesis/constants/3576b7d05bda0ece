@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/template.py
+# hypothesis_version: 6.148.12
+
+[255, 'User', '[]', 'case_templates', 'tenants.id', 'users.id', '{}']

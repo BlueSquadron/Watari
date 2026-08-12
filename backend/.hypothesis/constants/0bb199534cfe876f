@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/auth/sessions.py
+# hypothesis_version: 6.148.12
+
+['*', 'SessionRecord', 'create_session', 'invalidate_session', 'is_session_active', 'touch_session']

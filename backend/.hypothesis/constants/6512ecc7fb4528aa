@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/timeline.py
+# hypothesis_version: 6.148.12
+
+[300, 500, 2000, 'asc', 'build_swimlane', 'create_manual_entry', 'delete_entry', 'get_asset_links', 'linked_asset_ids', 'list_entries', 'metadata', 'update_entry']

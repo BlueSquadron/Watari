@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/assets.py
+# hypothesis_version: 6.148.12
+
+['/{asset_id}', 'assets', 'router']

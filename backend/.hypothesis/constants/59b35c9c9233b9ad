@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/alerts.py
+# hypothesis_version: 6.148.12
+
+['/{alert_id}', '/{alert_id}/dismiss', '/{alert_id}/promote', 'Alert not found', 'alerts', 'product', 'router', 'status']

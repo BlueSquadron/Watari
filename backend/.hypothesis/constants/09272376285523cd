@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/evidence.py
+# hypothesis_version: 6.148.12
+
+[500, 'EvidenceRegister', 'EvidenceResponse', 'EvidenceType', 'EvidenceUpdate', '^[a-fA-F0-9]{64}$', 'disk_image', 'document', 'log_export', 'memory_dump', 'other', 'pcap']

@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/users.py
+# hypothesis_version: 6.148.12
+
+['/service-accounts', '/{user_id}', '/{user_id}/password', 'api_key', 'router', 'users']

@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/note.py
+# hypothesis_version: 6.148.12
+
+[255, 500, '0', 'CASCADE', 'Case', 'Note', 'NoteFolder', 'NoteFolder | None', 'NoteFolder.id', 'User', 'cases.id', 'children', 'folder', 'gen_random_uuid()', 'note_folders', 'note_folders.id', 'notes', 'parent', 'tenants.id', 'users.id']

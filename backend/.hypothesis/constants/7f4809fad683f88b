@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/attack.py
+# hypothesis_version: 6.148.12
+
+['build_heatmap', 'case_ids', 'create_mapping', 'critical', 'delete_mapping', 'high', 'informational', 'list_reference', 'low', 'medium', 'severities']

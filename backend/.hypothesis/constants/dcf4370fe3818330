@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/audit.py
+# hypothesis_version: 6.148.12
+
+[100, 500, '/', 'AuditMiddleware', 'DELETE', 'PATCH', 'POST', 'PUT', 'auth_context', 'deny_modification', 'list_logs', 'path', 'record', 'status_code', 'unknown', 'user-agent', '{']

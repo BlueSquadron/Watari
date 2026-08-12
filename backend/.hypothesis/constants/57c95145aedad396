@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/validators.py
+# hypothesis_version: 6.148.12
+
+[500, 4096, '.', 'MD5', 'SHA1', 'SHA256', 'URL too long', '^[^\\x00/\\r\\n\\t]+$', '^[a-fA-F0-9]{32}$', '^[a-fA-F0-9]{40}$', '^[a-fA-F0-9]{64}$', 'ftp', 'ftps', 'http', 'https', 'not a valid filename', 'not a valid hostname', 'validate_observable']

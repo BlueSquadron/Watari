@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/__init__.py
+# hypothesis_version: 6.148.12
+
+['alerts', 'assets', 'attack', 'audit', 'cases', 'clustering', 'dashboard', 'enrichment', 'events', 'evidence', 'geospatial', 'modules', 'notes', 'observables', 'reports', 'search', 'storage', 'tasks', 'tenants', 'timeline', 'timeline_recorder', 'users', 'validators']

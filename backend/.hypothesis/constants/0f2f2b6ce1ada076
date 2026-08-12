@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/main.py
+# hypothesis_version: 6.148.12
+
+['*', '/docs', '/health', '/redoc', '0.1.0', 'Watari API', 'ok', 'status']

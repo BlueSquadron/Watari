@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/asset.py
+# hypothesis_version: 6.148.12
+
+[255, 'CASCADE', 'Case', 'User', 'assets', 'case_id', 'cases.id', 'ck_assets_type', 'false', 'name', 'tenants.id', 'uq_assets_case_name', 'users.id', '{}']

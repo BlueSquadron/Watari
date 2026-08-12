@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/assets.py
+# hypothesis_version: 6.148.12
+
+[255, 'AssetCreate', 'AssetResponse', 'AssetType', 'AssetUpdate', 'cloud_resource', 'mobile_device', 'network_device', 'other', 'server', 'workstation']

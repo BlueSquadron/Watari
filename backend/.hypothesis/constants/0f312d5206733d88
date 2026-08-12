@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/auth.py
+# hypothesis_version: 6.148.12
+
+['/api/v1/auth', '/login', '/logout', '/me', '/refresh', 'Not a refresh token', 'auth', 'refresh', 'role', 'router', 'session_id', 'sub', 'tenant_id', 'user-agent']

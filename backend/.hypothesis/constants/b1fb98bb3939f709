@@ -1,0 +1,4 @@
+# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/graph.py
+# hypothesis_version: 6.148.12
+
+['GraphEdge', 'GraphEdgeType', 'GraphFilters', 'GraphNode', 'GraphNodeType', 'GraphResponse', 'asset', 'case', 'contains', 'correlates', 'linked_to', 'observable', 'timeline_entry']
