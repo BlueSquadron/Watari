@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/alerts.py
-# hypothesis_version: 6.148.12
-
-[100, 'alert', 'alert_id', 'alert_promoted', 'dismiss_alert', 'ingest_alert', 'is_duplicate', 'is_ioc', 'json', 'list_alerts', 'promote_alert', 'source', 'tlp', 'type', 'value']

@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/module.py
-# hypothesis_version: 6.148.12
-
-[100, 255, 500, 'Module', 'ModuleExecution', 'cases.id', 'ck_modules_type', 'executions', 'gen_random_uuid()', 'module', 'module_executions', 'modules', 'modules.id', 'tenants.id', 'true', '{}']

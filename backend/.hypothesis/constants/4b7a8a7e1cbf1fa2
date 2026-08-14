@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/alerts.py
-# hypothesis_version: 6.148.12
-
-[255, 500, 'AlertDismiss', 'AlertIngest', 'AlertListFilters', 'AlertObservable', 'AlertPromote', 'AlertResponse', 'AlertStatus', 'dismissed', 'pending', 'promoted']

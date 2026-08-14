@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/observables.py
-# hypothesis_version: 6.148.12
-
-[100, 'create_observable', 'cross_case_count', 'delete_observable', 'list_observables', 'observable', 'observable_added', 'observable_id', 'tlp', 'type', 'update_observable', 'value']

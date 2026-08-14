@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/realtime/__init__.py
-# hypothesis_version: 6.148.12
-
-['RealtimeEvent', 'WebSocketHub', 'get_hub', 'publish_case', 'publish_tenant']

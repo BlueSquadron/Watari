@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/search.py
-# hypothesis_version: 6.148.12
-
-[0.5, 1.0, 160, 200, 'case_number', 'filter_match', 'is_compromised', 'is_ioc', 'search', 'severity', 'source', 'status', 'tlp', 'type']

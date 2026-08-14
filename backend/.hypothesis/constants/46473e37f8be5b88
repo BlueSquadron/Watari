@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/__init__.py
-# hypothesis_version: 6.148.12
-
-['Alert', 'Asset', 'AttackMapping', 'AttackReference', 'AuditLog', 'Base', 'BaseModel', 'Case', 'CaseTemplate', 'EnrichmentResult', 'EnrichmentSource', 'Evidence', 'Module', 'ModuleExecution', 'Note', 'NoteFolder', 'Observable', 'Report', 'ReportTemplate', 'Task', 'Tenant', 'TimelineAssetLink', 'TimelineEntry', 'TimestampMixin', 'User']

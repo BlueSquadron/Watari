@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/case.py
-# hypothesis_version: 6.148.12
-
-[500, 'Asset', 'CaseTemplate', 'CaseTemplate | None', 'Evidence', 'Note', 'Observable', 'Task', 'Tenant', 'TimelineEntry', 'User', 'User | None', 'case', 'case_number', 'case_templates.id', 'cases', 'ck_cases_outcome', 'ck_cases_severity', 'ck_cases_status', 'new', 'tenant_id', 'tenants.id', 'users.id', '{}']

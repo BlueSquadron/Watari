@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/auth/__init__.py
-# hypothesis_version: 6.148.12
-
-['Action', 'AuthContext', 'CurrentUserDep', 'OAUTH2_SCHEME', 'PERMISSION_MATRIX', 'Permission', 'PrincipalDep', 'Resource', 'Role', 'ServiceAccountDep', 'TokenPayload', 'create_access_token', 'create_refresh_token', 'decode_token', 'generate_api_key', 'get_current_user', 'get_principal', 'get_service_account', 'has_permission', 'hash_api_key', 'hash_password', 'require_permission', 'verify_api_key', 'verify_password']

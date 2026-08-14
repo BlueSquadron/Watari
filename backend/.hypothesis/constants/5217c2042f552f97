@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/templates.py
-# hypothesis_version: 6.148.12
-
-['/{template_id}', 'case-templates', 'router']

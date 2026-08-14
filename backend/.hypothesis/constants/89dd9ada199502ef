@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/notes.py
-# hypothesis_version: 6.148.12
-
-['/folders', '/folders/{folder_id}', '/{note_id}', 'notes', 'router']

@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/evidence.py
-# hypothesis_version: 6.148.12
-
-[500, 1000, 'CASCADE', 'Case', 'User', 'cases.id', 'ck_evidence_type', 'evidence', 'false', 'gen_random_uuid()', 'tenants.id', 'users.id', '{}']

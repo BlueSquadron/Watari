@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/alerts.py
-# hypothesis_version: 6.148.12
-
-[100, 1000, 2004, 'Create', 'Detection Finding', 'Findings', 'activity_id', 'activity_name', 'alert', 'alert_id', 'alert_promoted', 'alert_to_response', 'attacks', 'category_name', 'category_uid', 'class_name', 'class_uid', 'dismiss_alert', 'finding_uid', 'ingest_alert', 'is_duplicate_payload', 'is_ioc', 'json', 'list_alerts', 'observables', 'product', 'promote_alert', 'severity', 'severity_id', 'status', 'status_detail', 'status_id', 'time', 'time_dt', 'tlp', 'type_id', 'type_uid', 'value']

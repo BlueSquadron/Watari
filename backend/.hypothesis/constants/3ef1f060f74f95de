@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/auth/unified.py
-# hypothesis_version: 6.148.12
-
-['Bearer', 'PrincipalDep', 'WWW-Authenticate', 'X-API-Key', 'get_principal']

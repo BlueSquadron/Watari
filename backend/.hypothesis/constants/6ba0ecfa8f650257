@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/modules/runtime_api.py
-# hypothesis_version: 6.148.12
-
-[1000, 'SessionModuleAPI', 'asc', 'case_number', 'category', 'description', 'event_timestamp', 'event_type', 'id', 'ip_address', 'is_automatic', 'is_compromised', 'is_ioc', 'metadata', 'module', 'name', 'severity', 'sort_order', 'status', 'tags', 'tenant_id', 'title', 'tlp', 'type', 'value']

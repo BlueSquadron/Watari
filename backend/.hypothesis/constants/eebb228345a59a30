@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/attack.py
-# hypothesis_version: 6.148.12
-
-[255, 'CASCADE', 'Case', 'Case | None', 'Observable', 'Observable | None', 'TimelineEntry', 'TimelineEntry | None', 'User', 'attack_mappings', 'attack_reference', 'cases.id', 'false', 'gen_random_uuid()', 'observables.id', 'tenants.id', 'timeline_entries.id', 'users.id']

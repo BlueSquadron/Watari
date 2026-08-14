@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/users.py
-# hypothesis_version: 6.148.12
-
-['activate_user', 'change_password', 'create_user', 'deactivate_user', 'get_user', 'list_users', 'role', 'rotate_api_key', 'update_user', 'value']

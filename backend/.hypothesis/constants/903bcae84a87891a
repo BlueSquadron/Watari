@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/enrichment.py
-# hypothesis_version: 6.148.12
-
-['/{source_id}', 'enrichment', 'results_router', 'sources_router', 'trigger_router']

@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/reports.py
-# hypothesis_version: 6.148.12
-
-['Case not found', 'action', 'actor_id', 'assets', 'attack', 'audit_entries', 'case', 'case_number', 'category', 'closed_at', 'content', 'create_template', 'created_at', 'description', 'details', 'domain', 'event_timestamp', 'event_type', 'evidence', 'filename', 'generate_report', 'id', 'integrity_verified', 'ip_address', 'is_automatic', 'is_compromised', 'is_ioc', 'list_templates', 'name', 'notes', 'observables', 'outcome', 'preview_report', 'render_docx', 'render_html', 'render_markdown', 'report', 'report_generated', 'report_id', 'resolved_at', 'resource_type', 'severity', 'sha256', 'size', 'status', 'sub_technique', 'tactic', 'tags', 'tasks', 'technique', 'template_id', 'text/html', 'text/markdown', 'timeline', 'timeline_entries', 'title', 'tlp', 'type', 'updated_at', 'user_id', 'utf-8', 'value']

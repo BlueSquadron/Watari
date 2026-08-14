@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/cases.py
-# hypothesis_version: 6.148.12
-
-[500, 'CaseClose', 'CaseCreate', 'CaseListFilters', 'CaseMerge', 'CaseOutcome', 'CaseResponse', 'CaseSeverity', 'CaseStatus', 'CaseUpdate', 'closed', 'critical', 'false_positive', 'high', 'in_progress', 'indeterminate', 'informational', 'low', 'medium', 'new', 'not_applicable', 'pending', 'resolved', 'true_positive']

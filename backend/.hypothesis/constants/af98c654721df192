@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/timeline.py
-# hypothesis_version: 6.148.12
-
-[100, 'Asset', 'CASCADE', 'Case', 'User', 'User | None', 'assets.id', 'case_id', 'cases.id', 'event_timestamp', 'gen_random_uuid()', 'metadata', 'tenants.id', 'timeline_asset_links', 'timeline_entries', 'timeline_entries.id', 'true', 'users.id', '{}']

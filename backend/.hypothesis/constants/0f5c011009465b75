@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/modules/__init__.py
-# hypothesis_version: 6.148.12
-
-['BaseModule', 'ModuleAPI', 'ModuleRegistry', 'ModuleType', 'PlatformEvent', 'get_registry']

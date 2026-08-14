@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/dashboard.py
-# hypothesis_version: 6.148.12
-
-[3600.0, 'DashboardFilters', 'compute_metrics', 'day', 'epoch', 'in_progress', 'new', 'pending']

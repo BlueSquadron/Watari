@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/utils/config.py
-# hypothesis_version: 6.148.12
-
-['.env', 'HS256', 'admin', 'development', 'http://minio:9000', 'ignore', 'minioadmin', 'redis://redis:6379/0', 'redis://redis:6379/1', 'watari-evidence']

@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/user.py
-# hypothesis_version: 6.148.12
-
-[100, 255, '30', 'Tenant', '[]', 'ck_users_role', 'false', 'tenant_id', 'tenants.id', 'true', 'username', 'users']

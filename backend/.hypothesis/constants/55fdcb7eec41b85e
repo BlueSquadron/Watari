@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/models/observable.py
-# hypothesis_version: 6.148.12
-
-['CASCADE', 'Case', 'EnrichmentResult', 'User', 'cases.id', 'ck_observables_tlp', 'ck_observables_type', 'false', 'observable', 'observables', 'tenant_id', 'tenants.id', 'type', 'users.id', 'value', '{}']

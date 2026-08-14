@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/auth/passwords.py
-# hypothesis_version: 6.148.12
-
-['hash_password', 'utf-8', 'verify_password']

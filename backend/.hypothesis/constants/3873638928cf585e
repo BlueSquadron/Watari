@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/templates.py
-# hypothesis_version: 6.148.12
-
-[255, 'CaseTemplateCreate', 'CaseTemplateResponse', 'CaseTemplateUpdate']

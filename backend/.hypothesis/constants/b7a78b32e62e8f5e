@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/tasks.py
-# hypothesis_version: 6.148.12
-
-[500, 'TaskCreate', 'TaskResponse', 'TaskStatus', 'TaskUpdate', 'cancelled', 'done', 'in_progress', 'todo']

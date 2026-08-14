@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/tasks.py
-# hypothesis_version: 6.148.12
-
-[100, 'all_tasks_complete', 'create_task', 'delete_task', 'from', 'list_tasks', 'status', 'task', 'task_created', 'task_deleted', 'task_id', 'task_status_changed', 'to', 'update_task', 'value']

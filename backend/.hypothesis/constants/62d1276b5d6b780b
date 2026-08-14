@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/api/routers/observables.py
-# hypothesis_version: 6.148.12
-
-['/bulk', '/{observable_id}', 'observables', 'router', 'seen_in_cases_count']

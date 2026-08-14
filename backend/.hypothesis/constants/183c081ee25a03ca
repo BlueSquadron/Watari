@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/assets.py
-# hypothesis_version: 6.148.12
-
-[100, 'asset', 'asset_added', 'asset_id', 'create_asset', 'delete_asset', 'is_compromised', 'list_assets', 'name', 'type', 'update_asset', 'value']

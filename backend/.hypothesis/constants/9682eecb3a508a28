@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/notes.py
-# hypothesis_version: 6.148.12
-
-[100, 'create_folder', 'create_note', 'delete_folder', 'delete_note', 'folder_id', 'list_folders', 'list_notes', 'parent_id', 'update_folder', 'update_note']

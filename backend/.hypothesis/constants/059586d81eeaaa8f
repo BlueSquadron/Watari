@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/services/enrichment.py
-# hypothesis_version: 6.148.12
-
-[100, 'No observables found', 'create_source', 'delete_source', 'enrichment', 'enrichment_triggered', 'list_results', 'list_sources', 'observable_id', 'source', 'source_ids', 'stub', 'trigger_enrichment', 'update_source', 'value']

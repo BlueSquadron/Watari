@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/schemas/enrichment.py
-# hypothesis_version: 6.148.12
-
-[100, 255, 300, 500, 'EnrichmentRequest', 'EnrichmentStatus', 'error', 'success', 'timeout']

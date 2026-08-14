@@ -1,4 +1,0 @@
-# file: /Users/batardf/Documents/Personal/repositories/Watari/backend/src/auth/rbac.py
-# hypothesis_version: 6.148.12
-
-['Action', 'PERMISSION_MATRIX', 'Permission', 'Resource', 'alert', 'asset', 'attack_mapping', 'audit_log', 'case', 'case_template', 'create', 'dashboard', 'delete', 'enrichment', 'enrichment_source', 'evidence', 'execute', 'has_permission', 'module', 'note', 'observable', 'read', 'report', 'report_template', 'require_permission', 'search', 'task', 'tenant', 'timeline', 'update', 'user']
