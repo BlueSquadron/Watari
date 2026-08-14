@@ -14,6 +14,7 @@ from sqlalchemy import func, literal, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Alert, Asset, Case, Note, Observable
+from src.schemas.alerts import ocsf_severity_caption
 from src.schemas.search import SearchEntityType, SearchHit, SearchRequest, SearchResponse
 
 
@@ -136,7 +137,7 @@ async def search(
             await db.execute(
                 select(Alert)
                 .where(Alert.tenant_id == tenant_id)
-                .where((Alert.title.ilike(pattern)) | (Alert.description.ilike(pattern)))
+                .where((Alert.title.ilike(pattern)) | (Alert.message.ilike(pattern)))
                 .limit(request.limit)
             )
         ).scalars().all()
@@ -147,8 +148,13 @@ async def search(
                     entity_id=a.id,
                     case_id=a.promoted_to_case_id,
                     title=a.title,
-                    snippet=(a.description or a.title)[:200],
-                    extra={"source": a.source, "severity": a.severity, "status": a.status},
+                    snippet=(a.message or a.title)[:200],
+                    extra={
+                        "source_product": a.source_product,
+                        "severity_id": a.severity_id,
+                        "severity": ocsf_severity_caption(a.severity_id),
+                        "status": a.status,
+                    },
                     score=1.0,
                 )
             )
