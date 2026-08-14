@@ -9,14 +9,13 @@ tag-based .docx templates).
 
 from __future__ import annotations
 
-import hashlib
 import uuid
 from typing import Any
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from jinja2 import Environment, StrictUndefined, Template
-from sqlalchemy import func, select
+from jinja2 import Environment, StrictUndefined
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import (

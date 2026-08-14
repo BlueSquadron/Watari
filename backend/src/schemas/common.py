@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
-
 from pydantic import BaseModel, ConfigDict, Field
-
-T = TypeVar("T")
 
 
 class PaginationMeta(BaseModel):
@@ -18,7 +14,7 @@ class PaginationMeta(BaseModel):
     total_pages: int = Field(ge=0)
 
 
-class ApiResponse(BaseModel, Generic[T]):
+class ApiResponse[T](BaseModel):
     """Standard success response envelope."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

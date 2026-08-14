@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import func, literal, select, union_all
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Alert, Asset, Case, Note, Observable
@@ -47,7 +47,11 @@ async def search(
                     case_id=c.id,
                     title=c.title,
                     snippet=snippet,
-                    extra={"case_number": c.case_number, "severity": c.severity, "status": c.status},
+                    extra={
+                        "case_number": c.case_number,
+                        "severity": c.severity,
+                        "status": c.status,
+                    },
                     score=1.0 if request.query.lower() in c.title.lower() else 0.5,
                 )
             )

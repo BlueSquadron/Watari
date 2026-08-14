@@ -7,16 +7,14 @@ dashboard responses under the 5-second target for typical tenant sizes.
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models import Case, Task, User
+from src.models import Case, User
 from src.schemas.dashboard import (
     AnalystWorkloadPoint,
     DashboardMetricsResponse,

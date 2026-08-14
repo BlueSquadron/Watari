@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from .observables import ObservableType, TLP
+from .observables import TLP, ObservableType
 
 
 class GeoMarker(BaseModel):

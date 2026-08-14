@@ -18,7 +18,8 @@ from __future__ import annotations
 import os
 
 import pytest
-from hypothesis import HealthCheck, given, settings, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 

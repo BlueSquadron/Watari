@@ -21,7 +21,6 @@ from src.services.geospatial import (
     GeoPoint,
     cluster_points,
     cluster_radius_km,
-    haversine_km,
 )
 
 

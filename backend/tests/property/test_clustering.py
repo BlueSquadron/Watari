@@ -20,7 +20,7 @@ from uuid import UUID, uuid4
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from src.services.clustering import Cluster, find_clusters
+from src.services.clustering import find_clusters
 
 
 @dataclass(frozen=True)

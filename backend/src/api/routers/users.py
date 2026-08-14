@@ -134,7 +134,8 @@ async def change_password(
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
     auth: CurrentUserDep,
 ) -> None:
-    # Users may only change their own password, or a tenant admin can reset any user in their tenant.
+    # Users may only change their own password; a tenant admin can reset any
+    # user in their tenant.
     _assert_same_tenant_or_platform(auth, tenant_id)
     if auth.user_id != user_id and not auth.is_platform_admin:
         # Tenant admin reset flow: allowed for tenant admins only

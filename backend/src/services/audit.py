@@ -9,12 +9,10 @@ activity in the viewer.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from fastapi import HTTPException, status
-from sqlalchemy import and_, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request

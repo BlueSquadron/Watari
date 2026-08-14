@@ -108,7 +108,8 @@ async def update_asset(
             case_id=asset.case_id,
             event_type="asset_compromise_changed",
             description=(
-                f"Asset '{asset.name}' marked {'compromised' if asset.is_compromised else 'not compromised'}"
+                f"Asset '{asset.name}' marked "
+                f"{'compromised' if asset.is_compromised else 'not compromised'}"
             ),
             category="asset",
             actor_id=actor_id,

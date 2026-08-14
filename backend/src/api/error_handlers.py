@@ -15,8 +15,6 @@ This keeps frontend error handling and client SDKs simple.
 
 from __future__ import annotations
 
-from typing import Any
-
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -91,7 +89,13 @@ async def _validation_exception_handler(
     for err in exc.errors():
         loc = err.get("loc", ())
         # Skip the first element ("body", "query", "path") for a cleaner field path
-        field_path = ".".join(str(x) for x in loc[1:]) if len(loc) > 1 else str(loc[0]) if loc else ""
+        field_path = (
+            ".".join(str(x) for x in loc[1:])
+            if len(loc) > 1
+            else str(loc[0])
+            if loc
+            else ""
+        )
         details.append(
             ErrorDetail(
                 field=field_path or "<root>",

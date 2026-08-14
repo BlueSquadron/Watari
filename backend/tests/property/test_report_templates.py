@@ -13,8 +13,6 @@ with `StrictUndefined` — any unsubstituted tag SHALL raise an error.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st

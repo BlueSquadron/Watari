@@ -15,7 +15,6 @@ Responsibilities:
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -31,7 +30,6 @@ from src.schemas.alerts import (
     AlertResponse,
     AlertStatus,
     DetectionFindingIngest,
-    OCSFObservable,
     OCSFObservableTypeId,
     OCSFStatusId,
     WatariAlertEnvelope,
@@ -40,12 +38,11 @@ from src.schemas.alerts import (
     watari_status_to_ocsf,
 )
 from src.schemas.cases import CaseCreate, CaseSeverity
-from src.schemas.observables import ObservableCreate, ObservableType, TLP
+from src.schemas.observables import TLP, ObservableCreate, ObservableType
 
 from . import cases as case_service
 from . import observables as observable_service
 from .timeline_recorder import record_event
-
 
 # ---- Dedup ------------------------------------------------------------
 

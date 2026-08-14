@@ -181,15 +181,23 @@ def has_permission(
 
 def require_permission(
     resource: Resource, action: Action
-) -> "Callable[..., AuthContext]":  # noqa: F821  - self-ref
+) -> Callable[..., AuthContext]:  # noqa: F821  - self-ref
     """Build a FastAPI dependency that enforces the given permission.
 
     Usage:
-        @router.post("/cases", dependencies=[Depends(require_permission(Resource.CASE, Action.CREATE))])
+        @router.post(
+            "/cases",
+            dependencies=[Depends(require_permission(Resource.CASE, Action.CREATE))],
+        )
         async def create_case(...): ...
 
     Or, when the route needs the `AuthContext`:
-        async def create_case(auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.CREATE))]): ...
+        async def create_case(
+            auth: Annotated[
+                AuthContext,
+                Depends(require_permission(Resource.CASE, Action.CREATE)),
+            ],
+        ): ...
     """
 
     async def _dep(auth: CurrentUserDep) -> AuthContext:
@@ -208,7 +216,7 @@ def require_permission(
 
 def require_any_permission(
     permissions: Iterable[tuple[Resource, Action]],
-) -> "Callable[..., AuthContext]":  # noqa: F821
+) -> Callable[..., AuthContext]:  # noqa: F821
     """FastAPI dependency that allows the request if ANY of the permissions match."""
 
     perms = tuple(permissions)

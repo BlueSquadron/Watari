@@ -22,7 +22,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Module, ModuleExecution
-from src.modules.base import BaseModule, ModuleAPI, ModuleType, PlatformEvent, get_registry
+from src.modules.base import BaseModule, ModuleAPI, PlatformEvent, get_registry
 from src.schemas.cases import CaseCreate, CaseSeverity
 from src.services import cases as case_service
 from src.services import modules as module_service

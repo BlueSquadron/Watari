@@ -2,10 +2,11 @@
 #
 # Usage: `make help` to list available targets.
 #
-# Most targets assume Docker Compose is available. `make test-unit` and
-# `make lint` can be run standalone against a local Python environment,
-# but the canonical path is to run everything inside the containers for
-# reproducibility.
+# Most targets assume Docker Compose is available. `make test-quick` and
+# `make lint-backend` run standalone against a local Python environment;
+# `make test` needs the dev stack up (`make dev`) because the DB-backed
+# suites talk to the real PostgreSQL, and the frontend linters run inside
+# the container that actually has node_modules.
 
 SHELL := /usr/bin/env bash
 .SHELLFLAGS := -eu -o pipefail -c
@@ -18,8 +19,8 @@ FRONTEND_CONTAINER := frontend
 
 .PHONY: help setup dev stop reset rebuild logs \
         db-migrate db-seed db-reset shell-db \
-        test test-unit test-property test-integration \
-        lint format build \
+        test test-quick test-db \
+        lint lint-backend lint-frontend format build \
         shell-api docs \
         backend-deps frontend-deps
 
@@ -100,27 +101,42 @@ shell-api: ## Drop into a shell inside the API container
 # Tests
 # --------------------------------------------------------------- #
 
-test: test-unit test-property test-integration ## Run every test
+# The owner role runs the migrations; the unprivileged role is what the tests
+# query with, so they are subject to the same RLS the API is.
+TEST_DB_URL  := postgresql+asyncpg://watari:watari_dev_password@localhost:5432/watari_test
+TEST_APP_URL := postgresql+asyncpg://watari_app:watari_app_dev_password@localhost:5432/watari_test
+# The default S3 endpoint resolves inside the Compose network, not from the host.
+TEST_ENV := TEST_DATABASE_URL=$(TEST_DB_URL) \
+            TEST_APP_DATABASE_URL=$(TEST_APP_URL) \
+            S3_ENDPOINT_URL=http://localhost:9000
 
-test-unit: ## Run backend unit tests
-	cd backend && PYTHONPATH=. pytest tests/ --ignore=tests/integration --ignore=tests/e2e --ignore=tests/property -q
+test: test-db ## Run every test (needs the dev stack: make dev)
+	cd backend && $(TEST_ENV) PYTHONPATH=. pytest tests/ -q
 
-test-property: ## Run Hypothesis property tests
+test-quick: ## Run only the tests that need no database (fast inner loop)
 	cd backend && PYTHONPATH=. pytest tests/property -q
 
-test-integration: ## Run backend integration tests (requires live Postgres)
-	@echo "→ Running integration tests (requires Postgres at localhost:5432 with DB 'watari_test')"
-	cd backend && TEST_DATABASE_URL=postgresql+asyncpg://watari:watari_dev_password@localhost:5432/watari_test \
-		PYTHONPATH=. pytest tests/integration tests/property -q || echo "(integration tests require running DB)"
+test-db: ## Create the dedicated test database if it is missing
+	@$(COMPOSE) exec -T $(DB_CONTAINER) psql -U watari -d postgres -tAc \
+		"SELECT 1 FROM pg_database WHERE datname='watari_test'" | grep -q 1 \
+		|| $(COMPOSE) exec -T $(DB_CONTAINER) createdb -U watari watari_test
 
 # --------------------------------------------------------------- #
 # Lint + format
 # --------------------------------------------------------------- #
 
-lint: ## Run Ruff + mypy (backend) and eslint (frontend)
+lint: lint-backend lint-frontend ## Run every linter
+
+lint-backend: ## Ruff (blocking) + mypy (advisory) against the backend
 	cd backend && ruff check src tests
-	cd backend && mypy src || true
-	cd frontend && npx tsc --noEmit
+	@# mypy is not clean yet (108 findings); reported, not blocking.
+	@cd backend && mypy src || true
+
+lint-frontend: ## tsc + eslint, inside the container that has node_modules
+	@$(COMPOSE) ps --status running --services 2>/dev/null | grep -qx $(FRONTEND_CONTAINER) || { \
+		echo "  The frontend container is not running. Start it with: make dev"; exit 1; }
+	$(COMPOSE) exec -T $(FRONTEND_CONTAINER) npx tsc --noEmit
+	$(COMPOSE) exec -T $(FRONTEND_CONTAINER) npm run lint
 
 format: ## Auto-format backend (ruff) + frontend (prettier)
 	cd backend && ruff format src tests

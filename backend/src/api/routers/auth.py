@@ -9,9 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import (
-    AuthContext,
     CurrentUserDep,
-    Role,
     create_access_token,
     create_refresh_token,
     decode_token,

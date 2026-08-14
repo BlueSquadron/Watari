@@ -29,9 +29,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import (
     Alert,
-    Case,
     CaseTemplate,
-    Evidence,
     Observable,
     Task,
     TimelineEntry,
@@ -48,18 +46,27 @@ from src.schemas.alerts import (
 )
 from src.schemas.cases import CaseClose, CaseCreate, CaseOutcome, CaseSeverity, CaseStatus
 from src.schemas.evidence import EvidenceRegister, EvidenceType
-from src.schemas.observables import ObservableCreate, ObservableType, TLP
+from src.schemas.observables import TLP, ObservableCreate, ObservableType
 from src.schemas.tasks import TaskStatus, TaskUpdate
 from src.schemas.templates import CaseTemplateCreate
 from src.services import (
     alerts as alert_service,
+)
+from src.services import (
     cases as case_service,
+)
+from src.services import (
     evidence as evidence_service,
+)
+from src.services import (
     observables as observable_service,
+)
+from src.services import (
     tasks as task_service,
+)
+from src.services import (
     templates as template_service,
 )
-
 
 pytestmark = pytest.mark.asyncio
 

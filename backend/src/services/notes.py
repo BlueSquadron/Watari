@@ -32,7 +32,9 @@ async def _get_note_or_404(db: AsyncSession, note_id: UUID) -> Note:
 
 
 async def _get_folder_or_404(db: AsyncSession, folder_id: UUID) -> NoteFolder:
-    folder = (await db.execute(select(NoteFolder).where(NoteFolder.id == folder_id))).scalar_one_or_none()
+    folder = (
+        await db.execute(select(NoteFolder).where(NoteFolder.id == folder_id))
+    ).scalar_one_or_none()
     if folder is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Folder {folder_id} not found")
     return folder

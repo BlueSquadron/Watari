@@ -133,6 +133,7 @@ async def create_case(
 
     # Fire platform event for module hooks
     from src.modules.base import PlatformEvent
+
     from . import events
 
     await events.fire(
@@ -239,6 +240,7 @@ async def update_case(
 
             # Dispatch platform event for modules
             from src.modules.base import PlatformEvent
+
             from . import events as _events
 
             await _events.fire(

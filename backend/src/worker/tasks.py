@@ -29,6 +29,7 @@ async def _execute_enrichment(observable_id: str, source_id: str) -> dict[str, A
     from uuid import UUID
 
     from sqlalchemy import select
+
     from src.db import admin_session_factory
     from src.models import EnrichmentResult, EnrichmentSource, Observable
 

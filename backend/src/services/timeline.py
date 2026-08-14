@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import and_, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Case, TimelineAssetLink, TimelineEntry

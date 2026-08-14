@@ -43,7 +43,9 @@ async def list_sources(
     base = select(EnrichmentSource).where(EnrichmentSource.tenant_id == tenant_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(base.order_by(EnrichmentSource.created_at.desc()).limit(limit).offset(offset))
+        await db.execute(
+            base.order_by(EnrichmentSource.created_at.desc()).limit(limit).offset(offset)
+        )
     ).scalars().all()
     return list(rows), int(total)
 
@@ -98,7 +100,9 @@ async def list_results(
     base = select(EnrichmentResult).where(EnrichmentResult.observable_id == observable_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(base.order_by(EnrichmentResult.queried_at.desc()).limit(limit).offset(offset))
+        await db.execute(
+            base.order_by(EnrichmentResult.queried_at.desc()).limit(limit).offset(offset)
+        )
     ).scalars().all()
     return list(rows), int(total)
 

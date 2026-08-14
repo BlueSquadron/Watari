@@ -9,7 +9,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-
 # Equirectangular precision used to express "marker positioning accuracy"
 # (Property 28). Rounding degrees to 4 decimals gives ~11m resolution
 # at the equator, well within the <1km tolerance the requirement asks for.

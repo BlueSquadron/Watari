@@ -95,8 +95,9 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     Teardown runs `downgrade base`, so this must never be pointed at a
     database anyone cares about — hence the guard below.
     """
-    from alembic import command
     from alembic.config import Config
+
+    from alembic import command
 
     _assert_disposable_database(TEST_DATABASE_URL)
 

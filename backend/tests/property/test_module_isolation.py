@@ -16,10 +16,10 @@ import os
 from typing import Any
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models import Module, ModuleExecution
+from src.models import Module
 from src.modules.base import BaseModule, ModuleAPI, get_registry
 from src.services import modules as module_service
 
