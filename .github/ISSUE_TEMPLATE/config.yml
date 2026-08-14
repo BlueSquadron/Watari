@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/BlueSquadron/Watari/security/advisories/new
+    about: Please report vulnerabilities privately, never as a public issue.
+  - name: 💬 Ask a question or discuss an idea
+    url: https://github.com/BlueSquadron/Watari/discussions
+    about: For questions, deployment help, and open-ended design discussion.
+  - name: 📖 Integration guide
+    url: https://github.com/BlueSquadron/Watari/blob/main/docs/integration.md
+    about: End-to-end API walkthroughs — auth, alert ingestion, enrichment, evidence, reports.
+  - name: 🛠️ Contributing guide
+    url: https://github.com/BlueSquadron/Watari/blob/main/CONTRIBUTING.md
+    about: Dev setup, running tests, code style, and a list of good first issues.

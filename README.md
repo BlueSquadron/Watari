@@ -1,255 +1,315 @@
+<div align="center">
+
 # Watari
 
-**Collaborative Case Management Platform for Cybersecurity Teams**
+**Open-source case management for the people who actually work the incidents.**
 
-Named after the faithful butler from *Death Note*, Watari serves as the quiet, reliable backbone behind every investigation — handling the operational complexity so analysts can focus on solving cases.
+Multi-tenant. Real-time. OCSF-native. Runs on your laptop in one command.
+
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12-3776AB.svg?logo=python&logoColor=white)](backend/pyproject.toml)
+[![React](https://img.shields.io/badge/react-18-61DAFB.svg?logo=react&logoColor=black)](frontend/package.json)
+[![OCSF](https://img.shields.io/badge/OCSF-1.8.0-6E4AFF.svg)](https://schema.ocsf.io/1.8.0/classes/detection_finding)
+[![Status](https://img.shields.io/badge/status-alpha-orange.svg)](#project-status)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+[Quickstart](#quickstart-60-seconds) · [Screenshots](#the-tour) · [Integration guide](docs/integration.md) · [Contributing](CONTRIBUTING.md)
+
+<img src="docs/images/dashboard.jpg" alt="Watari dashboard showing open cases by severity, case status breakdown, and case volume over time" width="100%">
+
+</div>
+
+---
+
+## Quickstart (60 seconds)
+
+You need Docker. That's it.
+
+```bash
+git clone https://github.com/BlueSquadron/Watari.git
+cd Watari
+./bootstrap.sh
+```
+
+That single command brings up the whole stack, applies migrations, and loads a
+realistic demo dataset — two tenants, 13 users, 32 cases, 20 OCSF alerts,
+observables with geolocation, ATT&CK mappings, evidence, and notes.
+
+When it finishes it prints where to go:
+
+| | |
+|---|---|
+| **Web UI** | http://localhost:5173 |
+| **API docs** (Swagger) | http://localhost:8000/docs |
+| **MinIO console** | http://localhost:9001 — `minioadmin` / `minioadmin` |
+
+Sign in with any of the seeded accounts:
+
+| Username | Password | Role |
+|---|---|---|
+| `acme-admin` | `password` | **Tenant admin — start here** |
+| `acme-analyst1` · `2` · `3` | `password` | Analyst |
+| `acme-viewer` | `password` | Read-only |
+| `admin` | `admin` | Platform admin (sees every tenant) |
+| `globalbank-admin` · `-analyst1..3` · `-viewer` | `password` | Same roles, second tenant |
+
+> These are development credentials seeded for the demo. Never deploy them.
+
+<img src="docs/images/login.jpg" alt="Watari sign-in screen with username and password fields on a dark background" width="100%">
+
+You now have a fully populated SOC to click around in.
+
+<details>
+<summary><b>Other ways to run it</b></summary>
+
+```bash
+./bootstrap.sh --reset     # wipe volumes and rebuild from zero
+./bootstrap.sh --no-seed   # start empty, no demo data
+docker compose down        # stop everything
+docker compose up -d       # start it again
+```
+
+Prefer the Makefile? `make dev && make db-migrate && make db-seed` does the same
+thing step by step. `make help` lists every target.
+</details>
+
+<details>
+<summary><b>Something went wrong</b></summary>
+
+| Symptom | Fix |
+|---|---|
+| `Docker is installed but not running` | Start Docker Desktop / OrbStack / Colima and re-run. |
+| API never becomes healthy | `docker compose logs api` — usually a port 8000 conflict. |
+| Frontend stuck on "starting" | First run installs npm packages inside the container. Watch it: `docker compose logs -f frontend`. |
+| Ports already in use | Watari binds 5173, 8000, 5432, 6379, 9000, 9001. Free them or edit `docker-compose.yml`. |
+| Want a clean slate | `./bootstrap.sh --reset` |
+
+Still stuck? [Open an issue](https://github.com/BlueSquadron/Watari/issues/new/choose) — setup friction is a bug, and we'd like to hear about it.
+</details>
 
 ---
 
 ## What is Watari?
 
-Watari is an open-source incident response and case management platform built for SOC analysts, CSIRTs, and CERTs. It provides a modern, real-time collaborative environment for managing security incidents across multiple customers (tenants), with deep support for observable enrichment, timeline reconstruction, and visual investigation tools.
+Watari is an incident response and case management platform for SOC analysts,
+CSIRTs, and CERTs. It is named after the butler from *Death Note* — the quiet,
+reliable one who handles the operational complexity so the investigator can
+think.
 
-### Core Capabilities
+It sits where TheHive and DFIR-IRIS sit, with three things it does differently:
 
-- **Case Management** — Full lifecycle from alert triage through investigation to resolution, with templates, tasks, and outcome classification
-- **Multi-Tenancy** — Strict data isolation per customer using PostgreSQL Row-Level Security, with tenant-specific configuration for fields, templates, and enrichment sources
-- **Observable Tracking** — Manage IPs, domains, hashes, emails, URLs, and more with format validation, TLP classification, and cross-case correlation
-- **Observable Enrichment** — Query configurable external intelligence sources (VirusTotal, AbuseIPDB, MISP, Shodan) with async execution and failure isolation
-- **Asset & Evidence Management** — Track compromised systems, register forensic artifacts with SHA256 integrity verification, and maintain chain-of-custody documentation
-- **Case Timeline** — Automatic and manual event recording with swimlane visualization, temporal clustering, and asset-to-event linking
-- **Real-Time Collaboration** — WebSocket-powered live updates, presence indicators, activity feeds, and instant notifications
-- **Investigation Visualizations** — Interactive entity relationship graphs, MITRE ATT&CK heatmaps, geospatial IP mapping, and swimlane timelines
-- **Report Generation** — Templated investigation and activity reports in DOCX, Markdown, and HTML
-- **Module Extensibility** — Plugin architecture with pipeline modules (evidence processing) and processor modules (event-driven automation)
-- **Structured Notes** — Markdown-based investigation notes with folder organization, embedded images, and internal entity linking
-- **Comprehensive API** — Versioned REST API with OpenAPI documentation, API key authentication for service accounts, and full CRUD coverage
+- **Real multi-tenancy.** Tenant isolation is enforced by PostgreSQL
+  Row-Level Security at the database level, not by a `customer` column and
+  careful WHERE clauses. One deployment, many customers, no leaks.
+- **OCSF-native ingestion.** Alerts are [OCSF 1.8.0 Detection
+  Findings](https://schema.ocsf.io/1.8.0/classes/detection_finding). Any
+  compliant producer — Wazuh, Suricata, CrowdStrike, AWS Security Hub, your
+  own detector — POSTs straight to the API without a translation layer.
+- **Built for looking at things.** Entity graphs, ATT&CK heatmaps, swimlane
+  timelines, and geospatial views are first-class, not bolt-ons.
+
+### Project status
+
+**Alpha (v0.1.0).** The data model, API surface, and multi-tenancy are
+substantial and covered by 29 property-based test suites. The UI is complete
+enough to work a case end to end. Expect rough edges, and expect the schema to
+move before 1.0. See [known gaps](CONTRIBUTING.md#known-gaps--good-first-issues)
+for what's currently broken — several of them are excellent first contributions.
 
 ---
 
-## Why Watari?
+## The tour
 
-### Compared to Existing Tools
+### Work the queue
 
-| Capability | TheHive | DFIR-IRIS | FIR | Catalyst | Watari |
+Alerts arrive as OCSF Detection Findings, get deduplicated, and wait for triage.
+Promote one to a case or dismiss it with a reason — either way it's on the record.
+
+<img src="docs/images/alerts-queue.jpg" alt="Alert queue listing pending OCSF detection findings from Wazuh, Proofpoint, Suricata and Falcon with severity and dedup keys" width="100%">
+
+Every alert keeps its full OCSF envelope — finding info, analytic, confidence,
+vendor metadata — so nothing is lost between the detector and the case.
+
+<img src="docs/images/alert-detail.jpg" alt="Alert detail view showing the OCSF message, finding info, confidence score, and product metadata for a Wazuh detection" width="100%">
+
+### Run the case
+
+Cases carry severity, status, assignee, and a full lifecycle from new through
+resolved to closed.
+
+<img src="docs/images/cases-list.jpg" alt="Case list with severity and status badges across phishing, malware and data exfiltration cases" width="100%">
+
+Each case opens onto everything attached to it — timeline, swimlane, graph, map,
+ATT&CK, observables, assets, evidence, notes, tasks, and reports.
+
+<img src="docs/images/case-detail.jpg" alt="Case detail header showing case number, severity, status, timestamps, and the tab strip for timeline, swimlane, graph, map, ATT&CK, observables, assets, evidence, notes, tasks and reports" width="100%">
+
+### Track the indicators
+
+Observables are format-validated, TLP-classified, flagged as IOCs, and
+correlated across cases — the *seen in* column tells you when an indicator has
+shown up in an investigation you didn't run.
+
+<img src="docs/images/case-observables.jpg" alt="Observables tab listing IPs, a SHA256 hash and a domain with TLP:AMBER and TLP:RED markings, IOC flags, cross-case correlation counts, and enrichment actions" width="100%">
+
+Enrichment sources are configured per tenant and queried asynchronously, so a
+slow or dead intel provider never blocks the analyst.
+
+<img src="docs/images/enrichment-sources.jpg" alt="Enrichment sources admin page listing VirusTotal, AbuseIPDB and Shodan with the observable types each supports" width="100%">
+
+### See the shape of the campaign
+
+Technique coverage across the tenant, mapped to MITRE ATT&CK tactics.
+
+<img src="docs/images/attack-matrix.jpg" alt="MITRE ATT&CK matrix showing mapped techniques grouped under Initial Access, Execution, Credential Access, Lateral Movement and Exfiltration" width="100%">
+
+The same matrix is available scoped to a single case, so you can see which
+techniques that one intrusion actually touched.
+
+<img src="docs/images/case-attack.jpg" alt="ATT&CK matrix rendered inside a case, scoped to the techniques mapped to that investigation" width="100%">
+
+### Move fast
+
+`Cmd`/`Ctrl` + `K` from anywhere — jump to a case, an observable, or a page
+without touching the mouse.
+
+<img src="docs/images/command-palette.jpg" alt="Command palette overlay with a search field and quick navigation entries" width="100%">
+
+### Keep tenants apart
+
+Platform admins manage tenants and switch between them. Everyone else never
+sees another tenant exists — enforced in Postgres, not in application code.
+
+<img src="docs/images/tenants.jpg" alt="Tenant management page listing Acme Corp Security and GlobalBank CSIRT with a switch action" width="100%">
+
+Per-tenant users, roles, and API service accounts:
+
+<img src="docs/images/users.jpg" alt="User management page listing tenant admin, analysts, service account, read-only viewer and platform administrator with their roles" width="100%">
+
+### Standardise the work
+
+Case templates seed a new investigation with the right severity, tags, and task
+checklist.
+
+<img src="docs/images/case-templates.jpg" alt="Case templates page listing phishing investigation, malware on endpoint and data breach response templates with default severity, tags and task counts" width="100%">
+
+### And it does light mode
+
+<img src="docs/images/dashboard-light.jpg" alt="The same dashboard rendered in the light theme" width="100%">
+
+---
+
+## Features
+
+| | |
+|---|---|
+| **Case management** | Full lifecycle, templates, tasks, outcome classification, case merging |
+| **Multi-tenancy** | PostgreSQL Row-Level Security, per-tenant fields, templates, and enrichment config |
+| **Observables** | IPs, domains, hashes, URLs, emails; format validation, TLP marking, cross-case correlation |
+| **Enrichment** | Pluggable external sources (VirusTotal, AbuseIPDB, Shodan, MISP, IntelOwl), async with failure isolation |
+| **Assets & evidence** | Compromised system tracking, SHA256 integrity verification, encrypted storage, chain of custody |
+| **Timeline** | Automatic + manual events, swimlane visualisation, temporal clustering, asset linking |
+| **Real-time** | WebSocket live updates, presence, activity feed, notifications |
+| **Visualisations** | Entity relationship graph, ATT&CK heatmap, geospatial IP map, swimlane timeline |
+| **Alerts** | OCSF 1.8.0 ingestion, deduplication, triage, promotion to case |
+| **Reports** | Templated investigation and activity reports in DOCX, Markdown, and HTML |
+| **Extensibility** | Pipeline modules (evidence processing) and processor modules (event-driven automation) |
+| **Notes** | Markdown notes with folders, embedded images, internal entity links |
+| **API** | Versioned REST + OpenAPI, JWT for humans, API keys for machines |
+| **Identity** | Local accounts, OIDC (Keycloak, Okta, Entra ID, Google), SAML 2.0 |
+| **Audit** | Immutable audit trail across every user and service-account action |
+
+### How it compares
+
+| | TheHive | DFIR-IRIS | FIR | Catalyst | **Watari** |
 |---|---|---|---|---|---|
 | Multi-tenant isolation | Limited | Customer field | No | No | **PostgreSQL RLS** |
-| **OCSF native ingest** | No | No | No | No | **OCSF 1.8.0 Detection Finding** |
-| Real-time collaboration | No | No | No | No | **WebSocket live updates** |
-| Swimlane timeline | No | List view | No | No | **Visual swimlane with clustering** |
-| Entity relationship graph | No | Basic | No | No | **Interactive Cytoscape.js graph** |
-| MITRE ATT&CK heatmap | No | No | No | No | **Built-in heatmap visualization** |
-| Geospatial IP mapping | No | No | No | No | **Leaflet world map** |
-| Observable enrichment | Via Cortex | Via modules | No | No | **Built-in async enrichment** |
-| Evidence integrity | No | Basic | No | No | **SHA256 verification + encryption** |
-| Report generation | No | Yes | No | No | **Multi-format templates** |
-| Plugin system | Cortex | Python modules | No | Playbooks | **Pipeline + processor modules** |
-| Command palette | No | No | No | No | **Cmd+K quick navigation** |
-| Dark mode | No | No | No | No | **Default dark theme** |
-| Modern stack | Scala/Play | Python/Flask | Python/Django | Go | **FastAPI + React 18** |
+| OCSF native ingest | No | No | No | No | **OCSF 1.8.0** |
+| Real-time collaboration | No | No | No | No | **WebSocket** |
+| Swimlane timeline | No | List view | No | No | **Visual + clustering** |
+| Entity relationship graph | No | Basic | No | No | **Cytoscape.js** |
+| ATT&CK heatmap | No | No | No | No | **Built in** |
+| Geospatial mapping | No | No | No | No | **Leaflet** |
+| Observable enrichment | Via Cortex | Via modules | No | No | **Built in, async** |
+| Evidence integrity | No | Basic | No | No | **SHA256 + encryption** |
+| Plugin system | Cortex | Python modules | No | Playbooks | **Pipeline + processor** |
+| Command palette | No | No | No | No | **Cmd+K** |
+| Stack | Scala/Play | Python/Flask | Python/Django | Go | **FastAPI + React 18** |
 
-### Design Philosophy
-
-Watari is built around the "faithful servant" principle:
-
-- **Anticipatory** — The command palette, smart suggestions, and contextual actions are always ready before you ask
-- **Unobtrusive** — Clean typography, generous whitespace, muted color palette with sharp accents only for critical information
-- **Efficient** — Keyboard-first workflows, sub-500ms page transitions, sub-3-second search across 100K+ cases
-- **Transparent** — Complete audit trail, TLP enforcement, chain-of-custody tracking
+Watari is younger and less battle-tested than TheHive or DFIR-IRIS. If you need
+something proven in production today, use those. If you want a modern stack with
+real tenant isolation and you're willing to help shape it, you're in the right place.
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Client Layer                         │
-│  ┌─────────────────────┐  ┌──────────────────────────┐  │
-│  │   React 18 SPA      │  │  API Clients / Service   │  │
-│  │   TypeScript        │  │  Accounts                │  │
-│  │   Tailwind + Radix  │  │                          │  │
-│  └─────────┬───────────┘  └────────────┬─────────────┘  │
-└────────────┼───────────────────────────┼────────────────┘
-             │                           │
-             ▼                           ▼
-┌─────────────────────────────────────────────────────────┐
-│                  Application Layer                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  │
-│  │  FastAPI     │  │  WebSocket   │  │  Celery       │  │
-│  │  REST API    │  │  Hub         │  │  Workers      │  │
-│  │  + OpenAPI   │  │(Redis PubSub)│  │  (async jobs) │  │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬────────┘  │
-└─────────┼─────────────────┼─────────────────┼───────────┘
-          │                 │                 │
-          ▼                 ▼                 ▼
-┌─────────────────────────────────────────────────────────┐
-│                     Data Layer                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  │
-│  │ PostgreSQL 16│  │  Redis 7     │  │ S3 / MinIO    │  │
-│  │ + RLS        │  │  Cache +     │  │ Evidence      │  │
-│  │ + FTS        │  │  PubSub      │  │ Storage       │  │
-│  └──────────────┘  └──────────────┘  └───────────────┘  │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│  Clients                                                 │
+│  React 18 SPA (TypeScript, Tailwind, Radix)              │
+│  API clients / service accounts                          │
+└──────────────┬─────────────────────┬─────────────────────┘
+               │                     │
+┌──────────────▼─────────────────────▼─────────────────────┐
+│  Application                                             │
+│  FastAPI REST + OpenAPI  │  WebSocket hub  │  Celery     │
+│  JWT · RBAC · API keys   │  (Redis PubSub) │  workers    │
+└──────────────┬─────────────────────┬─────────────────────┘
+               │                     │
+┌──────────────▼─────────────────────▼─────────────────────┐
+│  Data                                                    │
+│  PostgreSQL 16 (RLS + FTS) │ Redis 7 │ S3 / MinIO        │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### Technology Stack
+**Backend** — Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async), Celery, Authlib
+**Frontend** — React 18, TypeScript, Tailwind, Radix UI, @visx, Cytoscape.js, @nivo, react-leaflet
+**Data** — PostgreSQL 16, Redis 7, S3-compatible object storage
+**Testing** — pytest + Hypothesis, 29 property-based suites covering tenant isolation, RBAC, TLP enforcement, evidence integrity, OCSF round-tripping, and more
 
-**Backend:** Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2.0 (async), Celery, Authlib (OIDC/SAML)
+<details>
+<summary><b>Repository layout</b></summary>
 
-**Frontend:** React 18, TypeScript, Tailwind CSS, Radix UI, @visx (timeline), Cytoscape.js (graph), @nivo (charts/heatmap), react-leaflet (maps)
-
-**Data:** PostgreSQL 16 (RLS + FTS), Redis 7, S3-compatible storage (MinIO / AWS S3)
-
-**Testing:** pytest, Hypothesis (property-based testing), 29 formal correctness properties
+```
+watari/
+├── bootstrap.sh              # one-command setup
+├── docker-compose.yml
+├── Makefile                  # make help
+├── backend/
+│   ├── src/
+│   │   ├── api/routers/      # FastAPI routes, one module per entity
+│   │   ├── auth/             # JWT, RBAC, OIDC, SAML, API keys
+│   │   ├── models/           # SQLAlchemy 2.0 models
+│   │   ├── schemas/          # Pydantic request/response schemas
+│   │   ├── services/         # business logic
+│   │   ├── realtime/         # WebSocket hub
+│   │   ├── worker/           # Celery tasks
+│   │   └── modules/          # plugin system
+│   ├── alembic/              # migrations
+│   ├── scripts/seed.py       # demo dataset
+│   └── tests/                # pytest + Hypothesis
+├── frontend/
+│   └── src/
+│       ├── pages/            # route pages
+│       ├── components/       # layout, cases, visualizations, common
+│       ├── api/              # client + React Query hooks
+│       ├── stores/           # Zustand
+│       └── realtime/         # WebSocket client
+└── docs/
+    ├── integration.md        # end-to-end API walkthroughs
+    └── images/
+```
+</details>
 
 ---
 
-## Quick Start
+## Using the API
 
-### Prerequisites
+Everything the UI does, the API does. Interactive docs at
+http://localhost:8000/docs once you're running.
 
-- Docker and Docker Compose (Finch also works on macOS)
-- Make (optional, for convenience commands)
-- Python 3.12 and Node 20+ (only if you want to run tests or linters outside containers)
-
-### Run Locally
-
-```bash
-# Clone the repository
-git clone https://github.com/your-org/watari.git
-cd watari
-
-# Copy environment configuration
-cp .env.example .env
-
-# (optional) Install local dev dependencies for tests and linters
-make setup
-
-# Start all services (API, worker, Postgres, Redis, MinIO, frontend)
-make dev
-
-# Run database migrations
-make db-migrate
-
-# Seed with sample data (2 tenants, users, cases, observables, enrichment data)
-make db-seed
-
-# Open in browser
-# Frontend:  http://localhost:5173
-# API docs:  http://localhost:8000/docs
-# MinIO:     http://localhost:9001 (minioadmin / minioadmin)
-```
-
-### Default Credentials (Development Only)
-
-After `make db-seed`, the following accounts are available:
-
-| User | Password | Role |
-|------|----------|------|
-| `admin` | `admin` | Platform Administrator (sees every tenant) |
-| `acme-admin` | `password` | Tenant Administrator (Acme Corp Security) |
-| `acme-analyst1` · `-analyst2` · `-analyst3` | `password` | Analyst (Acme Corp Security) |
-| `acme-viewer` | `password` | Read-Only (Acme Corp Security) |
-| `globalbank-admin` · `-analyst1..3` · `-viewer` | `password` | Same roles for GlobalBank CSIRT |
-
-### Available Make Commands
-
-```bash
-make help            # Show all available commands with descriptions
-make setup           # Install backend + frontend dependencies locally
-make dev             # Start the dev stack
-make stop            # Stop all containers
-make reset           # Full reset (containers + volumes) and rebuild
-make rebuild         # Clear build cache and force-recreate containers (preserves volumes)
-make logs            # Tail logs from every container
-make db-migrate      # Apply Alembic migrations
-make db-seed         # Populate with sample data
-make db-reset        # Drop, re-migrate, and re-seed (destructive!)
-make shell-db        # psql shell into the dev database
-make shell-api       # Bash shell inside the API container
-make test            # Run every test
-make test-unit       # Backend unit tests
-make test-property   # Hypothesis property tests
-make test-integration # Backend integration tests (requires live Postgres)
-make lint            # Ruff + mypy + TypeScript checks
-make format          # Auto-format backend (Ruff) + frontend (Prettier)
-make build           # Build production Docker images
-make docs            # Open API documentation in a browser
-```
-
----
-
-## API Overview
-
-Watari exposes a versioned REST API at `/api/v1/`. All endpoints require authentication via JWT token or API key. Full interactive documentation is available at http://localhost:8000/docs once the stack is running.
-
-### Endpoint Structure
-
-```
-/api/v1/auth/login | /refresh | /me                    # Session authentication
-/api/v1/admin/tenants                                   # Tenant administration (platform admin)
-/api/v1/admin/modules                                   # Installed modules (platform admin)
-/api/v1/tenants/{tenant_id}/users                       # User CRUD within a tenant
-/api/v1/tenants/{tenant_id}/cases                       # Case lifecycle
-/api/v1/tenants/{tenant_id}/cases/{case_id}/tasks       # Tasks
-/api/v1/tenants/{tenant_id}/cases/{case_id}/observables # Observables (+ enrichment trigger)
-/api/v1/tenants/{tenant_id}/cases/{case_id}/assets      # Assets
-/api/v1/tenants/{tenant_id}/cases/{case_id}/evidence    # Evidence (register + upload)
-/api/v1/tenants/{tenant_id}/cases/{case_id}/notes       # Notes and folders
-/api/v1/tenants/{tenant_id}/cases/{case_id}/timeline    # Timeline entries + clusters
-/api/v1/tenants/{tenant_id}/cases/{case_id}/reports     # Report generation
-/api/v1/tenants/{tenant_id}/case-templates              # Reusable case templates
-/api/v1/tenants/{tenant_id}/enrichment-sources          # External intelligence sources
-/api/v1/tenants/{tenant_id}/enrichment                  # Trigger enrichment
-/api/v1/tenants/{tenant_id}/alerts                      # Alert ingestion & triage
-/api/v1/tenants/{tenant_id}/attack-mappings             # ATT&CK tactic/technique tagging
-/api/v1/attack-reference                                # ATT&CK technique catalogue (platform)
-/api/v1/tenants/{tenant_id}/search                      # Full-text search
-/api/v1/tenants/{tenant_id}/dashboard                   # Metrics & widgets
-/api/v1/tenants/{tenant_id}/audit-logs                  # Audit trail
-/api/v1/ws                                              # WebSocket real-time channel
-```
-
-See [`backend/API_COVERAGE.md`](backend/API_COVERAGE.md) for the per-endpoint HTTP method matrix.
-
-### Authentication
-
-**Interactive users:** JWT tokens obtained via `/api/v1/auth/login` (username/password) or OIDC/SAML flow.
-
-**Service accounts:** API key passed via `X-API-Key` header. Service accounts can have Analyst or Read-Only permissions but cannot access the web UI or WebSocket endpoints.
-
-### Response Format
-
-All responses follow a consistent envelope:
-
-```json
-{
-  "data": { ... },
-  "meta": {
-    "page": 1,
-    "page_size": 25,
-    "total_count": 142,
-    "total_pages": 6
-  }
-}
-```
-
-Errors return structured details:
-
-```json
-{
-  "code": "VALIDATION_ERROR",
-  "message": "Invalid observable format",
-  "details": [
-    { "field": "value", "message": "Not a valid IPv4 or IPv6 address", "code": "invalid_format" }
-  ],
-  "request_id": "req_abc123"
-}
-```
-
-### Alert Ingestion Example
-
-Watari's alert API speaks [OCSF 1.8.0 Detection Finding](https://schema.ocsf.io/1.8.0/classes/detection_finding). Any OCSF-compliant producer (AWS Security Hub, Splunk, CrowdStrike, custom detectors) can POST findings directly:
+Ingest an alert from any OCSF-compliant detector:
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/tenants/{tenant_id}/alerts \
@@ -281,165 +341,88 @@ curl -X POST http://localhost:8000/api/v1/tenants/{tenant_id}/alerts \
   }'
 ```
 
-For step-by-step walkthroughs of creating alerts, running enrichment, promoting to cases, and generating reports, see the [integration guide](docs/integration.md).
+Responses use a consistent envelope:
 
----
+```json
+{
+  "data": { },
+  "meta": { "page": 1, "page_size": 25, "total_count": 142, "total_pages": 6 }
+}
+```
 
-## Integration
+**→ [The integration guide](docs/integration.md)** walks through authentication,
+service accounts, alert ingestion, deduplication, triage, case creation,
+enrichment, evidence upload, report generation, and WebSocket streaming — with
+copy-pasteable curl for each, plus a complete end-to-end script.
 
-### Alert Sources
+**→ [API coverage reference](backend/API_COVERAGE.md)** lists every endpoint and method.
 
-Watari accepts alerts from any tool that can make HTTP POST requests. Common integrations:
+### Plays well with
 
-- **Wazuh** — Forward alerts via webhook or custom integration script
-- **Suricata / Snort** — Pipe alerts through a log shipper to Watari's alert API
-- **SIEM (Splunk, Elastic, QRadar)** — Use alert actions or webhooks to push to Watari
-- **Email** — Build a lightweight email-to-alert bridge using the REST API
+**Alert sources** — Wazuh, Suricata/Snort, Splunk, Elastic, QRadar, or anything that speaks HTTP
+**SOAR** — Shuffle, Tracecat, n8n (Watari complements these rather than replacing them)
+**Identity** — Keycloak, Okta, Entra ID, Google Workspace, any SAML 2.0 IdP
+**Intel** — VirusTotal, AbuseIPDB, Shodan, MISP, IntelOwl, or your internal TIP via a custom module
 
-### Enrichment Sources
-
-Configure per-tenant enrichment sources that Watari queries when analysts request observable enrichment:
-
-- **VirusTotal** — IP, domain, hash, URL reputation
-- **AbuseIPDB** — IP abuse reports and confidence scores
-- **Shodan** — IP service/port information
-- **MISP** — Threat intelligence sharing platform correlation
-- **IntelOwl** — Multi-analyzer observable analysis
-- **Custom** — Any HTTP-based intelligence API via the module system
-
-### SOAR Integration
-
-Watari complements SOAR platforms rather than replacing them:
-
-- **Shuffle** — Use Watari's API to create cases from Shuffle workflows, push enrichment results back
-- **Tracecat** — Trigger Watari case creation from Tracecat playbooks
-- **n8n** — Build automation workflows that interact with Watari's full API
-
-### Identity Providers
-
-- **OIDC** — Keycloak, Okta, Azure AD, Google Workspace
-- **SAML** — Any SAML 2.0 compliant IdP
-
-### Module Development
-
-Extend Watari with custom Python modules:
+Custom modules are ordinary Python classes:
 
 ```python
 from watari.modules import BaseModule, ModuleAPI
 
-class MyEnrichmentModule(BaseModule):
+class InternalTipModule(BaseModule):
     async def execute(self, context: ModuleAPI, config: dict, payload: dict) -> dict:
         observable = payload["observable"]
-        # Query your internal threat intel platform
         result = await self.query_internal_tip(observable["value"])
-        # Write enrichment result back to the case
         await context.add_timeline_entry(
             payload["case_id"],
-            {"event_type": "enrichment", "description": f"Internal TIP: {result['verdict']}"}
+            {"event_type": "enrichment", "description": f"Internal TIP: {result['verdict']}"},
         )
         return {"status": "success", "data": result}
 ```
 
 ---
 
-## User Roles
+## Roles
 
-| Role | Scope | Capabilities |
-|------|-------|-------------|
-| Platform Administrator | All tenants | Manage tenants, platform settings, modules, all data access |
-| Tenant Administrator | Single tenant | Manage users, templates, enrichment sources, dashboards within tenant |
-| Analyst | Single tenant | Create/manage cases, tasks, observables, assets, evidence, notes, run enrichment, generate reports |
-| Read-Only Viewer | Single tenant | View cases, dashboards, reports — no modifications |
-| API Service Account | Single tenant | API-only access (no UI), Analyst or Read-Only permissions, for automation |
-
----
-
-## Visualizations
-
-### Swimlane Timeline
-Events plotted on a time axis, grouped into lanes by asset, analyst, or event category. Zoom, pan, and temporal cluster highlighting help analysts spot bursts of activity.
-
-### Entity Relationship Graph
-Interactive force-directed graph showing connections between observables, assets, and timeline events. Cross-case correlation reveals shared IOCs across investigations.
-
-### MITRE ATT&CK Heatmap
-Color-coded matrix mapping cases to ATT&CK tactics and techniques. Click any cell to see linked cases and observables. Filter by date, severity, or status.
-
-### Geospatial Map
-World map plotting IP and domain observables using enrichment geolocation data. Geographic clustering at low zoom levels, with marker color/size reflecting TLP, IOC status, or threat score.
-
-### Dashboard
-Configurable widgets: open cases by severity, cases by status, MTTR trends, analyst workload, outcome distribution. All filterable by date range.
+| Role | Scope | Can |
+|---|---|---|
+| Platform administrator | All tenants | Manage tenants, modules, platform settings; access all data |
+| Tenant administrator | One tenant | Manage users, templates, enrichment sources, dashboards |
+| Analyst | One tenant | Everything case-related: cases, tasks, observables, assets, evidence, notes, enrichment, reports |
+| Read-only viewer | One tenant | Look, don't touch |
+| API service account | One tenant | API only, no UI or WebSocket; analyst or read-only permissions |
 
 ---
 
-## Project Structure
+## Contributing
 
-```
-watari/
-├── backend/
-│   ├── src/
-│   │   ├── api/            # FastAPI routes and middleware
-│   │   │   └── routers/    # Route modules per entity
-│   │   ├── auth/           # JWT, RBAC, OIDC, SAML, API keys
-│   │   ├── models/         # SQLAlchemy 2.0 models
-│   │   ├── schemas/        # Pydantic request/response schemas
-│   │   ├── services/       # Business logic
-│   │   ├── realtime/       # WebSocket hub
-│   │   ├── worker/         # Celery tasks
-│   │   ├── modules/        # Plugin system
-│   │   └── utils/          # Shared utilities
-│   ├── alembic/            # Database migrations
-│   ├── tests/              # pytest + Hypothesis
-│   ├── scripts/            # Seed data, utilities
-│   ├── pyproject.toml
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   │   ├── layout/     # App shell, sidebar, topbar
-│   │   │   ├── cases/      # Case-specific components
-│   │   │   ├── visualizations/ # Timeline, graph, heatmap, map
-│   │   │   └── common/     # Shared UI components
-│   │   ├── pages/          # Route pages
-│   │   ├── api/            # API client and React Query hooks
-│   │   ├── stores/         # Zustand state stores
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── realtime/       # WebSocket client
-│   │   └── types/          # TypeScript type definitions
-│   ├── package.json
-│   └── Dockerfile
-├── docker-compose.yml
-├── Makefile
-├── .env.example
-└── README.md
-```
+Contributions are welcome and there is plenty of low-hanging fruit.
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — dev environment, running tests, code style, PR process
+- **[Known gaps and good first issues](CONTRIBUTING.md#known-gaps--good-first-issues)** — start here
+- **[Code of Conduct](CODE_OF_CONDUCT.md)**
+- **[Security policy](SECURITY.md)** — please report vulnerabilities privately
+
+The fastest way to help: run `./bootstrap.sh`, click around, and
+[open an issue](https://github.com/BlueSquadron/Watari/issues/new/choose) for
+anything that surprises you.
 
 ---
 
 ## License
 
-TBD
-
----
-
-## Documentation
-
-- [Integration guide](docs/integration.md) — end-to-end walkthroughs: authentication, alert ingestion, enrichment, case promotion, evidence upload, report generation, WebSocket streaming
-- [API coverage reference](backend/API_COVERAGE.md) — every endpoint with its HTTP method and expected behavior
-- Swagger UI — live OpenAPI explorer at http://localhost:8000/docs when the stack is running
-- ReDoc — alternative API reference at http://localhost:8000/redoc
-- [Design doc](.kiro/specs/watari-case-management/design.md) — architectural decisions and the 29 correctness properties
-- [Requirements](.kiro/specs/watari-case-management/requirements.md) — 23 functional requirements
-- [Implementation plan](.kiro/specs/watari-case-management/tasks.md) — 51-task build plan showing what's implemented
+[Apache License 2.0](LICENSE) — free to use, modify, and distribute, including
+commercially, with an explicit patent grant.
 
 ---
 
 ## Acknowledgments
 
-Watari draws inspiration from these excellent projects:
+Watari stands on the shoulders of the projects that made open-source incident
+response normal:
 
-- [TheHive](https://strangebee.com/thehive/) — The original open-source security incident response platform
-- [Cortex](https://github.com/TheHive-Project/Cortex) — Observable analysis and active response engine
-- [DFIR-IRIS](https://dfir-iris.org/) — Collaborative incident response platform with timeline and evidence management
-- [FIR](https://github.com/certsocietegenerale/FIR) — Fast Incident Response by CERT Société Générale
+- [TheHive](https://strangebee.com/thehive/) — the original open-source IR platform
+- [Cortex](https://github.com/TheHive-Project/Cortex) — observable analysis and active response
+- [DFIR-IRIS](https://dfir-iris.org/) — collaborative IR with timeline and evidence management
+- [FIR](https://github.com/certsocietegenerale/FIR) — Fast Incident Response, by CERT Société Générale
+- [OCSF](https://schema.ocsf.io/) — for making security events speak one language

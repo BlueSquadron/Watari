@@ -1,0 +1,109 @@
+name: 🐛 Bug report
+description: Something doesn't work the way it should
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. If it's a **security**
+        vulnerability, please don't file it here — use a
+        [private advisory](https://github.com/BlueSquadron/Watari/security/advisories/new)
+        instead. See [SECURITY.md](https://github.com/BlueSquadron/Watari/blob/main/SECURITY.md).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, and what went wrong?
+      placeholder: I opened the Timeline tab on a seeded case and it showed "0 timeline entries".
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: |
+        The more precise the better. If it's an API problem, a `curl` command is ideal.
+        If it's a UI problem, tell us which page and which seeded account.
+      placeholder: |
+        1. ./bootstrap.sh
+        2. Sign in as acme-admin / password
+        3. Cases → any case → Timeline
+        4. See "0 timeline entries"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      multiple: true
+      options:
+        - Web UI
+        - REST API
+        - WebSocket / real-time
+        - Alert ingestion (OCSF)
+        - Enrichment
+        - Evidence / storage
+        - Reports
+        - Modules / plugins
+        - Auth (JWT, OIDC, SAML, API keys)
+        - Database / migrations
+        - Setup & bootstrap
+        - Tests / CI
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, errors, or screenshots
+      description: |
+        `docker compose logs api --tail=100` is usually the most useful thing.
+        Browser console output helps for UI bugs. Screenshots are very welcome.
+      render: shell
+
+  - type: input
+    id: commit
+    attributes:
+      label: Version / commit
+      description: Output of `git rev-parse --short HEAD`
+      placeholder: 4a243a6
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How are you running Watari?
+      options:
+        - ./bootstrap.sh (Docker Compose)
+        - Docker Compose, set up manually
+        - Locally, outside containers
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: OS and Docker runtime
+      placeholder: macOS 15 / OrbStack 1.9, or Ubuntu 24.04 / Docker 27
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched existing issues and this isn't a duplicate
+          required: true
+        - label: I'm not reporting a security vulnerability (those go through a private advisory)
+          required: true

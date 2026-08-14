@@ -1,0 +1,67 @@
+name: ✨ Feature request
+description: Suggest something Watari should be able to do
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Watari is built for people who work incidents. The most useful feature
+        requests describe the investigation problem, not just the UI you imagined.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: What are you doing today, and where does it hurt?
+      placeholder: |
+        When an observable turns up in a second case I have no way to be notified —
+        I only find out if I happen to open the correlation view.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Watari to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Including "we do this manually today" or "TheHive/DFIR-IRIS handles it like X".
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of Watari?
+      multiple: true
+      options:
+        - Case management
+        - Alerts & triage
+        - Observables & enrichment
+        - Assets & evidence
+        - Timeline & visualisations
+        - Reports
+        - Multi-tenancy & admin
+        - Auth & RBAC
+        - API
+        - Modules / plugins
+        - Real-time collaboration
+        - Setup & developer experience
+        - Documentation
+    validations:
+      required: true
+
+  - type: dropdown
+    id: contributing
+    attributes:
+      label: Would you be up for building it?
+      description: Entirely optional — a good idea is a contribution too.
+      options:
+        - "Yes, I'd like to work on this"
+        - "Maybe, with some guidance"
+        - "No, just suggesting"
+    validations:
+      required: true
