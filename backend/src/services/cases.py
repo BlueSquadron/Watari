@@ -29,9 +29,16 @@ from .timeline_recorder import record_event
 
 
 async def _next_case_number(db: AsyncSession, tenant_id: UUID) -> int:
-    """Allocate the next sequential case number for a tenant."""
+    """Allocate the next sequential case number for a tenant.
+
+    The cast is required: asyncpg sends bound parameters with their inferred
+    type, so a bare `:tid` arrives as `character varying` and fails to match
+    `next_case_number(UUID)`.
+    """
     result = await db.execute(
-        text("SELECT next_case_number(:tid)").bindparams(tid=str(tenant_id))
+        text("SELECT next_case_number(CAST(:tid AS uuid))").bindparams(
+            tid=str(tenant_id)
+        )
     )
     return int(result.scalar_one())
 

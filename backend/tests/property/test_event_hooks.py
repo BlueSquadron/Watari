@@ -23,6 +23,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Module, ModuleExecution
 from src.modules.base import BaseModule, ModuleAPI, ModuleType, PlatformEvent, get_registry
+from src.schemas.cases import CaseCreate, CaseSeverity
+from src.services import cases as case_service
 from src.services import modules as module_service
 
 pytestmark = pytest.mark.skipif(
@@ -52,7 +54,7 @@ async def test_event_fires_only_subscribed_modules(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     # Register two modules: one subscribed, one NOT subscribed
@@ -78,13 +80,20 @@ async def test_event_fires_only_subscribed_modules(
     db_session.add_all([subscribed, unsubscribed])
     await db_session.flush()
 
-    # Dispatch OBSERVABLE_CREATED — only `subscribed` should run
-    case_id = uuid4()
+    # Dispatch OBSERVABLE_CREATED — only `subscribed` should run.
+    # The case must really exist: `dispatch_event` records a ModuleExecution
+    # row whose case_id is a foreign key into `cases`.
+    case = await case_service.create_case(
+        db_session,
+        tenant_id=tenant.id,
+        created_by=user.id,
+        payload=CaseCreate(title="C", severity=CaseSeverity.LOW, tags=[], custom_fields={}),
+    )
     await module_service.dispatch_event(
         db_session,
         tenant_id=tenant.id,
         event=PlatformEvent.OBSERVABLE_CREATED,
-        payload={"case_id": str(case_id), "observable_id": str(uuid4())},
+        payload={"case_id": str(case.id), "observable_id": str(uuid4())},
         actor_id=user.id,
     )
 
@@ -110,7 +119,7 @@ async def test_event_without_hooks_triggers_nothing(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     # No modules at all — dispatch should complete cleanly with empty result

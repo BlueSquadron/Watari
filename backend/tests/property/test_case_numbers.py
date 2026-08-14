@@ -49,13 +49,13 @@ async def test_case_numbers_are_sequential(
 
     # Set tenant context so RLS does not hide rows when we read them back.
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     for _ in range(n):
         next_num = (
             await db_session.execute(
-                text("SELECT next_case_number(:tid)").bindparams(tid=str(tenant.id))
+                text("SELECT next_case_number(CAST(:tid AS uuid))").bindparams(tid=str(tenant.id))
             )
         ).scalar_one()
         case = Case(
@@ -68,8 +68,14 @@ async def test_case_numbers_are_sequential(
         db_session.add(case)
         await db_session.flush()
 
+    # Scope the read-back explicitly. This property is about numbering, not
+    # isolation, and the fixture's connection may see other tenants' rows.
     rows = (
-        await db_session.execute(select(Case.case_number).order_by(Case.case_number))
+        await db_session.execute(
+            select(Case.case_number)
+            .where(Case.tenant_id == tenant.id)
+            .order_by(Case.case_number)
+        )
     ).scalars().all()
     expected = list(range(1, n + 1))
     assert list(rows) == expected, f"Expected sequential 1..{n}, got {list(rows)}"
@@ -91,7 +97,9 @@ async def test_case_numbers_are_per_tenant(
         for _ in range(3):
             next_num = (
                 await db_session.execute(
-                    text("SELECT next_case_number(:tid)").bindparams(tid=str(tenant.id))
+                    text("SELECT next_case_number(CAST(:tid AS uuid))").bindparams(
+                        tid=str(tenant.id)
+                    )
                 )
             ).scalar_one()
             db_session.add(
@@ -105,17 +113,21 @@ async def test_case_numbers_are_per_tenant(
             )
             await db_session.flush()
 
-    await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant_1.id))
-    )
+    # Scope each read-back explicitly — this property is about per-tenant
+    # numbering, not about isolation (see test_tenant_isolation.py for that).
     rows_1 = sorted(
-        (await db_session.execute(select(Case.case_number))).scalars().all()
-    )
-    await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant_2.id))
+        (
+            await db_session.execute(
+                select(Case.case_number).where(Case.tenant_id == tenant_1.id)
+            )
+        ).scalars().all()
     )
     rows_2 = sorted(
-        (await db_session.execute(select(Case.case_number))).scalars().all()
+        (
+            await db_session.execute(
+                select(Case.case_number).where(Case.tenant_id == tenant_2.id)
+            )
+        ).scalars().all()
     )
 
     assert rows_1 == [1, 2, 3]

@@ -54,7 +54,7 @@ async def test_timeline_ordering_and_non_null_fields(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     case = await case_service.create_case(
@@ -89,3 +89,4 @@ async def test_timeline_ordering_and_non_null_fields(
         assert e.event_timestamp is not None
         assert e.event_type
         assert e.description
+

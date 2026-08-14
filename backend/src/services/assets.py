@@ -56,9 +56,13 @@ async def create_asset(
         custom_attributes=payload.custom_attributes,
         created_by=created_by,
     )
-    db.add(asset)
+    # Flush inside a savepoint: a unique-constraint violation aborts the
+    # surrounding transaction, and callers that handle the 409 (or share a
+    # session across operations) need it to stay usable afterwards.
     try:
-        await db.flush()
+        async with db.begin_nested():
+            db.add(asset)
+            await db.flush()
     except IntegrityError as exc:
         raise HTTPException(
             status.HTTP_409_CONFLICT,

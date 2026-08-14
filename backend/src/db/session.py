@@ -65,10 +65,13 @@ async def get_db(
     async with async_session_factory() as session:
         try:
             if tenant_context is not None:
+                # `SET LOCAL` does not accept bind parameters — PostgreSQL
+                # rejects `SET LOCAL x = $1` as a syntax error. `set_config`
+                # with is_local=true is the parameterizable equivalent.
                 await session.execute(
-                    text("SET LOCAL app.current_tenant = :tenant_id").bindparams(
-                        tenant_id=str(tenant_context.tenant_id)
-                    )
+                    text(
+                        "SELECT set_config('app.current_tenant', :tenant_id, true)"
+                    ).bindparams(tenant_id=str(tenant_context.tenant_id))
                 )
                 if tenant_context.is_platform_admin:
                     await session.execute(
