@@ -51,9 +51,7 @@ async def list_case_templates(
     tenant_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE_TEMPLATE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE_TEMPLATE, Action.READ))],
 ) -> ApiResponse[list[CaseTemplateResponse]]:
     _assert_tenant_matches(auth, tenant_id)
     rows, total = await template_service.list_templates(
@@ -104,14 +102,10 @@ async def get_case_template(
     tenant_id: UUID,
     template_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE_TEMPLATE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE_TEMPLATE, Action.READ))],
 ) -> ApiResponse[CaseTemplateResponse]:
     _assert_tenant_matches(auth, tenant_id)
-    template = await template_service.get_template(
-        db, tenant_id=tenant_id, template_id=template_id
-    )
+    template = await template_service.get_template(db, tenant_id=tenant_id, template_id=template_id)
     return ApiResponse(data=CaseTemplateResponse.model_validate(template))
 
 
@@ -153,9 +147,7 @@ async def delete_case_template(
     ],
 ) -> None:
     _assert_tenant_matches(auth, tenant_id)
-    await template_service.delete_template(
-        db, tenant_id=tenant_id, template_id=template_id
-    )
+    await template_service.delete_template(db, tenant_id=tenant_id, template_id=template_id)
 
 
 __all__ = ["router"]

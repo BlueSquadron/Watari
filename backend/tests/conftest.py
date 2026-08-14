@@ -95,8 +95,9 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     Teardown runs `downgrade base`, so this must never be pointed at a
     database anyone cares about — hence the guard below.
     """
-    from alembic import command
     from alembic.config import Config
+
+    from alembic import command
 
     _assert_disposable_database(TEST_DATABASE_URL)
 
@@ -155,9 +156,7 @@ async def db_session(app_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, No
         tx = await conn.begin()
         try:
             async with factory(bind=conn) as session:
-                await session.execute(
-                    text("SET LOCAL app.is_platform_admin = 'true'")
-                )
+                await session.execute(text("SET LOCAL app.is_platform_admin = 'true'"))
                 yield session
         finally:
             await tx.rollback()

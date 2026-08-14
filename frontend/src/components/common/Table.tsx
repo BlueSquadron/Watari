@@ -35,7 +35,9 @@ export function TH({
   children?: ReactNode;
   className?: string;
 }) {
-  return <th className={clsx("px-4 py-2 font-medium", className)}>{children}</th>;
+  return (
+    <th className={clsx("px-4 py-2 font-medium", className)}>{children}</th>
+  );
 }
 
 export function TR({

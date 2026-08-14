@@ -141,9 +141,7 @@ async def get_service_account_optional(
 
 
 ServiceAccountDep = Annotated[AuthContext, Depends(get_service_account)]
-OptionalServiceAccountDep = Annotated[
-    AuthContext | None, Depends(get_service_account_optional)
-]
+OptionalServiceAccountDep = Annotated[AuthContext | None, Depends(get_service_account_optional)]
 
 
 __all__ = [

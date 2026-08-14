@@ -2,11 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
-
 from pydantic import BaseModel, ConfigDict, Field
-
-T = TypeVar("T")
 
 
 class PaginationMeta(BaseModel):
@@ -18,7 +14,7 @@ class PaginationMeta(BaseModel):
     total_pages: int = Field(ge=0)
 
 
-class ApiResponse(BaseModel, Generic[T]):
+class ApiResponse[T](BaseModel):
     """Standard success response envelope."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -55,9 +51,7 @@ class PaginationParams(BaseModel):
         return (self.page - 1) * self.page_size
 
 
-def build_pagination_meta(
-    total_count: int, page: int, page_size: int
-) -> PaginationMeta:
+def build_pagination_meta(total_count: int, page: int, page_size: int) -> PaginationMeta:
     """Compute PaginationMeta from total row count and current paging params."""
     total_pages = (total_count + page_size - 1) // page_size if page_size > 0 else 0
     return PaginationMeta(

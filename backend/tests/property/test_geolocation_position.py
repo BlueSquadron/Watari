@@ -29,9 +29,7 @@ _MAX_ACCEPTABLE_ERROR_KM = 1.0
 
 @given(
     lat=st.floats(min_value=-90.0, max_value=90.0, allow_nan=False, allow_infinity=False),
-    lng=st.floats(
-        min_value=-180.0, max_value=180.0, allow_nan=False, allow_infinity=False
-    ),
+    lng=st.floats(min_value=-180.0, max_value=180.0, allow_nan=False, allow_infinity=False),
 )
 @settings(max_examples=300)
 def test_normalized_marker_is_close_to_source(lat: float, lng: float) -> None:
@@ -39,16 +37,12 @@ def test_normalized_marker_is_close_to_source(lat: float, lng: float) -> None:
     source = GeoPoint(latitude=lat, longitude=lng)
     placed = normalize_marker(lat, lng)
     err = haversine_km(source, placed)
-    assert err < _MAX_ACCEPTABLE_ERROR_KM, (
-        f"Marker for ({lat},{lng}) displaced by {err:.3f}km"
-    )
+    assert err < _MAX_ACCEPTABLE_ERROR_KM, f"Marker for ({lat},{lng}) displaced by {err:.3f}km"
 
 
 @given(
     lat=st.floats(min_value=-90.0, max_value=90.0, allow_nan=False, allow_infinity=False),
-    lng=st.floats(
-        min_value=-180.0, max_value=180.0, allow_nan=False, allow_infinity=False
-    ),
+    lng=st.floats(min_value=-180.0, max_value=180.0, allow_nan=False, allow_infinity=False),
 )
 @settings(max_examples=200)
 def test_normalize_is_idempotent(lat: float, lng: float) -> None:

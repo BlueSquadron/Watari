@@ -21,20 +21,15 @@ from src.services.geospatial import (
     GeoPoint,
     cluster_points,
     cluster_radius_km,
-    haversine_km,
 )
 
 
 def _lat() -> st.SearchStrategy[float]:
-    return st.floats(
-        min_value=-80.0, max_value=80.0, allow_nan=False, allow_infinity=False
-    )
+    return st.floats(min_value=-80.0, max_value=80.0, allow_nan=False, allow_infinity=False)
 
 
 def _lng() -> st.SearchStrategy[float]:
-    return st.floats(
-        min_value=-180.0, max_value=180.0, allow_nan=False, allow_infinity=False
-    )
+    return st.floats(min_value=-180.0, max_value=180.0, allow_nan=False, allow_infinity=False)
 
 
 def _points(max_size: int = 15) -> st.SearchStrategy[list[GeoPoint]]:
@@ -47,13 +42,9 @@ def _points(max_size: int = 15) -> st.SearchStrategy[list[GeoPoint]]:
 
 @given(points=_points(), zoom=st.integers(min_value=15, max_value=22))
 @settings(max_examples=100)
-def test_high_zoom_produces_singleton_clusters(
-    points: list[GeoPoint], zoom: int
-) -> None:
+def test_high_zoom_produces_singleton_clusters(points: list[GeoPoint], zoom: int) -> None:
     """At high zoom (> configured max), every point is its own cluster."""
-    clusters = cluster_points(
-        [(i, p) for i, p in enumerate(points)], zoom=zoom
-    )
+    clusters = cluster_points([(i, p) for i, p in enumerate(points)], zoom=zoom)
     assert cluster_radius_km(zoom) == 0.0
     assert len(clusters) == len(points)
     for c in clusters:
@@ -62,13 +53,9 @@ def test_high_zoom_produces_singleton_clusters(
 
 @given(points=_points(), zoom=st.integers(min_value=0, max_value=11))
 @settings(max_examples=100)
-def test_every_point_belongs_to_exactly_one_cluster(
-    points: list[GeoPoint], zoom: int
-) -> None:
+def test_every_point_belongs_to_exactly_one_cluster(points: list[GeoPoint], zoom: int) -> None:
     """At any reasonable zoom level, each point ends up in exactly one cluster."""
-    clusters = cluster_points(
-        [(i, p) for i, p in enumerate(points)], zoom=zoom
-    )
+    clusters = cluster_points([(i, p) for i, p in enumerate(points)], zoom=zoom)
     assigned = [pid for c in clusters for pid in c.point_ids]
     expected = list(range(len(points)))
     assert sorted(assigned) == expected

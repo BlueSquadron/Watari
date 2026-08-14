@@ -9,14 +9,13 @@ tag-based .docx templates).
 
 from __future__ import annotations
 
-import hashlib
 import uuid
 from typing import Any
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from jinja2 import Environment, StrictUndefined, Template
-from sqlalchemy import func, select
+from jinja2 import Environment, StrictUndefined
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import (
@@ -48,30 +47,30 @@ _env = Environment(
 async def _build_context(db: AsyncSession, case: Case) -> dict[str, Any]:
     """Build the Jinja context for the investigation template."""
     observables = (
-        await db.execute(select(Observable).where(Observable.case_id == case.id))
-    ).scalars().all()
-    assets = (
-        await db.execute(select(Asset).where(Asset.case_id == case.id))
-    ).scalars().all()
+        (await db.execute(select(Observable).where(Observable.case_id == case.id))).scalars().all()
+    )
+    assets = (await db.execute(select(Asset).where(Asset.case_id == case.id))).scalars().all()
     timeline = (
-        await db.execute(
-            select(TimelineEntry)
-            .where(TimelineEntry.case_id == case.id)
-            .order_by(TimelineEntry.event_timestamp.asc())
+        (
+            await db.execute(
+                select(TimelineEntry)
+                .where(TimelineEntry.case_id == case.id)
+                .order_by(TimelineEntry.event_timestamp.asc())
+            )
         )
-    ).scalars().all()
-    tasks = (
-        await db.execute(select(Task).where(Task.case_id == case.id))
-    ).scalars().all()
-    notes = (
-        await db.execute(select(Note).where(Note.case_id == case.id))
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
+    tasks = (await db.execute(select(Task).where(Task.case_id == case.id))).scalars().all()
+    notes = (await db.execute(select(Note).where(Note.case_id == case.id))).scalars().all()
     evidence = (
-        await db.execute(select(Evidence).where(Evidence.case_id == case.id))
-    ).scalars().all()
+        (await db.execute(select(Evidence).where(Evidence.case_id == case.id))).scalars().all()
+    )
     attack = (
-        await db.execute(select(AttackMapping).where(AttackMapping.case_id == case.id))
-    ).scalars().all()
+        (await db.execute(select(AttackMapping).where(AttackMapping.case_id == case.id)))
+        .scalars()
+        .all()
+    )
 
     return {
         "case": {
@@ -128,8 +127,7 @@ async def _build_context(db: AsyncSession, case: Case) -> dict[str, Any]:
             for t in tasks
         ],
         "notes": [
-            {"title": n.title, "content": n.content, "updated_at": n.updated_at}
-            for n in notes
+            {"title": n.title, "content": n.content, "updated_at": n.updated_at} for n in notes
         ],
         "evidence": [
             {
@@ -152,26 +150,32 @@ async def _build_context(db: AsyncSession, case: Case) -> dict[str, Any]:
     }
 
 
-async def _build_activity_context(
-    db: AsyncSession, case: Case
-) -> dict[str, Any]:
+async def _build_activity_context(db: AsyncSession, case: Case) -> dict[str, Any]:
     """Build the Jinja context for activity reports — the case audit trail."""
     # We look at audit logs referencing this case id plus its timeline entries.
     audit_rows = (
-        await db.execute(
-            select(AuditLog)
-            .where(AuditLog.tenant_id == case.tenant_id)
-            .where(AuditLog.resource_id == case.id)
-            .order_by(AuditLog.created_at.asc())
+        (
+            await db.execute(
+                select(AuditLog)
+                .where(AuditLog.tenant_id == case.tenant_id)
+                .where(AuditLog.resource_id == case.id)
+                .order_by(AuditLog.created_at.asc())
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     timeline = (
-        await db.execute(
-            select(TimelineEntry)
-            .where(TimelineEntry.case_id == case.id)
-            .order_by(TimelineEntry.event_timestamp.asc())
+        (
+            await db.execute(
+                select(TimelineEntry)
+                .where(TimelineEntry.case_id == case.id)
+                .order_by(TimelineEntry.event_timestamp.asc())
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return {
         "case": {
             "title": case.title,
@@ -261,9 +265,7 @@ async def generate_report(
         content_type = "text/html"
     elif chosen_format == ReportFormat.DOCX.value:
         rendered = render_docx(template.template_content, context)
-        content_type = (
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+        content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     else:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST, f"Unsupported report format: {chosen_format}"
@@ -296,9 +298,7 @@ async def generate_report(
     return report
 
 
-async def preview_report(
-    db: AsyncSession, *, case_id: UUID, template_id: UUID
-) -> str:
+async def preview_report(db: AsyncSession, *, case_id: UUID, template_id: UUID) -> str:
     """Return the rendered Markdown/HTML preview text without storing anything."""
     case = (await db.execute(select(Case).where(Case.id == case_id))).scalar_one_or_none()
     if case is None:
@@ -318,15 +318,19 @@ async def preview_report(
 
 # ---- Template CRUD ----
 
+
 async def list_templates(db: AsyncSession, tenant_id: UUID) -> list[ReportTemplate]:
     rows = (
-        await db.execute(
-            select(ReportTemplate).where(
-                (ReportTemplate.tenant_id == tenant_id)
-                | (ReportTemplate.tenant_id.is_(None))
+        (
+            await db.execute(
+                select(ReportTemplate).where(
+                    (ReportTemplate.tenant_id == tenant_id) | (ReportTemplate.tenant_id.is_(None))
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows)
 
 

@@ -151,12 +151,7 @@ export const assetsApi = {
       url: `/v1/tenants/${tenantId}/cases/${caseId}/assets`,
       data: body,
     }),
-  update: (
-    tenantId: UUID,
-    caseId: UUID,
-    assetId: UUID,
-    body: Partial<Asset>,
-  ) =>
+  update: (tenantId: UUID, caseId: UUID, assetId: UUID, body: Partial<Asset>) =>
     request<ApiResponse<Asset>>({
       method: "PATCH",
       url: `/v1/tenants/${tenantId}/cases/${caseId}/assets/${assetId}`,
@@ -241,11 +236,7 @@ export const notesApi = {
     request<ApiResponse<NoteFolder[]>>({
       url: `/v1/tenants/${tenantId}/cases/${caseId}/notes/folders`,
     }),
-  createFolder: (
-    tenantId: UUID,
-    caseId: UUID,
-    body: Partial<NoteFolder>,
-  ) =>
+  createFolder: (tenantId: UUID, caseId: UUID, body: Partial<NoteFolder>) =>
     request<ApiResponse<NoteFolder>>({
       method: "POST",
       url: `/v1/tenants/${tenantId}/cases/${caseId}/notes/folders`,
@@ -262,12 +253,7 @@ export const notesApi = {
       url: `/v1/tenants/${tenantId}/cases/${caseId}/notes`,
       data: body,
     }),
-  update: (
-    tenantId: UUID,
-    caseId: UUID,
-    noteId: UUID,
-    body: Partial<Note>,
-  ) =>
+  update: (tenantId: UUID, caseId: UUID, noteId: UUID, body: Partial<Note>) =>
     request<ApiResponse<Note>>({
       method: "PATCH",
       url: `/v1/tenants/${tenantId}/cases/${caseId}/notes/${noteId}`,
@@ -489,8 +475,7 @@ export const usersApi = {
 };
 
 export const tenantsApi = {
-  list: () =>
-    request<ApiResponse<Tenant[]>>({ url: "/v1/admin/tenants" }),
+  list: () => request<ApiResponse<Tenant[]>>({ url: "/v1/admin/tenants" }),
   get: (tenantId: UUID) =>
     request<ApiResponse<Tenant>>({
       url: `/v1/admin/tenants/${tenantId}`,

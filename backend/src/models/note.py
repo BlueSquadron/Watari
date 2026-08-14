@@ -31,17 +31,13 @@ class NoteFolder(Base):
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
-    created_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
 
     # Relationships
     parent: Mapped["NoteFolder | None"] = relationship(
         "NoteFolder", remote_side="NoteFolder.id", back_populates="children"
     )
-    children: Mapped[list["NoteFolder"]] = relationship(
-        "NoteFolder", back_populates="parent"
-    )
+    children: Mapped[list["NoteFolder"]] = relationship("NoteFolder", back_populates="parent")
     notes: Mapped[list["Note"]] = relationship("Note", back_populates="folder")
 
 

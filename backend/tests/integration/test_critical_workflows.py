@@ -29,9 +29,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import (
     Alert,
-    Case,
     CaseTemplate,
-    Evidence,
     Observable,
     Task,
     TimelineEntry,
@@ -48,18 +46,27 @@ from src.schemas.alerts import (
 )
 from src.schemas.cases import CaseClose, CaseCreate, CaseOutcome, CaseSeverity, CaseStatus
 from src.schemas.evidence import EvidenceRegister, EvidenceType
-from src.schemas.observables import ObservableCreate, ObservableType, TLP
+from src.schemas.observables import TLP, ObservableCreate, ObservableType
 from src.schemas.tasks import TaskStatus, TaskUpdate
 from src.schemas.templates import CaseTemplateCreate
 from src.services import (
     alerts as alert_service,
+)
+from src.services import (
     cases as case_service,
+)
+from src.services import (
     evidence as evidence_service,
+)
+from src.services import (
     observables as observable_service,
+)
+from src.services import (
     tasks as task_service,
+)
+from src.services import (
     templates as template_service,
 )
-
 
 pytestmark = pytest.mark.asyncio
 
@@ -122,8 +129,10 @@ async def test_alert_to_case_resolution_flow(
 
     # The alert observable should have been copied onto the case
     obs = (
-        await db_session.execute(select(Observable).where(Observable.case_id == case.id))
-    ).scalars().all()
+        (await db_session.execute(select(Observable).where(Observable.case_id == case.id)))
+        .scalars()
+        .all()
+    )
     assert any(o.value == "203.0.113.42" for o in obs)
 
     # 3. Analyst works the investigation: resolves the case
@@ -141,10 +150,10 @@ async def test_alert_to_case_resolution_flow(
 
     # 4. Timeline records the lifecycle
     timeline = (
-        await db_session.execute(
-            select(TimelineEntry).where(TimelineEntry.case_id == case.id)
-        )
-    ).scalars().all()
+        (await db_session.execute(select(TimelineEntry).where(TimelineEntry.case_id == case.id)))
+        .scalars()
+        .all()
+    )
     event_types = {e.event_type for e in timeline}
     assert "case_created" in event_types
     # Closing is recorded as a lifecycle status transition carrying from/to,
@@ -280,10 +289,10 @@ async def test_evidence_upload_hash_verification_flow(
 
     # Timeline should record the upload event
     timeline = (
-        await db_session.execute(
-            select(TimelineEntry).where(TimelineEntry.case_id == case.id)
-        )
-    ).scalars().all()
+        (await db_session.execute(select(TimelineEntry).where(TimelineEntry.case_id == case.id)))
+        .scalars()
+        .all()
+    )
     event_types = {e.event_type for e in timeline}
     assert "evidence_registered" in event_types
     assert "evidence_uploaded" in event_types
@@ -339,9 +348,7 @@ async def test_template_to_case_completion_flow(
     assert "phishing" in case.tags
 
     # Template tasks materialised on the case
-    tasks = (
-        await db_session.execute(select(Task).where(Task.case_id == case.id))
-    ).scalars().all()
+    tasks = (await db_session.execute(select(Task).where(Task.case_id == case.id))).scalars().all()
     assert len(tasks) == 3
     task_titles = {t.title for t in tasks}
     assert task_titles == {
@@ -360,8 +367,8 @@ async def test_template_to_case_completion_flow(
         )
 
     refreshed = (
-        await db_session.execute(select(Task).where(Task.case_id == case.id))
-    ).scalars().all()
+        (await db_session.execute(select(Task).where(Task.case_id == case.id))).scalars().all()
+    )
     assert all(t.status == TaskStatus.DONE.value for t in refreshed)
 
 
@@ -412,8 +419,8 @@ async def test_alert_deduplication_end_to_end(
 
     # Only one Alert should exist
     all_alerts = (
-        await db_session.execute(
-            select(Alert).where(Alert.tenant_id == tenant.id)
-        )
-    ).scalars().all()
+        (await db_session.execute(select(Alert).where(Alert.tenant_id == tenant.id)))
+        .scalars()
+        .all()
+    )
     assert len(all_alerts) == 1

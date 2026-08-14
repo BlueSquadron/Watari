@@ -20,7 +20,8 @@ export function TaskList({ caseId }: { caseId: UUID }) {
 
   const [title, setTitle] = useState("");
   const create = useMutation({
-    mutationFn: () => tasksApi.create(tenantId, caseId, { title: title.trim() }),
+    mutationFn: () =>
+      tasksApi.create(tenantId, caseId, { title: title.trim() }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["case", caseId, "tasks"] });
       setTitle("");
@@ -29,11 +30,13 @@ export function TaskList({ caseId }: { caseId: UUID }) {
   const update = useMutation({
     mutationFn: (args: { id: UUID; status: TaskStatus }) =>
       tasksApi.update(tenantId, caseId, args.id, { status: args.status }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["case", caseId, "tasks"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["case", caseId, "tasks"] }),
   });
   const remove = useMutation({
     mutationFn: (id: UUID) => tasksApi.remove(tenantId, caseId, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["case", caseId, "tasks"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["case", caseId, "tasks"] }),
   });
 
   const tasks = data?.data ?? [];
@@ -58,7 +61,9 @@ export function TaskList({ caseId }: { caseId: UUID }) {
           <div
             className="h-full bg-watari-gold"
             style={{
-              width: tasks.length ? `${(completed / tasks.length) * 100}%` : "0%",
+              width: tasks.length
+                ? `${(completed / tasks.length) * 100}%`
+                : "0%",
             }}
           />
         </div>
@@ -71,7 +76,11 @@ export function TaskList({ caseId }: { caseId: UUID }) {
           onChange={(e) => setTitle(e.target.value)}
           className="!mt-0 flex-1"
         />
-        <Button type="submit" loading={create.isPending} disabled={!title.trim()}>
+        <Button
+          type="submit"
+          loading={create.isPending}
+          disabled={!title.trim()}
+        >
           Add
         </Button>
       </form>
@@ -90,7 +99,10 @@ export function TaskList({ caseId }: { caseId: UUID }) {
               <Select
                 value={t.status}
                 onChange={(e) =>
-                  update.mutate({ id: t.id, status: e.target.value as TaskStatus })
+                  update.mutate({
+                    id: t.id,
+                    status: e.target.value as TaskStatus,
+                  })
                 }
                 className="!mt-0 !w-36"
               >

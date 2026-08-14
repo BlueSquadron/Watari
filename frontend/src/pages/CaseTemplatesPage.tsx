@@ -14,7 +14,12 @@ import {
   TableEmpty,
 } from "@/components/common/Table";
 import { useTenantStore } from "@/stores/tenant";
-import type { ApiResponse, CaseSeverity, CaseTemplate, UUID } from "@/types/api";
+import type {
+  ApiResponse,
+  CaseSeverity,
+  CaseTemplate,
+  UUID,
+} from "@/types/api";
 
 const templatesApi = {
   list: (tenantId: UUID) =>
@@ -67,7 +72,9 @@ export function CaseTemplatesPage() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
   if (isLoading || !data) return <LoadingOverlay label="Loading templates" />;
 
@@ -199,7 +206,9 @@ function CreateTemplateDialog({
       onClose();
     },
     onError: (err: unknown) =>
-      setError(err instanceof Error ? err.message : "Failed to create template"),
+      setError(
+        err instanceof Error ? err.message : "Failed to create template",
+      ),
   });
 
   const onSubmit = (e: FormEvent) => {

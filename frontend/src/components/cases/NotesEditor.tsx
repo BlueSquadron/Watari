@@ -31,8 +31,7 @@ export function NotesEditor({ caseId }: { caseId: UUID }) {
 
   const notesQuery = useQuery({
     queryKey: ["case", caseId, "notes", selectedFolder],
-    queryFn: () =>
-      notesApi.list(tenantId, caseId, selectedFolder ?? undefined),
+    queryFn: () => notesApi.list(tenantId, caseId, selectedFolder ?? undefined),
   });
 
   const folderTree = useMemo(
@@ -77,7 +76,7 @@ export function NotesEditor({ caseId }: { caseId: UUID }) {
 
   const notes = notesQuery.data?.data ?? [];
   const selectedNote = selectedNoteId
-    ? notes.find((n) => n.id === selectedNoteId) ?? null
+    ? (notes.find((n) => n.id === selectedNoteId) ?? null)
     : null;
 
   return (

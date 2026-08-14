@@ -22,7 +22,7 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Module, ModuleExecution
-from src.modules.base import BaseModule, ModuleAPI, ModuleType, PlatformEvent, get_registry
+from src.modules.base import BaseModule, ModuleAPI, PlatformEvent, get_registry
 from src.schemas.cases import CaseCreate, CaseSeverity
 from src.services import cases as case_service
 from src.services import modules as module_service
@@ -100,11 +100,13 @@ async def test_event_fires_only_subscribed_modules(
     execs = list(
         (
             await db_session.execute(
-                select(ModuleExecution).where(ModuleExecution.module_id.in_(
-                    [subscribed.id, unsubscribed.id]
-                ))
+                select(ModuleExecution).where(
+                    ModuleExecution.module_id.in_([subscribed.id, unsubscribed.id])
+                )
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     )
     assert len(execs) == 1
     assert execs[0].module_id == subscribed.id

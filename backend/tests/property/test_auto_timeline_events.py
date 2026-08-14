@@ -37,11 +37,9 @@ pytestmark = pytest.mark.skipif(
 
 async def _timeline_events(db: AsyncSession, case_id) -> list[TimelineEntry]:
     return list(
-        (
-            await db.execute(
-                select(TimelineEntry).where(TimelineEntry.case_id == case_id)
-            )
-        ).scalars().all()
+        (await db.execute(select(TimelineEntry).where(TimelineEntry.case_id == case_id)))
+        .scalars()
+        .all()
     )
 
 

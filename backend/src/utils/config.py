@@ -30,9 +30,7 @@ class Settings(BaseSettings):
     # `admin_database_url` is the owner role, used where work is legitimately
     # cross-tenant and RLS must not apply: migrations, seeding, the Celery
     # worker, audit writes, and authentication lookups.
-    admin_database_url: str = (
-        "postgresql+asyncpg://watari:watari_dev_password@postgres:5432/watari"
-    )
+    admin_database_url: str = "postgresql+asyncpg://watari:watari_dev_password@postgres:5432/watari"
 
     # Redis
     redis_url: str = "redis://redis:6379/0"

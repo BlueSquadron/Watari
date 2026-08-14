@@ -82,9 +82,7 @@ export function GeospatialView({ caseId }: { caseId: UUID }) {
   if (isLoading) return <LoadingOverlay label="Loading map" />;
 
   const defaultCenter: [number, number] =
-    markers.length > 0
-      ? [markers[0].latitude, markers[0].longitude]
-      : [30, 0];
+    markers.length > 0 ? [markers[0].latitude, markers[0].longitude] : [30, 0];
   const defaultZoom = markers.length > 0 ? 3 : 2;
 
   return (
@@ -166,8 +164,7 @@ function useQueries(
   const queries = useReactQueries({
     queries: observableIds.map((oid) => ({
       queryKey: ["enrichment-results", oid],
-      queryFn: () =>
-        observablesApi.enrichmentResults(tenantId, caseId, oid),
+      queryFn: () => observablesApi.enrichmentResults(tenantId, caseId, oid),
       staleTime: 60_000,
     })),
   });

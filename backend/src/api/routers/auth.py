@@ -9,9 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import (
-    AuthContext,
     CurrentUserDep,
-    Role,
     create_access_token,
     create_refresh_token,
     decode_token,
@@ -146,9 +144,7 @@ async def get_me(
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
 ) -> ApiResponse[UserResponse]:
     """Return the profile of the currently authenticated user."""
-    user = (
-        await db.execute(select(User).where(User.id == auth.user_id))
-    ).scalar_one()
+    user = (await db.execute(select(User).where(User.id == auth.user_id))).scalar_one()
     return ApiResponse(data=UserResponse.model_validate(user))
 
 

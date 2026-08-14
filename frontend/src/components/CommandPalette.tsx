@@ -97,9 +97,10 @@ export function CommandPalette() {
   const [remoteHits, setRemoteHits] = useState<SearchHit[]>([]);
   const [selected, setSelected] = useState(0);
 
-  const staticActions = useMemo(() => buildNavigationActions(navigate), [
-    navigate,
-  ]);
+  const staticActions = useMemo(
+    () => buildNavigationActions(navigate),
+    [navigate],
+  );
 
   const fuse = useMemo(
     () =>
@@ -180,8 +181,10 @@ export function CommandPalette() {
   };
 
   const grouped = useMemo(() => {
-    const groups: Record<string, { items: PaletteAction[]; indexes: number[] }> =
-      {};
+    const groups: Record<
+      string,
+      { items: PaletteAction[]; indexes: number[] }
+    > = {};
     allItems.forEach((item, idx) => {
       const bucket = (groups[item.category] ??= { items: [], indexes: [] });
       bucket.items.push(item);
@@ -191,10 +194,7 @@ export function CommandPalette() {
   }, [allItems]);
 
   return (
-    <Dialog.Root
-      open={isOpen}
-      onOpenChange={(open) => (open ? null : close())}
-    >
+    <Dialog.Root open={isOpen} onOpenChange={(open) => (open ? null : close())}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" />
         <Dialog.Content

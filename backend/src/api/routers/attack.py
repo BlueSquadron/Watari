@@ -20,9 +20,7 @@ from src.schemas.attack import (
 from src.schemas.common import ApiResponse
 from src.services import attack as attack_service
 
-mappings_router = APIRouter(
-    prefix="/api/v1/tenants/{tenant_id}/attack-mappings", tags=["attack"]
-)
+mappings_router = APIRouter(prefix="/api/v1/tenants/{tenant_id}/attack-mappings", tags=["attack"])
 
 reference_router = APIRouter(prefix="/api/v1/attack-reference", tags=["attack"])
 
@@ -46,9 +44,7 @@ async def create_mapping(
     ],
 ) -> ApiResponse[AttackMappingResponse]:
     _check(auth, tenant_id)
-    mapping = await attack_service.create_mapping(
-        db, tenant_id, payload, created_by=auth.user_id
-    )
+    mapping = await attack_service.create_mapping(db, tenant_id, payload, created_by=auth.user_id)
     return ApiResponse(data=AttackMappingResponse.model_validate(mapping))
 
 
@@ -69,9 +65,7 @@ async def delete_mapping(
 async def heatmap(
     tenant_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ATTACK_MAPPING, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ATTACK_MAPPING, Action.READ))],
     created_after: datetime | None = None,
     created_before: datetime | None = None,
     case_severity: str | None = None,

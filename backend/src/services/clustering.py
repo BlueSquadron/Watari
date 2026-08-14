@@ -25,9 +25,7 @@ class Cluster:
     entry_ids: tuple[UUID, ...]
 
 
-def find_clusters(
-    entries: list[_Timed], *, threshold_seconds: int = 300
-) -> list[Cluster]:
+def find_clusters(entries: list[_Timed], *, threshold_seconds: int = 300) -> list[Cluster]:
     """Return clusters of events separated by less than the threshold.
 
     Sorted by timestamp ascending. Singleton clusters are omitted because

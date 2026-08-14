@@ -48,9 +48,7 @@ async def list_cases(
     tenant_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.READ))],
     status_filter: Annotated[CaseStatus | None, Query(alias="status")] = None,
     severity: CaseSeverity | None = None,
     assignee_id: UUID | None = None,
@@ -59,8 +57,11 @@ async def list_cases(
 ) -> ApiResponse[list[CaseResponse]]:
     _assert_tenant_matches(auth, tenant_id)
     filters = CaseListFilters(
-        status=status_filter, severity=severity, assignee_id=assignee_id,
-        tag=tag, search=search,
+        status=status_filter,
+        severity=severity,
+        assignee_id=assignee_id,
+        tag=tag,
+        search=search,
     )
     rows, total = await case_service.list_cases(
         db, tenant_id, filters, limit=pagination.page_size, offset=pagination.offset
@@ -78,9 +79,7 @@ async def create_case(
     tenant_id: UUID,
     payload: CaseCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.CREATE))],
 ) -> ApiResponse[CaseResponse]:
     _assert_tenant_matches(auth, tenant_id)
     case = await case_service.create_case(
@@ -94,9 +93,7 @@ async def get_case(
     tenant_id: UUID,
     case_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.READ))],
 ) -> ApiResponse[CaseResponse]:
     _assert_tenant_matches(auth, tenant_id)
     case = await case_service.get_case(db, case_id)
@@ -109,9 +106,7 @@ async def update_case(
     case_id: UUID,
     payload: CaseUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.UPDATE))],
 ) -> ApiResponse[CaseResponse]:
     _assert_tenant_matches(auth, tenant_id)
     case = await case_service.update_case(db, case_id, payload, actor_id=auth.user_id)
@@ -124,9 +119,7 @@ async def close_case(
     case_id: UUID,
     payload: CaseClose,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.UPDATE))],
 ) -> ApiResponse[CaseResponse]:
     _assert_tenant_matches(auth, tenant_id)
     case = await case_service.close_case(db, case_id, payload, actor_id=auth.user_id)
@@ -139,9 +132,7 @@ async def merge_cases(
     case_id: UUID,
     payload: CaseMerge,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.UPDATE))],
 ) -> ApiResponse[CaseResponse]:
     _assert_tenant_matches(auth, tenant_id)
     case = await case_service.merge_cases(db, case_id, payload, actor_id=auth.user_id)
@@ -153,9 +144,7 @@ async def delete_case(
     tenant_id: UUID,
     case_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.CASE, Action.DELETE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.DELETE))],
 ) -> None:
     _assert_tenant_matches(auth, tenant_id)
     await case_service.delete_case(db, case_id)

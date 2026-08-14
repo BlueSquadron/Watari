@@ -35,9 +35,7 @@ class Observable(BaseModel, Base):
     value: Mapped[str] = mapped_column(Text, nullable=False)
     tlp: Mapped[str | None] = mapped_column(String(20), nullable=True)
     is_ioc: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
-    tags: Mapped[list[str]] = mapped_column(
-        ARRAY(String), nullable=False, server_default="{}"
-    )
+    tags: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, server_default="{}")
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False

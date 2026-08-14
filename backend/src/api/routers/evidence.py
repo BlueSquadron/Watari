@@ -28,9 +28,7 @@ from src.schemas.evidence import (
 )
 from src.services import evidence as evidence_service
 
-router = APIRouter(
-    prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/evidence", tags=["evidence"]
-)
+router = APIRouter(prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/evidence", tags=["evidence"])
 
 
 def _check(auth: AuthContext, tenant_id: UUID) -> None:
@@ -44,9 +42,7 @@ async def list_evidence(
     case_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.READ))],
 ) -> ApiResponse[list[EvidenceResponse]]:
     _check(auth, tenant_id)
     rows, total = await evidence_service.list_evidence(
@@ -68,9 +64,7 @@ async def register_evidence(
     case_id: UUID,
     payload: EvidenceRegister,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.CREATE))],
 ) -> ApiResponse[EvidenceResponse]:
     _check(auth, tenant_id)
     ev = await evidence_service.register_evidence(
@@ -88,9 +82,7 @@ async def upload_evidence_file(
     case_id: UUID,
     evidence_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.UPDATE))],
     file: Annotated[UploadFile, File(description="The evidence file to upload")],
     password: Annotated[str | None, Form(description="Optional password-protect the file")] = None,
 ) -> ApiResponse[EvidenceUploadResponse]:
@@ -113,9 +105,7 @@ async def download_evidence_file(
     case_id: UUID,
     evidence_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.READ))],
     password: str | None = None,
 ) -> Response:
     _check(auth, tenant_id)
@@ -125,9 +115,7 @@ async def download_evidence_file(
     return Response(
         content=data,
         media_type="application/octet-stream",
-        headers={
-            "Content-Disposition": f'attachment; filename="{evidence.filename}"'
-        },
+        headers={"Content-Disposition": f'attachment; filename="{evidence.filename}"'},
     )
 
 
@@ -138,9 +126,7 @@ async def update_evidence(
     evidence_id: UUID,
     payload: EvidenceUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.UPDATE))],
 ) -> ApiResponse[EvidenceResponse]:
     _check(auth, tenant_id)
     ev = await evidence_service.update_evidence(db, evidence_id, payload)
@@ -153,9 +139,7 @@ async def delete_evidence(
     case_id: UUID,
     evidence_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.DELETE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.EVIDENCE, Action.DELETE))],
 ) -> None:
     _check(auth, tenant_id)
     await evidence_service.delete_evidence(db, evidence_id)

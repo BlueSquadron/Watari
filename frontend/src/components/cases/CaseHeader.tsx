@@ -90,7 +90,10 @@ export function CaseHeader({ case: c }: { case: Case }) {
       </div>
 
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-        <DescItem label="Created" value={new Date(c.created_at).toLocaleString()} />
+        <DescItem
+          label="Created"
+          value={new Date(c.created_at).toLocaleString()}
+        />
         <DescItem
           label="Resolved"
           value={c.resolved_at ? new Date(c.resolved_at).toLocaleString() : "—"}

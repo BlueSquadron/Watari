@@ -9,12 +9,10 @@ activity in the viewer.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from fastapi import HTTPException, status
-from sqlalchemy import and_, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
@@ -78,8 +76,10 @@ async def list_logs(
         base = base.where(AuditLog.created_at <= filters.created_before)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(base.order_by(AuditLog.created_at.desc()).limit(limit).offset(offset))
-    ).scalars().all()
+        (await db.execute(base.order_by(AuditLog.created_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 

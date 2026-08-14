@@ -38,20 +38,22 @@ async def list_templates(
         )
     ).scalar_one()
     rows = (
-        await db.execute(
-            select(CaseTemplate)
-            .where(CaseTemplate.tenant_id == tenant_id)
-            .order_by(CaseTemplate.created_at.desc())
-            .limit(limit)
-            .offset(offset)
+        (
+            await db.execute(
+                select(CaseTemplate)
+                .where(CaseTemplate.tenant_id == tenant_id)
+                .order_by(CaseTemplate.created_at.desc())
+                .limit(limit)
+                .offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
-async def get_template(
-    db: AsyncSession, *, tenant_id: UUID, template_id: UUID
-) -> CaseTemplate:
+async def get_template(db: AsyncSession, *, tenant_id: UUID, template_id: UUID) -> CaseTemplate:
     """Fetch a template or raise 404."""
     template = (
         await db.execute(
@@ -110,9 +112,7 @@ async def update_template(
     return template
 
 
-async def delete_template(
-    db: AsyncSession, *, tenant_id: UUID, template_id: UUID
-) -> None:
+async def delete_template(db: AsyncSession, *, tenant_id: UUID, template_id: UUID) -> None:
     """Delete a template. Cases already created from it keep their
     `template_id` reference, which becomes a dangling pointer. This is
     intentional — historic cases should continue to remember which

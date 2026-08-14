@@ -43,9 +43,7 @@ class Case(BaseModel, Base):
     template_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("case_templates.id"), nullable=True
     )
-    tags: Mapped[list[str]] = mapped_column(
-        ARRAY(String), nullable=False, server_default="{}"
-    )
+    tags: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, server_default="{}")
     custom_fields: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
     merged_from: Mapped[list[uuid.UUID] | None] = mapped_column(
         ARRAY(UUID(as_uuid=True)), nullable=True

@@ -47,9 +47,7 @@ async def list_users(
     tenant_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.USER, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.USER, Action.READ))],
     include_service_accounts: bool = Query(default=True),
 ) -> ApiResponse[list[UserResponse]]:
     _assert_same_tenant_or_platform(auth, tenant_id)
@@ -77,9 +75,7 @@ async def create_user(
     tenant_id: UUID,
     payload: UserCreate,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.USER, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.USER, Action.CREATE))],
 ) -> ApiResponse[UserResponse]:
     _assert_same_tenant_or_platform(auth, tenant_id)
     user = await user_service.create_user(db, tenant_id, payload)
@@ -91,9 +87,7 @@ async def get_user(
     tenant_id: UUID,
     user_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.USER, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.USER, Action.READ))],
 ) -> ApiResponse[UserResponse]:
     _assert_same_tenant_or_platform(auth, tenant_id)
     user = await user_service.get_user(db, user_id)
@@ -111,9 +105,7 @@ async def update_user(
     user_id: UUID,
     payload: UserUpdate,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.USER, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.USER, Action.UPDATE))],
 ) -> ApiResponse[UserResponse]:
     _assert_same_tenant_or_platform(auth, tenant_id)
     user = await user_service.get_user(db, user_id)
@@ -134,7 +126,8 @@ async def change_password(
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
     auth: CurrentUserDep,
 ) -> None:
-    # Users may only change their own password, or a tenant admin can reset any user in their tenant.
+    # Users may only change their own password; a tenant admin can reset any
+    # user in their tenant.
     _assert_same_tenant_or_platform(auth, tenant_id)
     if auth.user_id != user_id and not auth.is_platform_admin:
         # Tenant admin reset flow: allowed for tenant admins only
@@ -154,9 +147,7 @@ async def deactivate_user(
     tenant_id: UUID,
     user_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.USER, Action.DELETE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.USER, Action.DELETE))],
 ) -> None:
     _assert_same_tenant_or_platform(auth, tenant_id)
     user = await user_service.get_user(db, user_id)
@@ -177,9 +168,7 @@ async def create_service_account(
     tenant_id: UUID,
     payload: ServiceAccountCreate,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.USER, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.USER, Action.CREATE))],
 ) -> ApiResponse[ServiceAccountCreated]:
     _assert_same_tenant_or_platform(auth, tenant_id)
     user, api_key = await user_service.create_service_account(db, tenant_id, payload)
@@ -199,9 +188,7 @@ async def rotate_api_key(
     tenant_id: UUID,
     user_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.USER, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.USER, Action.UPDATE))],
 ) -> ApiResponse[dict[str, str]]:
     _assert_same_tenant_or_platform(auth, tenant_id)
     user = await user_service.get_user(db, user_id)

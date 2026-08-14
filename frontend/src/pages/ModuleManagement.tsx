@@ -161,11 +161,7 @@ export function ModuleManagement() {
                 {selected.entry_point}
               </p>
             </div>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setSelected(null)}
-            >
+            <Button size="sm" variant="ghost" onClick={() => setSelected(null)}>
               ×
             </Button>
           </div>

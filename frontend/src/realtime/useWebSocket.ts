@@ -15,7 +15,10 @@ export interface RealtimeEvent {
 const WS_BASE =
   import.meta.env.VITE_API_BASE_URL?.replace(/^http/, "ws") ?? "/api";
 
-function connect(url: string, onMessage: (ev: RealtimeEvent) => void): WebSocket {
+function connect(
+  url: string,
+  onMessage: (ev: RealtimeEvent) => void,
+): WebSocket {
   const ws = new WebSocket(url);
   ws.addEventListener("message", (event) => {
     try {

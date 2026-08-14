@@ -46,9 +46,7 @@ class AttackMapping(Base):
     created_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
-    created_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
 
     # Relationships
     case: Mapped["Case | None"] = relationship("Case")  # noqa: F821
@@ -64,10 +62,6 @@ class AttackReference(Base):
     tactic_id: Mapped[str] = mapped_column(String(20), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    is_subtechnique: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
-    )
+    is_subtechnique: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     parent_technique_id: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    updated_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())

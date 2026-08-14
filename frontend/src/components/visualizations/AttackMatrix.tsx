@@ -63,14 +63,13 @@ export function AttackMatrix() {
   }, [heatmap, reference]);
 
   if (!tenantId)
-    return <p className="text-sm text-watari-text-dark-secondary">No tenant.</p>;
+    return (
+      <p className="text-sm text-watari-text-dark-secondary">No tenant.</p>
+    );
   if (isLoading || !heatmap)
     return <LoadingOverlay label="Loading ATT&CK heatmap" />;
 
-  const maxCount = Math.max(
-    1,
-    ...heatmap.data.cells.map((c) => c.case_count),
-  );
+  const maxCount = Math.max(1, ...heatmap.data.cells.map((c) => c.case_count));
 
   if (heatmap.data.cells.length === 0) {
     return (
@@ -82,7 +81,8 @@ export function AttackMatrix() {
         />
         <div className="rounded-md border border-dashed border-watari-bg-dark-tertiary p-8 text-center text-sm text-watari-text-dark-secondary">
           No ATT&amp;CK mappings yet. Map observables or timeline entries to
-          tactics/techniques from a case detail view and they&apos;ll appear here.
+          tactics/techniques from a case detail view and they&apos;ll appear
+          here.
         </div>
       </div>
     );
@@ -131,16 +131,14 @@ export function AttackMatrix() {
       {selected ? (
         <div className="rounded-lg border border-watari-bg-dark-tertiary bg-watari-bg-dark-secondary p-4">
           <h4 className="text-sm font-semibold text-watari-text-dark-primary">
-            {techniqueDisplayName(
-              selected.technique_id,
-              reference?.data ?? [],
-            )}{" "}
+            {techniqueDisplayName(selected.technique_id, reference?.data ?? [])}{" "}
             <span className="font-mono text-xs text-watari-gold-muted">
               {selected.technique_id}
             </span>
           </h4>
           <p className="mt-1 text-xs text-watari-text-dark-secondary">
-            Mapped across <span className="font-semibold text-watari-gold">
+            Mapped across{" "}
+            <span className="font-semibold text-watari-gold">
               {selected.case_count}
             </span>{" "}
             case(s).{" "}
@@ -237,14 +235,9 @@ function Cell({
         cell.max_severity ?? "no severity"
       }`}
     >
-      <div
-        className={`mb-1 h-1.5 rounded-full ${color}`}
-        style={{ opacity }}
-      />
+      <div className={`mb-1 h-1.5 rounded-full ${color}`} style={{ opacity }} />
       <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-watari-text-dark-primary">
-          {name}
-        </span>
+        <span className="truncate text-watari-text-dark-primary">{name}</span>
         <span className="font-mono text-[10px] text-watari-gold">
           {cell.case_count}
         </span>

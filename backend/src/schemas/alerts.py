@@ -351,7 +351,7 @@ class DetectionFindingIngest(BaseModel):
 
     # --- Validators ---
     @model_validator(mode="after")
-    def _populate_computed_fields(self) -> "DetectionFindingIngest":
+    def _populate_computed_fields(self) -> DetectionFindingIngest:
         # type_uid = class_uid*100 + activity_id
         if self.type_uid is None:
             self.type_uid = self.class_uid * 100 + self.activity_id.value
@@ -373,9 +373,7 @@ class AlertPromote(BaseModel):
         default=None,
         description="If provided, merge into existing case; else create new case",
     )
-    new_case_title: str | None = Field(
-        default=None, description="Required if case_id is None"
-    )
+    new_case_title: str | None = Field(default=None, description="Required if case_id is None")
 
 
 class AlertDismiss(BaseModel):
@@ -426,7 +424,7 @@ class AlertResponse(BaseModel):
     raw_data: str | None
 
     # --- Watari workflow envelope (not part of OCSF) ---
-    watari: "WatariAlertEnvelope"
+    watari: WatariAlertEnvelope
 
 
 class WatariAlertEnvelope(BaseModel):

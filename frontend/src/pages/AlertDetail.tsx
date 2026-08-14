@@ -38,7 +38,9 @@ export function AlertDetail() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
   if (isLoading || !data) return <LoadingOverlay label="Loading alert" />;
   if (isError)
@@ -93,9 +95,7 @@ export function AlertDetail() {
         </div>
       ) : status === "promoted" && alert.watari.promoted_to_case_id ? (
         <Button
-          onClick={() =>
-            navigate(`/cases/${alert.watari.promoted_to_case_id}`)
-          }
+          onClick={() => navigate(`/cases/${alert.watari.promoted_to_case_id}`)}
         >
           View resulting case →
         </Button>
@@ -129,7 +129,9 @@ export function AlertDetail() {
         <InfoCard title="Finding info">
           <dl className="grid grid-cols-[120px_1fr] gap-y-2 text-sm">
             <dt className="text-watari-text-dark-secondary">UID</dt>
-            <dd className="truncate font-mono text-xs">{alert.finding_info.uid}</dd>
+            <dd className="truncate font-mono text-xs">
+              {alert.finding_info.uid}
+            </dd>
             {alert.finding_info.uid_alt ? (
               <>
                 <dt className="text-watari-text-dark-secondary">Alt UID</dt>
@@ -202,9 +204,7 @@ export function AlertDetail() {
           <dt className="text-watari-text-dark-secondary">Alert ID</dt>
           <dd className="font-mono text-xs">{alert.watari.id}</dd>
           <dt className="text-watari-text-dark-secondary">Dedup key</dt>
-          <dd className="font-mono text-xs">
-            {alert.watari.dedup_key ?? "—"}
-          </dd>
+          <dd className="font-mono text-xs">{alert.watari.dedup_key ?? "—"}</dd>
           <dt className="text-watari-text-dark-secondary">Event time</dt>
           <dd>{new Date(alert.time_dt).toLocaleString()}</dd>
           <dt className="text-watari-text-dark-secondary">Last updated</dt>

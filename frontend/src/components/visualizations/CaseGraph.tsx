@@ -48,11 +48,7 @@ export function CaseGraph({ caseId }: { caseId: UUID }) {
   });
 
   const elements = useMemo<ElementDefinition[]>(() => {
-    if (
-      !observablesQuery.data ||
-      !assetsQuery.data ||
-      !timelineQuery.data
-    ) {
+    if (!observablesQuery.data || !assetsQuery.data || !timelineQuery.data) {
       return [];
     }
     const observables = observablesQuery.data.data;
@@ -211,9 +207,7 @@ export function CaseGraph({ caseId }: { caseId: UUID }) {
           </label>
           <Select
             value={filterType}
-            onChange={(e) =>
-              setFilterType(e.target.value as "all" | NodeType)
-            }
+            onChange={(e) => setFilterType(e.target.value as "all" | NodeType)}
             className="!mt-0 !w-48"
           >
             <option value="all">All node types</option>

@@ -6,12 +6,11 @@ and computes the tenant-scoped heatmap that drives the visualization.
 
 from __future__ import annotations
 
-from collections import defaultdict
 from datetime import datetime
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import AttackMapping, AttackReference, Case
@@ -22,7 +21,9 @@ from src.schemas.attack import (
 
 
 async def _get_mapping_or_404(db: AsyncSession, mapping_id: UUID) -> AttackMapping:
-    m = (await db.execute(select(AttackMapping).where(AttackMapping.id == mapping_id))).scalar_one_or_none()
+    m = (
+        await db.execute(select(AttackMapping).where(AttackMapping.id == mapping_id))
+    ).scalar_one_or_none()
     if m is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Mapping {mapping_id} not found")
     return m
@@ -58,21 +59,21 @@ async def delete_mapping(db: AsyncSession, mapping_id: UUID) -> None:
     await db.flush()
 
 
-async def list_mappings_for_case(
-    db: AsyncSession, case_id: UUID
-) -> list[AttackMapping]:
+async def list_mappings_for_case(db: AsyncSession, case_id: UUID) -> list[AttackMapping]:
     rows = (
-        await db.execute(
-            select(AttackMapping).where(AttackMapping.case_id == case_id)
-        )
-    ).scalars().all()
+        (await db.execute(select(AttackMapping).where(AttackMapping.case_id == case_id)))
+        .scalars()
+        .all()
+    )
     return list(rows)
 
 
 async def list_reference(db: AsyncSession) -> list[AttackReference]:
     rows = (
-        await db.execute(select(AttackReference).order_by(AttackReference.technique_id))
-    ).scalars().all()
+        (await db.execute(select(AttackReference).order_by(AttackReference.technique_id)))
+        .scalars()
+        .all()
+    )
     return list(rows)
 
 

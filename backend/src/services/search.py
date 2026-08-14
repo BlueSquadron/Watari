@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import func, literal, select, union_all
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Alert, Asset, Case, Note, Observable
@@ -18,9 +18,7 @@ from src.schemas.alerts import ocsf_severity_caption
 from src.schemas.search import SearchEntityType, SearchHit, SearchRequest, SearchResponse
 
 
-async def search(
-    db: AsyncSession, tenant_id: UUID, request: SearchRequest
-) -> SearchResponse:
+async def search(db: AsyncSession, tenant_id: UUID, request: SearchRequest) -> SearchResponse:
     pattern = f"%{request.query.strip()}%"
     hits: list[SearchHit] = []
     entity_set = set(request.entity_types)
@@ -28,16 +26,17 @@ async def search(
     # Cases: match title + description
     if SearchEntityType.CASE in entity_set:
         rows = (
-            await db.execute(
-                select(Case)
-                .where(Case.tenant_id == tenant_id)
-                .where(
-                    (Case.title.ilike(pattern))
-                    | (Case.description.ilike(pattern))
+            (
+                await db.execute(
+                    select(Case)
+                    .where(Case.tenant_id == tenant_id)
+                    .where((Case.title.ilike(pattern)) | (Case.description.ilike(pattern)))
+                    .limit(request.limit)
                 )
-                .limit(request.limit)
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         for c in rows:
             snippet = (c.description or c.title)[:200]
             hits.append(
@@ -47,7 +46,11 @@ async def search(
                     case_id=c.id,
                     title=c.title,
                     snippet=snippet,
-                    extra={"case_number": c.case_number, "severity": c.severity, "status": c.status},
+                    extra={
+                        "case_number": c.case_number,
+                        "severity": c.severity,
+                        "status": c.status,
+                    },
                     score=1.0 if request.query.lower() in c.title.lower() else 0.5,
                 )
             )
@@ -55,13 +58,17 @@ async def search(
     # Observables: match value
     if SearchEntityType.OBSERVABLE in entity_set:
         rows = (
-            await db.execute(
-                select(Observable)
-                .where(Observable.tenant_id == tenant_id)
-                .where(Observable.value.ilike(pattern))
-                .limit(request.limit)
+            (
+                await db.execute(
+                    select(Observable)
+                    .where(Observable.tenant_id == tenant_id)
+                    .where(Observable.value.ilike(pattern))
+                    .limit(request.limit)
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         for o in rows:
             hits.append(
                 SearchHit(
@@ -78,17 +85,21 @@ async def search(
     # Assets
     if SearchEntityType.ASSET in entity_set:
         rows = (
-            await db.execute(
-                select(Asset)
-                .where(Asset.tenant_id == tenant_id)
-                .where(
-                    (Asset.name.ilike(pattern))
-                    | (Asset.ip_address.ilike(pattern))
-                    | (Asset.domain.ilike(pattern))
+            (
+                await db.execute(
+                    select(Asset)
+                    .where(Asset.tenant_id == tenant_id)
+                    .where(
+                        (Asset.name.ilike(pattern))
+                        | (Asset.ip_address.ilike(pattern))
+                        | (Asset.domain.ilike(pattern))
+                    )
+                    .limit(request.limit)
                 )
-                .limit(request.limit)
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         for a in rows:
             hits.append(
                 SearchHit(
@@ -105,13 +116,17 @@ async def search(
     # Notes
     if SearchEntityType.NOTE in entity_set:
         rows = (
-            await db.execute(
-                select(Note)
-                .where(Note.tenant_id == tenant_id)
-                .where((Note.title.ilike(pattern)) | (Note.content.ilike(pattern)))
-                .limit(request.limit)
+            (
+                await db.execute(
+                    select(Note)
+                    .where(Note.tenant_id == tenant_id)
+                    .where((Note.title.ilike(pattern)) | (Note.content.ilike(pattern)))
+                    .limit(request.limit)
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         for n in rows:
             # Find a snippet that contains the query term
             content = n.content or ""
@@ -134,13 +149,17 @@ async def search(
     # Alerts
     if SearchEntityType.ALERT in entity_set:
         rows = (
-            await db.execute(
-                select(Alert)
-                .where(Alert.tenant_id == tenant_id)
-                .where((Alert.title.ilike(pattern)) | (Alert.message.ilike(pattern)))
-                .limit(request.limit)
+            (
+                await db.execute(
+                    select(Alert)
+                    .where(Alert.tenant_id == tenant_id)
+                    .where((Alert.title.ilike(pattern)) | (Alert.message.ilike(pattern)))
+                    .limit(request.limit)
+                )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         for a in rows:
             hits.append(
                 SearchHit(
@@ -166,8 +185,13 @@ async def search(
 
 
 def filter_match(
-    value: str, *, query: str | None = None, status: str | None = None, severity: str | None = None,
-    status_field: str | None = None, severity_field: str | None = None,
+    value: str,
+    *,
+    query: str | None = None,
+    status: str | None = None,
+    severity: str | None = None,
+    status_field: str | None = None,
+    severity_field: str | None = None,
 ) -> bool:
     """Pure predicate used by tests to verify filter correctness."""
     if query and query.lower() not in value.lower():

@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import and_, func, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import Case, TimelineAssetLink, TimelineEntry
@@ -42,20 +41,18 @@ async def _replace_asset_links(
 ) -> None:
     # Drop existing links
     existing = (
-        await db.execute(
-            select(TimelineAssetLink).where(
-                TimelineAssetLink.timeline_entry_id == entry.id
+        (
+            await db.execute(
+                select(TimelineAssetLink).where(TimelineAssetLink.timeline_entry_id == entry.id)
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     for link in existing:
         await db.delete(link)
     for asset_id in asset_ids:
-        db.add(
-            TimelineAssetLink(
-                timeline_entry_id=entry.id, asset_id=asset_id
-            )
-        )
+        db.add(TimelineAssetLink(timeline_entry_id=entry.id, asset_id=asset_id))
     await db.flush()
 
 
@@ -134,33 +131,29 @@ async def list_entries(
     if filters.event_before:
         query = query.where(TimelineEntry.event_timestamp <= filters.event_before)
 
-    total = (
-        await db.execute(select(func.count()).select_from(query.subquery()))
-    ).scalar_one()
+    total = (await db.execute(select(func.count()).select_from(query.subquery()))).scalar_one()
 
     order = (
         TimelineEntry.event_timestamp.asc()
         if filters.order == "asc"
         else TimelineEntry.event_timestamp.desc()
     )
-    rows = (
-        await db.execute(query.order_by(order).limit(limit).offset(offset))
-    ).scalars().all()
+    rows = (await db.execute(query.order_by(order).limit(limit).offset(offset))).scalars().all()
     return list(rows), int(total)
 
 
-async def get_asset_links(
-    db: AsyncSession, entry_ids: list[UUID]
-) -> dict[UUID, list[UUID]]:
+async def get_asset_links(db: AsyncSession, entry_ids: list[UUID]) -> dict[UUID, list[UUID]]:
     if not entry_ids:
         return {}
     rows = (
-        await db.execute(
-            select(TimelineAssetLink).where(
-                TimelineAssetLink.timeline_entry_id.in_(entry_ids)
+        (
+            await db.execute(
+                select(TimelineAssetLink).where(TimelineAssetLink.timeline_entry_id.in_(entry_ids))
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     result: dict[UUID, list[UUID]] = defaultdict(list)
     for row in rows:
         result[row.timeline_entry_id].append(row.asset_id)
@@ -190,14 +183,9 @@ async def build_swimlane(
         else:
             lanes[f"category:{e.category or 'other'}"].append(e.id)
 
-    clusters_raw = find_clusters(
-        [e for e in entries], threshold_seconds=cluster_threshold_seconds
-    )
+    clusters_raw = find_clusters([e for e in entries], threshold_seconds=cluster_threshold_seconds)
     clusters = [
-        TemporalCluster(
-            start=c.start, end=c.end, entry_ids=list(c.entry_ids)
-        )
-        for c in clusters_raw
+        TemporalCluster(start=c.start, end=c.end, entry_ids=list(c.entry_ids)) for c in clusters_raw
     ]
     return entries, clusters, dict(lanes)
 

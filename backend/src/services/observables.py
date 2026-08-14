@@ -21,9 +21,7 @@ from .validators import validate_observable
 
 
 async def _get_case_or_404(db: AsyncSession, case_id: UUID) -> Case:
-    case = (
-        await db.execute(select(Case).where(Case.id == case_id))
-    ).scalar_one_or_none()
+    case = (await db.execute(select(Case).where(Case.id == case_id))).scalar_one_or_none()
     if case is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -117,9 +115,7 @@ async def create_observables_bulk(
     created: list[Observable] = []
     for item in payload.observables:
         created.append(
-            await create_observable(
-                db, case_id=case_id, created_by=created_by, payload=item
-            )
+            await create_observable(db, case_id=case_id, created_by=created_by, payload=item)
         )
     return created
 
@@ -132,12 +128,12 @@ async def list_observables(
     offset: int = 0,
 ) -> tuple[list[Observable], int]:
     base = select(Observable).where(Observable.case_id == case_id)
-    total = (
-        await db.execute(select(func.count()).select_from(base.subquery()))
-    ).scalar_one()
+    total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(base.order_by(Observable.created_at.desc()).limit(limit).offset(offset))
-    ).scalars().all()
+        (await db.execute(base.order_by(Observable.created_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -183,14 +179,18 @@ async def find_correlating_cases(
 ) -> list[UUID]:
     """Return all case ids within a tenant containing the given observable value."""
     rows = (
-        await db.execute(
-            select(Observable.case_id)
-            .where(Observable.tenant_id == tenant_id)
-            .where(Observable.type == type)
-            .where(Observable.value == value)
-            .distinct()
+        (
+            await db.execute(
+                select(Observable.case_id)
+                .where(Observable.tenant_id == tenant_id)
+                .where(Observable.type == type)
+                .where(Observable.value == value)
+                .distinct()
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows)
 
 

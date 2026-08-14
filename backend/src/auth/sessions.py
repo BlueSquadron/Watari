@@ -64,9 +64,7 @@ async def create_session(
     return record
 
 
-async def is_session_active(
-    redis: Redis, user_id: UUID, session_id: str
-) -> bool:
+async def is_session_active(redis: Redis, user_id: UUID, session_id: str) -> bool:
     """Return True if the session key still exists in Redis."""
     return await redis.exists(_key(user_id, session_id)) > 0
 

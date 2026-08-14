@@ -7,7 +7,12 @@
  * can reuse existing components like `SeverityBadge`.
  */
 
-import type { Alert, AlertStatus, CaseSeverity, OCSFObservable } from "@/types/api";
+import type {
+  Alert,
+  AlertStatus,
+  CaseSeverity,
+  OCSFObservable,
+} from "@/types/api";
 
 /** OCSF `severity_id` -> Watari `CaseSeverity` enum member. */
 export function ocsfSeverityToCaseSeverity(severityId: number): CaseSeverity {

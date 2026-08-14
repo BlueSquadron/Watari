@@ -97,7 +97,10 @@ export function ObservableList({ caseId }: { caseId: UUID }) {
         className="grid grid-cols-1 gap-3 rounded-lg border border-watari-bg-dark-tertiary bg-watari-bg-dark p-4 md:grid-cols-6"
       >
         <Field label="Type" required>
-          <Select value={type} onChange={(e) => setType(e.target.value as ObservableType)}>
+          <Select
+            value={type}
+            onChange={(e) => setType(e.target.value as ObservableType)}
+          >
             {TYPES.map((t) => (
               <option key={t} value={t}>
                 {t}
@@ -114,7 +117,10 @@ export function ObservableList({ caseId }: { caseId: UUID }) {
           />
         </Field>
         <Field label="TLP">
-          <Select value={tlp} onChange={(e) => setTlp(e.target.value as TLP | "")}>
+          <Select
+            value={tlp}
+            onChange={(e) => setTlp(e.target.value as TLP | "")}
+          >
             {TLPS.map((t) => (
               <option key={t || "none"} value={t}>
                 {t || "(none)"}
@@ -192,7 +198,9 @@ export function ObservableList({ caseId }: { caseId: UUID }) {
                     )}
                   </TD>
                   <TD className="text-watari-text-dark-secondary">
-                    {o.seen_in_cases_count ? `${o.seen_in_cases_count} case(s)` : "—"}
+                    {o.seen_in_cases_count
+                      ? `${o.seen_in_cases_count} case(s)`
+                      : "—"}
                   </TD>
                   <TD>
                     <div className="flex gap-1">

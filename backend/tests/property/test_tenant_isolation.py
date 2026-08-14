@@ -17,7 +17,8 @@ from __future__ import annotations
 import os
 
 import pytest
-from hypothesis import HealthCheck, given, settings, strategies as st
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,6 +28,7 @@ pytestmark = pytest.mark.skipif(
     os.getenv("TEST_DATABASE_URL") is None and os.getenv("DATABASE_URL") is None,
     reason="Requires PostgreSQL test database; set TEST_DATABASE_URL or DATABASE_URL",
 )
+
 
 async def _enforce_rls(db_session: AsyncSession) -> None:
     """Drop the platform-admin bypass that `db_session` sets by default.
@@ -198,9 +200,7 @@ async def test_platform_admin_bypass_sees_all(
     # ...and the same query, without the bypass, must not.
     await _enforce_rls(db_session)
     await db_session.execute(
-        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
-            tid=str(tenant_a.id)
-        )
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant_a.id))
     )
     rows = (await db_session.execute(select(Case))).scalars().all()
     assert [r.title for r in rows] == ["A1"]

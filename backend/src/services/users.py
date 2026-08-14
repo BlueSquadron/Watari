@@ -25,9 +25,7 @@ from src.schemas.users import (
 
 
 async def _get_tenant_or_404(db: AsyncSession, tenant_id: UUID) -> Tenant:
-    tenant = (
-        await db.execute(select(Tenant).where(Tenant.id == tenant_id))
-    ).scalar_one_or_none()
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
     if tenant is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -49,22 +47,18 @@ async def list_users(
     if not include_service_accounts:
         query = query.where(User.is_service_account.is_(False))
 
-    total = (
-        await db.execute(
-            select(func.count()).select_from(query.subquery())
-        )
-    ).scalar_one()
+    total = (await db.execute(select(func.count()).select_from(query.subquery()))).scalar_one()
     rows = (
-        await db.execute(query.order_by(User.created_at.desc()).limit(limit).offset(offset))
-    ).scalars().all()
+        (await db.execute(query.order_by(User.created_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
 async def get_user(db: AsyncSession, user_id: UUID) -> User:
     """Fetch a user by id or raise 404."""
-    user = (
-        await db.execute(select(User).where(User.id == user_id))
-    ).scalar_one_or_none()
+    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -84,9 +78,7 @@ async def create_user(
     # Username must be unique per tenant
     existing = (
         await db.execute(
-            select(User).where(
-                User.tenant_id == tenant_id, User.username == payload.username
-            )
+            select(User).where(User.tenant_id == tenant_id, User.username == payload.username)
         )
     ).scalar_one_or_none()
     if existing is not None:
@@ -119,9 +111,7 @@ async def create_user(
     return user
 
 
-async def update_user(
-    db: AsyncSession, user_id: UUID, payload: UserUpdate
-) -> User:
+async def update_user(db: AsyncSession, user_id: UUID, payload: UserUpdate) -> User:
     """Apply a partial update to a user."""
     user = await get_user(db, user_id)
     data = payload.model_dump(exclude_unset=True)
@@ -135,9 +125,7 @@ async def update_user(
     return user
 
 
-async def change_password(
-    db: AsyncSession, user_id: UUID, payload: PasswordChange
-) -> None:
+async def change_password(db: AsyncSession, user_id: UUID, payload: PasswordChange) -> None:
     """Verify current password and replace with new password."""
     user = await get_user(db, user_id)
     if user.password_hash is None or not verify_password(
@@ -189,9 +177,7 @@ async def create_service_account(
 
     existing = (
         await db.execute(
-            select(User).where(
-                User.tenant_id == tenant_id, User.username == payload.username
-            )
+            select(User).where(User.tenant_id == tenant_id, User.username == payload.username)
         )
     ).scalar_one_or_none()
     if existing is not None:

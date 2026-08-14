@@ -15,7 +15,6 @@ Responsibilities:
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -31,7 +30,6 @@ from src.schemas.alerts import (
     AlertResponse,
     AlertStatus,
     DetectionFindingIngest,
-    OCSFObservable,
     OCSFObservableTypeId,
     OCSFStatusId,
     WatariAlertEnvelope,
@@ -40,12 +38,11 @@ from src.schemas.alerts import (
     watari_status_to_ocsf,
 )
 from src.schemas.cases import CaseCreate, CaseSeverity
-from src.schemas.observables import ObservableCreate, ObservableType, TLP
+from src.schemas.observables import TLP, ObservableCreate, ObservableType
 
 from . import cases as case_service
 from . import observables as observable_service
 from .timeline_recorder import record_event
-
 
 # ---- Dedup ------------------------------------------------------------
 
@@ -77,9 +74,7 @@ def is_duplicate_payload(payload: DetectionFindingIngest, other: Alert) -> bool:
 
 
 async def _get_alert_or_404(db: AsyncSession, alert_id: UUID) -> Alert:
-    alert = (
-        await db.execute(select(Alert).where(Alert.id == alert_id))
-    ).scalar_one_or_none()
+    alert = (await db.execute(select(Alert).where(Alert.id == alert_id))).scalar_one_or_none()
     if alert is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Alert {alert_id} not found")
     return alert
@@ -170,23 +165,19 @@ async def list_alerts(
         base = base.where(Alert.created_at >= filters.created_after)
     if filters.created_before:
         base = base.where(Alert.created_at <= filters.created_before)
-    total = (
-        await db.execute(select(func.count()).select_from(base.subquery()))
-    ).scalar_one()
+    total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(
-            base.order_by(Alert.created_at.desc()).limit(limit).offset(offset)
-        )
-    ).scalars().all()
+        (await db.execute(base.order_by(Alert.created_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
 # ---- Dismiss / promote ------------------------------------------------
 
 
-async def dismiss_alert(
-    db: AsyncSession, alert_id: UUID, payload: AlertDismiss
-) -> Alert:
+async def dismiss_alert(db: AsyncSession, alert_id: UUID, payload: AlertDismiss) -> Alert:
     alert = await _get_alert_or_404(db, alert_id)
     alert.status = AlertStatus.DISMISSED.value
     alert.dismiss_reason = payload.reason

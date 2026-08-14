@@ -15,8 +15,6 @@ This keeps frontend error handling and client SDKs simple.
 
 from __future__ import annotations
 
-from typing import Any
-
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -55,9 +53,7 @@ def _error_response(
     return JSONResponse(status_code=status_code, content=body)
 
 
-async def _http_exception_handler(
-    request: Request, exc: HTTPException
-) -> JSONResponse:
+async def _http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     # Map common HTTP status codes to our standard codes
     status_code_to_code = {
         status.HTTP_400_BAD_REQUEST: _VALIDATION_ERROR,
@@ -91,7 +87,9 @@ async def _validation_exception_handler(
     for err in exc.errors():
         loc = err.get("loc", ())
         # Skip the first element ("body", "query", "path") for a cleaner field path
-        field_path = ".".join(str(x) for x in loc[1:]) if len(loc) > 1 else str(loc[0]) if loc else ""
+        field_path = (
+            ".".join(str(x) for x in loc[1:]) if len(loc) > 1 else str(loc[0]) if loc else ""
+        )
         details.append(
             ErrorDetail(
                 field=field_path or "<root>",
@@ -108,9 +106,7 @@ async def _validation_exception_handler(
     )
 
 
-async def _integrity_error_handler(
-    request: Request, exc: IntegrityError
-) -> JSONResponse:
+async def _integrity_error_handler(request: Request, exc: IntegrityError) -> JSONResponse:
     # Map PostgreSQL constraint-violation errors to 409 Conflict / 400 Bad Request.
     orig = getattr(exc, "orig", None)
     orig_message = str(orig) if orig else str(exc)
@@ -138,9 +134,7 @@ async def _integrity_error_handler(
     )
 
 
-async def _sqlalchemy_error_handler(
-    request: Request, exc: SQLAlchemyError
-) -> JSONResponse:
+async def _sqlalchemy_error_handler(request: Request, exc: SQLAlchemyError) -> JSONResponse:
     return _error_response(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         code=_INTERNAL,
@@ -149,9 +143,7 @@ async def _sqlalchemy_error_handler(
     )
 
 
-async def _unhandled_exception_handler(
-    request: Request, exc: Exception
-) -> JSONResponse:
+async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     return _error_response(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         code=_INTERNAL,

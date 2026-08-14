@@ -21,7 +21,9 @@ export function FieldLabel({ children, required, className }: LabelProps) {
       )}
     >
       {children}
-      {required ? <span className="ml-0.5 text-severity-critical">*</span> : null}
+      {required ? (
+        <span className="ml-0.5 text-severity-critical">*</span>
+      ) : null}
     </span>
   );
 }
@@ -36,7 +38,9 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
 
 export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const { className, ...rest } = props;
-  return <textarea className={clsx(inputBase, "resize-y", className)} {...rest} />;
+  return (
+    <textarea className={clsx(inputBase, "resize-y", className)} {...rest} />
+  );
 }
 
 export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {

@@ -18,12 +18,8 @@ from src.schemas.observables import ObservableType
 
 # Pre-compiled patterns
 _DOMAIN_LABEL = r"(?!-)[A-Za-z0-9-]{1,63}(?<!-)"
-_DOMAIN_RE = re.compile(
-    rf"^(?:{_DOMAIN_LABEL}\.)+[A-Za-z]{{2,63}}$"
-)
-_HOSTNAME_RE = re.compile(
-    rf"^(?:{_DOMAIN_LABEL})(?:\.{_DOMAIN_LABEL})*$"
-)
+_DOMAIN_RE = re.compile(rf"^(?:{_DOMAIN_LABEL}\.)+[A-Za-z]{{2,63}}$")
+_HOSTNAME_RE = re.compile(rf"^(?:{_DOMAIN_LABEL})(?:\.{_DOMAIN_LABEL})*$")
 _EMAIL_RE = re.compile(
     r"^[A-Za-z0-9._%+\-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9\-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$"
 )
@@ -91,9 +87,7 @@ def _normalize_filename(value: str) -> str:
 def _normalize_registry_key(value: str) -> str:
     v = value.strip()
     if not _REGISTRY_KEY_RE.match(v):
-        raise ValueError(
-            "not a valid Windows registry key (must start with HKLM\\, HKCU\\, etc.)"
-        )
+        raise ValueError("not a valid Windows registry key (must start with HKLM\\, HKCU\\, etc.)")
     return v
 
 

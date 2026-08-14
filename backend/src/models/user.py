@@ -15,7 +15,8 @@ class User(BaseModel, Base):
     __table_args__ = (
         UniqueConstraint("tenant_id", "username", name="uq_users_tenant_username"),
         CheckConstraint(
-            "role IN ('platform_admin', 'tenant_admin', 'analyst', 'read_only', 'api_service_account')",
+            "role IN ('platform_admin', 'tenant_admin', 'analyst', "
+            "'read_only', 'api_service_account')",
             name="ck_users_role",
         ),
     )

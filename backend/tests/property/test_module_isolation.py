@@ -16,10 +16,10 @@ import os
 from typing import Any
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models import Module, ModuleExecution
+from src.models import Module
 from src.modules.base import BaseModule, ModuleAPI, get_registry
 from src.services import modules as module_service
 
@@ -57,8 +57,11 @@ async def test_module_exception_recorded_as_failed(
 
     get_registry().register("test.boom", _BoomModule)
     module = Module(
-        name="boom", version="1.0", type="processor",
-        entry_point="test.boom", is_enabled=True,
+        name="boom",
+        version="1.0",
+        type="processor",
+        entry_point="test.boom",
+        is_enabled=True,
     )
     db_session.add(module)
     await db_session.flush()
@@ -92,12 +95,18 @@ async def test_module_failure_does_not_affect_other_modules(
     get_registry().register("test.boom", _BoomModule)
     get_registry().register("test.ok", _OKModule)
     boom_module = Module(
-        name="boom-iso", version="1.0", type="processor",
-        entry_point="test.boom", is_enabled=True,
+        name="boom-iso",
+        version="1.0",
+        type="processor",
+        entry_point="test.boom",
+        is_enabled=True,
     )
     ok_module = Module(
-        name="ok-iso", version="1.0", type="processor",
-        entry_point="test.ok", is_enabled=True,
+        name="ok-iso",
+        version="1.0",
+        type="processor",
+        entry_point="test.ok",
+        is_enabled=True,
     )
     db_session.add_all([boom_module, ok_module])
     await db_session.flush()

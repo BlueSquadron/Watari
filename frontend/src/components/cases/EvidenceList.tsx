@@ -82,7 +82,8 @@ export function EvidenceList({ caseId }: { caseId: UUID }) {
 
   const remove = useMutation({
     mutationFn: (id: UUID) => evidenceApi.remove(tenantId, caseId, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["case", caseId, "evidence"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["case", caseId, "evidence"] }),
   });
 
   const onFile = (e: ChangeEvent<HTMLInputElement>) => {
@@ -180,7 +181,9 @@ export function EvidenceList({ caseId }: { caseId: UUID }) {
                 <TD className="font-mono text-xs" title={ev.file_hash_sha256}>
                   {ev.file_hash_sha256.slice(0, 16)}…
                 </TD>
-                <TD>{integrityBadge(ev.integrity_verified, ev.integrity_mismatch)}</TD>
+                <TD>
+                  {integrityBadge(ev.integrity_verified, ev.integrity_mismatch)}
+                </TD>
                 <TD>
                   <div className="flex gap-1">
                     {ev.is_uploaded ? (
@@ -211,10 +214,7 @@ export function EvidenceList({ caseId }: { caseId: UUID }) {
   );
 }
 
-function integrityBadge(
-  verified: boolean | null,
-  mismatch: boolean,
-) {
+function integrityBadge(verified: boolean | null, mismatch: boolean) {
   if (mismatch) {
     return (
       <span className="rounded bg-severity-critical/15 px-2 py-0.5 text-xs font-medium text-severity-critical">
@@ -229,7 +229,9 @@ function integrityBadge(
       </span>
     );
   }
-  return <span className="text-xs text-watari-text-dark-secondary">pending</span>;
+  return (
+    <span className="text-xs text-watari-text-dark-secondary">pending</span>
+  );
 }
 
 function formatBytes(size: number): string {

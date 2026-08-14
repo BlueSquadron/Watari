@@ -69,6 +69,24 @@ useful contribution. Please check the
 [issue tracker](https://github.com/BlueSquadron/Watari/issues) first in case
 someone got there ahead of you.
 
+### 🔌 Service-account API keys aren't accepted anywhere — [#15](https://github.com/BlueSquadron/Watari/issues/15)
+
+**Impact: high, and very visible.** OCSF ingestion from any detector is the
+headline feature, and `X-API-Key` — the credential the README and the whole
+integration guide use for it — returns 401 on every endpoint. The same request
+with a bearer token returns 201, so only the credential type is missing.
+
+Most of the plumbing exists: key generation, hashing, rotation, a seeded
+service account, and `src/auth/unified.py` with a `get_principal` dependency
+that accepts *either* a JWT or an API key. Nothing references it —
+`require_permission` builds on the JWT-only `get_current_user`. Separately,
+`Role.API_SERVICE_ACCOUNT` maps to an empty permission set, so a key would 403
+even once it authenticates.
+
+Good contribution if you want something with a clear finish line and real
+user-visible payoff. The issue has the full write-up. Wants tests — there is
+no coverage of API-key auth today, which is why this went unnoticed.
+
 ### 🎨 Smaller things
 
 - Leaflet marker icons 404 on the case Map tab (the default icon asset isn't bundled by Vite — a well-known Leaflet + bundler papercut).
@@ -82,34 +100,26 @@ Found something else? [Open an issue](https://github.com/BlueSquadron/Watari/iss
 
 ## Running the tests
 
-The test dependencies aren't in the API image yet, so run them from a local
+The test dependencies aren't in the API image yet, so tests run from a local
 virtualenv (see "Optional: local Python and Node" above). Everything lives
 under `backend/tests/`.
 
-### The quick loop
-
-Most of the property suites need no database at all — clustering, OCSF
-round-tripping, pagination, hash verification, TLP rules, geolocation:
+Two commands cover almost everything:
 
 ```bash
-cd backend
-source .venv/bin/activate
-
-PYTHONPATH=. pytest tests/property -q
+make test-quick   # 116 tests, no database, a couple of seconds
+make test         # all 148, needs the stack up (make dev)
 ```
 
-Without `TEST_DATABASE_URL` set, the DB-backed suites skip themselves and the
-remaining 116 tests run in a couple of seconds.
+`make test` creates the dedicated `watari_test` database if it's missing and
+passes the right environment, so there is nothing to set up by hand. Both are
+green on a clean checkout — anything red is yours.
 
-### The full suite
-
-Point it at a **dedicated** database. The session fixture runs
-`alembic downgrade base` on teardown, which drops every table — so the
-fixture refuses to start unless the database name contains `test`.
+<details>
+<summary><b>What <code>make test</code> does, if you'd rather run pytest directly</b></summary>
 
 ```bash
-# once
-docker compose exec postgres createdb -U watari watari_test
+docker compose exec postgres createdb -U watari watari_test   # once
 
 cd backend
 TEST_DATABASE_URL=postgresql+asyncpg://watari:watari_dev_password@localhost:5432/watari_test \
@@ -129,7 +139,12 @@ usually omit it.
 at `minio:9000`, which resolves inside the Compose network but not from your
 host.
 
-Expect **148 passed**.
+Without any of them, the DB-backed suites skip themselves — that is what
+`make test-quick` relies on.
+</details>
+
+The session fixture runs `alembic downgrade base` on teardown, which drops
+every table, so it refuses to start unless the database name contains `test`.
 
 `db_session` switches on the platform-admin RLS bypass by default — otherwise
 every fixture that inserts a user or a case would first have to establish a
@@ -152,19 +167,25 @@ valuable tests in the repo and the best place to add coverage.
 
 ### Frontend
 
-```bash
-cd frontend
-npx tsc --noEmit    # type check
-npm run lint
-```
-
-### Everything
+The frontend's `node_modules` lives in a container volume, so run its checks
+there — no local `npm install` needed:
 
 ```bash
-make test    # unit + property + integration
-make lint    # ruff + mypy + tsc
-make format  # ruff format + prettier
+docker compose exec frontend npx tsc --noEmit   # type check
+docker compose exec frontend npm run lint       # eslint
 ```
+
+### Everything, via make
+
+```bash
+make lint     # ruff + mypy (backend), tsc + eslint (frontend)
+make format   # ruff format + prettier
+```
+
+`make lint` is green on a clean checkout, so anything it reports is yours.
+mypy is the exception: it has 108 pre-existing findings and is advisory rather
+than blocking, so don't be alarmed by its output. `make help` lists every
+target.
 
 ---
 
@@ -263,7 +284,8 @@ everyone who runs the demo — and it makes your screenshots better.
    unrelated files makes review much harder.
 4. **Add a test.** Bug fix → regression test. New behaviour → property test if
    you can express it as an invariant, example test otherwise.
-5. **Run the checks**: `make lint` and the unit suite, at minimum.
+5. **Run the checks**: `make lint` and `make test`, at minimum. Both pass on
+   a clean checkout, so anything red is yours.
 6. **Write a real commit message** — what changed and why, not just what.
 7. **Open the PR** and fill in the template. Screenshots for UI changes, please.
 

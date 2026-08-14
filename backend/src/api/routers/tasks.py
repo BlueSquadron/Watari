@@ -14,9 +14,7 @@ from src.schemas.common import ApiResponse, PaginationParams, build_pagination_m
 from src.schemas.tasks import TaskCreate, TaskResponse, TaskUpdate
 from src.services import tasks as task_service
 
-router = APIRouter(
-    prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/tasks", tags=["tasks"]
-)
+router = APIRouter(prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/tasks", tags=["tasks"])
 
 
 def _check(auth: AuthContext, tenant_id: UUID) -> None:
@@ -30,9 +28,7 @@ async def list_tasks(
     case_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TASK, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TASK, Action.READ))],
 ) -> ApiResponse[list[TaskResponse]]:
     _check(auth, tenant_id)
     rows, total = await task_service.list_tasks(
@@ -50,9 +46,7 @@ async def create_task(
     case_id: UUID,
     payload: TaskCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TASK, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TASK, Action.CREATE))],
 ) -> ApiResponse[TaskResponse]:
     _check(auth, tenant_id)
     task = await task_service.create_task(
@@ -68,9 +62,7 @@ async def update_task(
     task_id: UUID,
     payload: TaskUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TASK, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TASK, Action.UPDATE))],
 ) -> ApiResponse[TaskResponse]:
     _check(auth, tenant_id)
     task = await task_service.update_task(db, task_id, payload, actor_id=auth.user_id)
@@ -83,9 +75,7 @@ async def delete_task(
     case_id: UUID,
     task_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TASK, Action.DELETE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TASK, Action.DELETE))],
 ) -> None:
     _check(auth, tenant_id)
     await task_service.delete_task(db, task_id, actor_id=auth.user_id)

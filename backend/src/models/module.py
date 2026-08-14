@@ -33,15 +33,9 @@ class Module(Base):
     config_schema: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
     entry_point: Mapped[str] = mapped_column(String(500), nullable=False)
     is_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
-    supported_evidence_types: Mapped[list[str] | None] = mapped_column(
-        ARRAY(String), nullable=True
-    )
-    subscribed_events: Mapped[list[str] | None] = mapped_column(
-        ARRAY(String), nullable=True
-    )
-    installed_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    supported_evidence_types: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
+    subscribed_events: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
+    installed_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         TS, nullable=False, server_default=func.now(), onupdate=func.now()
     )
@@ -83,9 +77,7 @@ class ModuleExecution(Base):
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(TS, nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(TS, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
 
     # Relationships
     module: Mapped["Module"] = relationship("Module", back_populates="executions")

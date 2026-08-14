@@ -7,16 +7,14 @@ dashboard responses under the 5-second target for typical tenant sizes.
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models import Case, Task, User
+from src.models import Case, User
 from src.schemas.dashboard import (
     AnalystWorkloadPoint,
     DashboardMetricsResponse,
@@ -73,16 +71,12 @@ async def compute_metrics(
             .group_by(Case.severity)
         )
     ).all()
-    open_by_severity = [
-        SeverityCountPoint(severity=s, count=c) for s, c in severity_rows
-    ]
+    open_by_severity = [SeverityCountPoint(severity=s, count=c) for s, c in severity_rows]
 
     # Cases by status
     status_rows = (
         await db.execute(
-            select(Case.status, func.count(Case.id))
-            .where(*base_where)
-            .group_by(Case.status)
+            select(Case.status, func.count(Case.id)).where(*base_where).group_by(Case.status)
         )
     ).all()
     by_status = [StatusCountPoint(status=s, count=c) for s, c in status_rows]
@@ -96,20 +90,12 @@ async def compute_metrics(
             .group_by(Case.outcome)
         )
     ).all()
-    by_outcome = [
-        OutcomeCountPoint(outcome=o, count=c) for o, c in outcome_rows if o
-    ]
+    by_outcome = [OutcomeCountPoint(outcome=o, count=c) for o, c in outcome_rows if o]
 
     # Mean time to resolution (hours) — closed cases in the filter window
     mttr_row = (
         await db.execute(
-            select(
-                func.avg(
-                    func.extract(
-                        "epoch", Case.resolved_at - Case.created_at
-                    )
-                )
-            )
+            select(func.avg(func.extract("epoch", Case.resolved_at - Case.created_at)))
             .where(*base_where)
             .where(Case.resolved_at.isnot(None))
         )
@@ -133,9 +119,7 @@ async def compute_metrics(
             .order_by("day")
         )
     ).all()
-    created_series = [
-        TimeSeriesPoint(timestamp=d, value=float(c)) for d, c in created_rows
-    ]
+    created_series = [TimeSeriesPoint(timestamp=d, value=float(c)) for d, c in created_rows]
 
     # Analyst workload: open cases per assignee + resolved cases in last 7d
     seven_days_ago = datetime.now(UTC) - timedelta(days=7)
@@ -144,9 +128,7 @@ async def compute_metrics(
             select(
                 User.id,
                 User.display_name,
-                func.count(Case.id).filter(
-                    Case.status.in_(["new", "in_progress", "pending"])
-                ),
+                func.count(Case.id).filter(Case.status.in_(["new", "in_progress", "pending"])),
                 func.count(Case.id).filter(
                     Case.resolved_at.isnot(None),
                     Case.resolved_at >= seven_days_ago,

@@ -61,9 +61,7 @@ async def test_duplicate_asset_name_rejected(
         db_session,
         tenant_id=tenant.id,
         created_by=user.id,
-        payload=CaseCreate(
-            title="C", severity=CaseSeverity.LOW, tags=[], custom_fields={}
-        ),
+        payload=CaseCreate(title="C", severity=CaseSeverity.LOW, tags=[], custom_fields={}),
     )
 
     # First asset creation must succeed

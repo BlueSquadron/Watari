@@ -42,12 +42,8 @@ pytestmark = pytest.mark.skipif(
     deadline=None,
 )
 @given(
-    obs_counts=st.lists(
-        st.integers(min_value=0, max_value=3), min_size=2, max_size=4
-    ),
-    tl_counts=st.lists(
-        st.integers(min_value=0, max_value=3), min_size=2, max_size=4
-    ),
+    obs_counts=st.lists(st.integers(min_value=0, max_value=3), min_size=2, max_size=4),
+    tl_counts=st.lists(st.integers(min_value=0, max_value=3), min_size=2, max_size=4),
 )
 async def test_merge_preserves_observables_and_timeline(
     obs_counts: list[int],
@@ -68,9 +64,7 @@ async def test_merge_preserves_observables_and_timeline(
         db_session,
         tenant_id=tenant.id,
         created_by=user.id,
-        payload=CaseCreate(
-            title="Target", severity=CaseSeverity.MEDIUM, tags=[], custom_fields={}
-        ),
+        payload=CaseCreate(title="Target", severity=CaseSeverity.MEDIUM, tags=[], custom_fields={}),
     )
 
     sources: list[Case] = []
@@ -100,9 +94,7 @@ async def test_merge_preserves_observables_and_timeline(
                 db_session,
                 case_id=src.id,
                 created_by=user.id,
-                payload=ObservableCreate(
-                    type=ObservableType.IP, value=value
-                ),
+                payload=ObservableCreate(type=ObservableType.IP, value=value),
             )
             expected_obs_values.append(value)
         # Add manual timeline entries
@@ -127,16 +119,13 @@ async def test_merge_preserves_observables_and_timeline(
 
     # All observables from sources must now live on the target
     merged_observables = (
-        await db_session.execute(
-            select(Observable.value).where(Observable.case_id == target.id)
-        )
-    ).scalars().all()
+        (await db_session.execute(select(Observable.value).where(Observable.case_id == target.id)))
+        .scalars()
+        .all()
+    )
     assert sorted(v for v in merged_observables if v in expected_obs_values) == sorted(
         expected_obs_values
-    ), (
-        f"Expected {sorted(expected_obs_values)}, got "
-        f"{sorted(str(v) for v in merged_observables)}"
-    )
+    ), f"Expected {sorted(expected_obs_values)}, got {sorted(str(v) for v in merged_observables)}"
 
     # All timeline entries from sources must now live on the target
     merged_tl_ids = set(
@@ -144,7 +133,9 @@ async def test_merge_preserves_observables_and_timeline(
             await db_session.execute(
                 select(TimelineEntry.id).where(TimelineEntry.case_id == target.id)
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     )
     assert set(expected_tl_ids).issubset(merged_tl_ids), (
         f"Expected timeline entries {expected_tl_ids} to be on target, "

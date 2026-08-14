@@ -30,9 +30,7 @@ results_router = APIRouter(
     tags=["enrichment"],
 )
 
-trigger_router = APIRouter(
-    prefix="/api/v1/tenants/{tenant_id}/enrichment", tags=["enrichment"]
-)
+trigger_router = APIRouter(prefix="/api/v1/tenants/{tenant_id}/enrichment", tags=["enrichment"])
 
 
 def _check(auth: AuthContext, tenant_id: UUID) -> None:
@@ -41,6 +39,7 @@ def _check(auth: AuthContext, tenant_id: UUID) -> None:
 
 
 # --- Source management ---------------------------------------------------
+
 
 @sources_router.get("", response_model=ApiResponse[list[EnrichmentSourceResponse]])
 async def list_sources(
@@ -79,9 +78,7 @@ async def create_source(
     return ApiResponse(data=EnrichmentSourceResponse.model_validate(src))
 
 
-@sources_router.patch(
-    "/{source_id}", response_model=ApiResponse[EnrichmentSourceResponse]
-)
+@sources_router.patch("/{source_id}", response_model=ApiResponse[EnrichmentSourceResponse])
 async def update_source(
     tenant_id: UUID,
     source_id: UUID,
@@ -111,14 +108,13 @@ async def delete_source(
 
 # --- Enrichment trigger -------------------------------------------------
 
+
 @trigger_router.post("", response_model=ApiResponse[EnrichmentTriggerResponse])
 async def trigger(
     tenant_id: UUID,
     payload: EnrichmentRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ENRICHMENT, Action.EXECUTE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ENRICHMENT, Action.EXECUTE))],
 ) -> ApiResponse[EnrichmentTriggerResponse]:
     _check(auth, tenant_id)
     job_ids = await enrichment_service.trigger_enrichment(
@@ -129,6 +125,7 @@ async def trigger(
 
 # --- Enrichment results for a specific observable ----------------------
 
+
 @results_router.get("", response_model=ApiResponse[list[EnrichmentResultResponse]])
 async def list_observable_results(
     tenant_id: UUID,
@@ -136,9 +133,7 @@ async def list_observable_results(
     observable_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ENRICHMENT, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ENRICHMENT, Action.READ))],
 ) -> ApiResponse[list[EnrichmentResultResponse]]:
     _check(auth, tenant_id)
     rows, total = await enrichment_service.list_results(

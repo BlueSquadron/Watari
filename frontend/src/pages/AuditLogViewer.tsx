@@ -48,7 +48,9 @@ export function AuditLogViewer() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
 
   const logs = data?.data ?? [];
@@ -136,7 +138,8 @@ export function AuditLogViewer() {
       {meta ? (
         <div className="flex items-center justify-between text-xs text-watari-text-dark-secondary">
           <span>
-            Page {meta.page} of {meta.total_pages} · {meta.total_count} total entries
+            Page {meta.page} of {meta.total_pages} · {meta.total_count} total
+            entries
           </span>
           <div className="flex gap-2">
             <button

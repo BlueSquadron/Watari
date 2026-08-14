@@ -38,9 +38,7 @@ class SessionModuleAPI(ModuleAPI):
 
         from src.models import Case
 
-        row = (
-            await self._db.execute(select(Case).where(Case.id == case_id))
-        ).scalar_one_or_none()
+        row = (await self._db.execute(select(Case).where(Case.id == case_id))).scalar_one_or_none()
         if row is None:
             return {}
         return {
@@ -54,9 +52,7 @@ class SessionModuleAPI(ModuleAPI):
         }
 
     async def get_observables(self, case_id: UUID) -> list[dict[str, Any]]:
-        rows, _ = await observable_service.list_observables(
-            self._db, case_id, limit=1000
-        )
+        rows, _ = await observable_service.list_observables(self._db, case_id, limit=1000)
         return [
             {
                 "id": str(o.id),
@@ -97,9 +93,7 @@ class SessionModuleAPI(ModuleAPI):
             for e in rows
         ]
 
-    async def add_observable(
-        self, case_id: UUID, observable: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def add_observable(self, case_id: UUID, observable: dict[str, Any]) -> dict[str, Any]:
         payload = ObservableCreate(
             type=ObservableType(observable["type"]),
             value=observable["value"],
@@ -116,9 +110,7 @@ class SessionModuleAPI(ModuleAPI):
         )
         return {"id": str(created.id), "value": created.value, "type": created.type}
 
-    async def add_timeline_entry(
-        self, case_id: UUID, entry: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def add_timeline_entry(self, case_id: UUID, entry: dict[str, Any]) -> dict[str, Any]:
         # Modules can choose to write a "manual" entry OR an automatic event.
         if entry.get("is_automatic", True):
             row = await record_event(
@@ -154,9 +146,7 @@ class SessionModuleAPI(ModuleAPI):
         )
         return {"id": str(row.id)}
 
-    async def add_task(
-        self, case_id: UUID, task: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def add_task(self, case_id: UUID, task: dict[str, Any]) -> dict[str, Any]:
         payload = TaskCreate(
             title=task["title"],
             description=task.get("description"),

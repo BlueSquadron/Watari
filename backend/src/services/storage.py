@@ -19,7 +19,6 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import os
-from io import BytesIO
 from typing import cast
 
 import boto3
@@ -135,7 +134,9 @@ def decrypt_with_password(ciphertext: bytes, password: str) -> bytes:
 # ---------------------------------------------------------------------------
 
 
-async def upload_bytes(key: str, data: bytes, content_type: str = "application/octet-stream") -> None:
+async def upload_bytes(
+    key: str, data: bytes, content_type: str = "application/octet-stream"
+) -> None:
     await ensure_bucket()
     s = get_settings()
     await asyncio.to_thread(

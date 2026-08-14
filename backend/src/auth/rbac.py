@@ -170,36 +170,37 @@ def _permissions_for(role: Role) -> frozenset[Permission]:
     return PERMISSION_MATRIX.get(role, frozenset())
 
 
-def has_permission(
-    auth: AuthContext, resource: Resource, action: Action
-) -> bool:
+def has_permission(auth: AuthContext, resource: Resource, action: Action) -> bool:
     """Return True if the authenticated principal may perform `action` on `resource`."""
     if auth.is_platform_admin:
         return True
     return Permission(resource=resource, action=action) in _permissions_for(auth.role)
 
 
-def require_permission(
-    resource: Resource, action: Action
-) -> "Callable[..., AuthContext]":  # noqa: F821  - self-ref
+def require_permission(resource: Resource, action: Action) -> Callable[..., AuthContext]:  # noqa: F821  - self-ref
     """Build a FastAPI dependency that enforces the given permission.
 
     Usage:
-        @router.post("/cases", dependencies=[Depends(require_permission(Resource.CASE, Action.CREATE))])
+        @router.post(
+            "/cases",
+            dependencies=[Depends(require_permission(Resource.CASE, Action.CREATE))],
+        )
         async def create_case(...): ...
 
     Or, when the route needs the `AuthContext`:
-        async def create_case(auth: Annotated[AuthContext, Depends(require_permission(Resource.CASE, Action.CREATE))]): ...
+        async def create_case(
+            auth: Annotated[
+                AuthContext,
+                Depends(require_permission(Resource.CASE, Action.CREATE)),
+            ],
+        ): ...
     """
 
     async def _dep(auth: CurrentUserDep) -> AuthContext:
         if not has_permission(auth, resource, action):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=(
-                    f"Role '{auth.role}' is not permitted to "
-                    f"{action} on {resource}"
-                ),
+                detail=(f"Role '{auth.role}' is not permitted to {action} on {resource}"),
             )
         return auth
 
@@ -208,15 +209,13 @@ def require_permission(
 
 def require_any_permission(
     permissions: Iterable[tuple[Resource, Action]],
-) -> "Callable[..., AuthContext]":  # noqa: F821
+) -> Callable[..., AuthContext]:  # noqa: F821
     """FastAPI dependency that allows the request if ANY of the permissions match."""
 
     perms = tuple(permissions)
 
     async def _dep(auth: CurrentUserDep) -> AuthContext:
-        if auth.is_platform_admin or any(
-            has_permission(auth, r, a) for r, a in perms
-        ):
+        if auth.is_platform_admin or any(has_permission(auth, r, a) for r, a in perms):
             return auth
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

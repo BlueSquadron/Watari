@@ -35,8 +35,10 @@ async def list_assets(
     base = select(Asset).where(Asset.case_id == case_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(base.order_by(Asset.created_at.desc()).limit(limit).offset(offset))
-    ).scalars().all()
+        (await db.execute(base.order_by(Asset.created_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -108,7 +110,8 @@ async def update_asset(
             case_id=asset.case_id,
             event_type="asset_compromise_changed",
             description=(
-                f"Asset '{asset.name}' marked {'compromised' if asset.is_compromised else 'not compromised'}"
+                f"Asset '{asset.name}' marked "
+                f"{'compromised' if asset.is_compromised else 'not compromised'}"
             ),
             category="asset",
             actor_id=actor_id,
@@ -129,13 +132,17 @@ async def search_assets_in_tenant(
 ) -> list[Asset]:
     pattern = f"%{query}%"
     rows = (
-        await db.execute(
-            select(Asset)
-            .where(Asset.tenant_id == tenant_id)
-            .where((Asset.name.ilike(pattern)) | (Asset.ip_address.ilike(pattern)))
-            .limit(limit)
+        (
+            await db.execute(
+                select(Asset)
+                .where(Asset.tenant_id == tenant_id)
+                .where((Asset.name.ilike(pattern)) | (Asset.ip_address.ilike(pattern)))
+                .limit(limit)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows)
 
 

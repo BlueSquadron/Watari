@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import Action, AuthContext, Resource, require_permission
@@ -14,9 +14,7 @@ from src.schemas.assets import AssetCreate, AssetResponse, AssetUpdate
 from src.schemas.common import ApiResponse, PaginationParams, build_pagination_meta
 from src.services import assets as asset_service
 
-router = APIRouter(
-    prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/assets", tags=["assets"]
-)
+router = APIRouter(prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/assets", tags=["assets"])
 
 
 def _check(auth: AuthContext, tenant_id: UUID) -> None:
@@ -30,9 +28,7 @@ async def list_assets(
     case_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ASSET, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ASSET, Action.READ))],
 ) -> ApiResponse[list[AssetResponse]]:
     _check(auth, tenant_id)
     rows, total = await asset_service.list_assets(
@@ -50,9 +46,7 @@ async def create_asset(
     case_id: UUID,
     payload: AssetCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ASSET, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ASSET, Action.CREATE))],
 ) -> ApiResponse[AssetResponse]:
     _check(auth, tenant_id)
     asset = await asset_service.create_asset(
@@ -68,14 +62,10 @@ async def update_asset(
     asset_id: UUID,
     payload: AssetUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ASSET, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ASSET, Action.UPDATE))],
 ) -> ApiResponse[AssetResponse]:
     _check(auth, tenant_id)
-    asset = await asset_service.update_asset(
-        db, asset_id, payload, actor_id=auth.user_id
-    )
+    asset = await asset_service.update_asset(db, asset_id, payload, actor_id=auth.user_id)
     return ApiResponse(data=AssetResponse.model_validate(asset))
 
 
@@ -85,9 +75,7 @@ async def delete_asset(
     case_id: UUID,
     asset_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ASSET, Action.DELETE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ASSET, Action.DELETE))],
 ) -> None:
     _check(auth, tenant_id)
     await asset_service.delete_asset(db, asset_id)

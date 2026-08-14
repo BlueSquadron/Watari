@@ -52,24 +52,13 @@ export interface LoginResponse {
 }
 
 export type CaseStatus =
-  | "new"
-  | "in_progress"
-  | "pending"
-  | "resolved"
-  | "closed";
+  "new" | "in_progress" | "pending" | "resolved" | "closed";
 
 export type CaseSeverity =
-  | "critical"
-  | "high"
-  | "medium"
-  | "low"
-  | "informational";
+  "critical" | "high" | "medium" | "low" | "informational";
 
 export type CaseOutcome =
-  | "true_positive"
-  | "false_positive"
-  | "indeterminate"
-  | "not_applicable";
+  "true_positive" | "false_positive" | "indeterminate" | "not_applicable";
 
 export interface Case {
   id: UUID;
@@ -163,12 +152,7 @@ export interface Asset {
 }
 
 export type EvidenceType =
-  | "disk_image"
-  | "memory_dump"
-  | "log_export"
-  | "pcap"
-  | "document"
-  | "other";
+  "disk_image" | "memory_dump" | "log_export" | "pcap" | "document" | "other";
 
 export interface Evidence {
   id: UUID;

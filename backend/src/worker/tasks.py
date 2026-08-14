@@ -29,14 +29,13 @@ async def _execute_enrichment(observable_id: str, source_id: str) -> dict[str, A
     from uuid import UUID
 
     from sqlalchemy import select
+
     from src.db import admin_session_factory
     from src.models import EnrichmentResult, EnrichmentSource, Observable
 
     async with admin_session_factory() as session:
         obs = (
-            await session.execute(
-                select(Observable).where(Observable.id == UUID(observable_id))
-            )
+            await session.execute(select(Observable).where(Observable.id == UUID(observable_id)))
         ).scalar_one_or_none()
         source = (
             await session.execute(
@@ -74,9 +73,7 @@ def execute_processor_module(
 ) -> dict[str, Any]:
     """Execute a processor module triggered by a platform event."""
     return asyncio.run(
-        _execute_processor_module(
-            module_id, tenant_id, case_id, event_type, payload, actor_id
-        )
+        _execute_processor_module(module_id, tenant_id, case_id, event_type, payload, actor_id)
     )
 
 

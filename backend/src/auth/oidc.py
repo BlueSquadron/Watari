@@ -59,11 +59,7 @@ def get_oauth_client() -> OAuth:
             server_metadata_url=os.environ["OIDC_DEFAULT_DISCOVERY_URL"],
             client_id=os.environ["OIDC_DEFAULT_CLIENT_ID"],
             client_secret=os.environ["OIDC_DEFAULT_CLIENT_SECRET"],
-            client_kwargs={
-                "scope": os.getenv(
-                    "OIDC_DEFAULT_SCOPES", "openid email profile"
-                )
-            },
+            client_kwargs={"scope": os.getenv("OIDC_DEFAULT_SCOPES", "openid email profile")},
         )
     _oauth = oauth
     return oauth
@@ -84,9 +80,7 @@ def claims_from_userinfo(userinfo: dict[str, object]) -> OIDCClaims:
         email=str(userinfo.get("email", "")),
         name=str(userinfo.get("name", userinfo.get("email", ""))),
         preferred_username=(
-            str(userinfo["preferred_username"])
-            if "preferred_username" in userinfo
-            else None
+            str(userinfo["preferred_username"]) if "preferred_username" in userinfo else None
         ),
         groups=groups,
     )

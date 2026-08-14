@@ -13,7 +13,8 @@ export function EnrichmentResults({
   const tenantId = useTenantStore((s) => s.activeTenantId)!;
   const { data, isLoading } = useQuery({
     queryKey: ["enrichment-results", observableId],
-    queryFn: () => observablesApi.enrichmentResults(tenantId, caseId, observableId),
+    queryFn: () =>
+      observablesApi.enrichmentResults(tenantId, caseId, observableId),
   });
 
   if (isLoading) {

@@ -60,7 +60,11 @@ export function SearchPage() {
           onChange={(e) => setQuery(e.target.value)}
           className="!mt-0 flex-1"
         />
-        <Button type="submit" loading={search.isPending} disabled={query.trim().length < 2}>
+        <Button
+          type="submit"
+          loading={search.isPending}
+          disabled={query.trim().length < 2}
+        >
           Search
         </Button>
       </form>
@@ -76,7 +80,9 @@ export function SearchPage() {
       {search.data && search.data.hits.length > 0 ? (
         <div className="space-y-3">
           <p className="text-xs text-watari-text-dark-secondary">
-            {search.data.total_hits} result{search.data.total_hits === 1 ? "" : "s"} for &ldquo;{search.data.query}&rdquo;
+            {search.data.total_hits} result
+            {search.data.total_hits === 1 ? "" : "s"} for &ldquo;
+            {search.data.query}&rdquo;
           </p>
           {Object.entries(grouped).map(([entityType, hits]) => (
             <div
@@ -96,7 +102,8 @@ export function SearchPage() {
                       type="button"
                       onClick={() => {
                         if (hit.case_id) navigate(`/cases/${hit.case_id}`);
-                        else if (hit.entity_type === "alert") navigate("/alerts");
+                        else if (hit.entity_type === "alert")
+                          navigate("/alerts");
                         else navigate("/cases");
                       }}
                       className="w-full px-4 py-3 text-left hover:bg-watari-bg-dark-tertiary"

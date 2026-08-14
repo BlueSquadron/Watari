@@ -13,8 +13,6 @@ with `StrictUndefined` — any unsubstituted tag SHALL raise an error.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
-
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -30,12 +28,7 @@ def test_simple_tag_substitution() -> None:
 
 
 def test_loop_over_observables() -> None:
-    tpl = (
-        "Observables:\n"
-        "{% for o in observables %}"
-        "- {{ o.type }}: {{ o.value }}\n"
-        "{% endfor %}"
-    )
+    tpl = "Observables:\n{% for o in observables %}- {{ o.type }}: {{ o.value }}\n{% endfor %}"
     ctx = {
         "observables": [
             {"type": "ip", "value": "1.2.3.4"},

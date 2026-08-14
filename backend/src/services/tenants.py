@@ -47,22 +47,22 @@ async def list_tenants(
     offset: int = 0,
 ) -> tuple[list[Tenant], int]:
     """List all tenants with pagination. Returns (rows, total_count)."""
-    total = (
-        await db.execute(select(func.count()).select_from(Tenant))
-    ).scalar_one()
+    total = (await db.execute(select(func.count()).select_from(Tenant))).scalar_one()
     rows = (
-        await db.execute(
-            select(Tenant).order_by(Tenant.created_at.desc()).limit(limit).offset(offset)
+        (
+            await db.execute(
+                select(Tenant).order_by(Tenant.created_at.desc()).limit(limit).offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
 async def get_tenant(db: AsyncSession, tenant_id: UUID) -> Tenant:
     """Fetch a tenant by id or raise 404."""
-    tenant = (
-        await db.execute(select(Tenant).where(Tenant.id == tenant_id))
-    ).scalar_one_or_none()
+    tenant = (await db.execute(select(Tenant).where(Tenant.id == tenant_id))).scalar_one_or_none()
     if tenant is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -71,9 +71,7 @@ async def get_tenant(db: AsyncSession, tenant_id: UUID) -> Tenant:
     return tenant
 
 
-async def update_tenant(
-    db: AsyncSession, tenant_id: UUID, payload: TenantUpdate
-) -> Tenant:
+async def update_tenant(db: AsyncSession, tenant_id: UUID, payload: TenantUpdate) -> Tenant:
     """Apply a partial update to a tenant."""
     tenant = await get_tenant(db, tenant_id)
     update_data = payload.model_dump(exclude_unset=True)

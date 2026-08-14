@@ -60,12 +60,14 @@ export function AssetList({ caseId }: { caseId: UUID }) {
       assetsApi.update(tenantId, caseId, args.id, {
         is_compromised: args.compromised,
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["case", caseId, "assets"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["case", caseId, "assets"] }),
   });
 
   const remove = useMutation({
     mutationFn: (id: UUID) => assetsApi.remove(tenantId, caseId, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["case", caseId, "assets"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["case", caseId, "assets"] }),
   });
 
   const onSubmit = (e: FormEvent) => {
@@ -104,7 +106,10 @@ export function AssetList({ caseId }: { caseId: UUID }) {
           />
         </Field>
         <Field label="Type">
-          <Select value={type} onChange={(e) => setType(e.target.value as AssetType)}>
+          <Select
+            value={type}
+            onChange={(e) => setType(e.target.value as AssetType)}
+          >
             {TYPES.map((t) => (
               <option key={t} value={t}>
                 {t.replace("_", " ")}

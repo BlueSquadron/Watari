@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import (
@@ -76,9 +76,7 @@ async def create_tenant(
 async def get_tenant(
     tenant_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TENANT, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TENANT, Action.READ))],
 ) -> ApiResponse[TenantResponse]:
     # Platform admin can read any tenant; tenant admin can only read their own
     if not auth.is_platform_admin and auth.tenant_id != tenant_id:
@@ -95,9 +93,7 @@ async def update_tenant(
     tenant_id: UUID,
     payload: TenantUpdate,
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TENANT, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TENANT, Action.UPDATE))],
 ) -> ApiResponse[TenantResponse]:
     if not auth.is_platform_admin and auth.tenant_id != tenant_id:
         raise HTTPException(

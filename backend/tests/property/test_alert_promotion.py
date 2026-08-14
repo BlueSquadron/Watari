@@ -106,10 +106,10 @@ async def test_promotion_transfers_all_observables_to_new_case(
 
     # All IP observable values appear on the target case
     case_obs = (
-        await db_session.execute(
-            select(Observable.value).where(Observable.case_id == case.id)
-        )
-    ).scalars().all()
+        (await db_session.execute(select(Observable.value).where(Observable.case_id == case.id)))
+        .scalars()
+        .all()
+    )
     assert sorted(case_obs) == sorted(ip_values)
 
     # Case metadata preserved

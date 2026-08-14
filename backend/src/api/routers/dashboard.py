@@ -27,9 +27,7 @@ def _check(auth: AuthContext, tenant_id: UUID) -> None:
 async def get_metrics(
     tenant_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.DASHBOARD, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.DASHBOARD, Action.READ))],
     created_after: datetime | None = None,
     created_before: datetime | None = None,
 ) -> ApiResponse[DashboardMetricsResponse]:
