@@ -128,3 +128,39 @@ def test_every_role_can_read_basic_resources(resource: Resource, action: Action)
         assert has_permission(auth, resource, action), (
             f"Role {role} should be able to {action} on {resource}"
         )
+
+
+# --- Service accounts (#15) ------------------------------------------------
+
+
+def test_service_account_can_work_alerts_and_cases() -> None:
+    """An API key is for automation: ingest findings, then work the case.
+
+    This is the permission set behind the OCSF ingestion path documented in
+    the README. It was an empty frozenset, so every service-account request
+    was denied even once the key authenticated.
+    """
+    auth = _make_context(Role.API_SERVICE_ACCOUNT, is_service_account=True)
+    for action in (Action.CREATE, Action.READ, Action.UPDATE):
+        assert has_permission(auth, Resource.ALERT, action)
+    for resource in (Resource.CASE, Resource.OBSERVABLE, Resource.TIMELINE):
+        assert has_permission(auth, resource, Action.CREATE)
+        assert has_permission(auth, resource, Action.READ)
+
+
+def test_service_account_is_not_an_admin() -> None:
+    """A leaked key must not be able to manage the tenant or its users."""
+    auth = _make_context(Role.API_SERVICE_ACCOUNT, is_service_account=True)
+    for action in (Action.CREATE, Action.UPDATE, Action.DELETE):
+        assert not has_permission(auth, Resource.USER, action)
+        assert not has_permission(auth, Resource.TENANT, action)
+    assert not has_permission(auth, Resource.AUDIT_LOG, Action.READ)
+
+
+def test_service_account_matches_analyst_exactly() -> None:
+    """Service accounts are granted the analyst set — no more, no less.
+
+    Pinned deliberately: widening this is a security decision, and it should
+    fail here rather than be noticed in production.
+    """
+    assert PERMISSION_MATRIX[Role.API_SERVICE_ACCOUNT] == PERMISSION_MATRIX[Role.ANALYST]
