@@ -149,47 +149,58 @@ Found something else? [Open an issue](https://github.com/BlueSquadron/Watari/iss
 
 ## Running the tests
 
-The canonical environment is the container, but the test dependencies aren't in
-the image yet, so the simplest path today is a local virtualenv:
+The test dependencies aren't in the API image yet, so run them from a local
+virtualenv (see "Optional: local Python and Node" above). Everything lives
+under `backend/tests/`.
+
+### The quick loop
+
+Most of the property suites need no database at all — clustering, OCSF
+round-tripping, pagination, hash verification, TLP rules, geolocation:
 
 ```bash
 cd backend
-source .venv/bin/activate          # see "Optional: local Python and Node"
+source .venv/bin/activate
 
-PYTHONPATH=. pytest tests/ --ignore=tests/integration --ignore=tests/property -q
+PYTHONPATH=. pytest tests/property -q
 ```
 
-That's the pure-unit suite — 116 tests, no database needed, runs in seconds.
+Without `TEST_DATABASE_URL` set, the DB-backed suites skip themselves and the
+remaining 116 tests run in a couple of seconds.
 
-### Property tests
+### The full suite
+
+Point it at a **dedicated** database. The session fixture runs
+`alembic downgrade base` on teardown, which drops every table — so the
+fixture refuses to start unless the database name contains `test`.
+
+```bash
+# once
+docker compose exec postgres createdb -U watari watari_test
+
+cd backend
+TEST_DATABASE_URL=postgresql+asyncpg://watari:watari_dev_password@localhost:5432/watari_test \
+S3_ENDPOINT_URL=http://localhost:9000 \
+  PYTHONPATH=. pytest tests/ -q
+```
+
+`S3_ENDPOINT_URL` is only needed for the integration tests: the default points
+at `minio:9000`, which resolves inside the Compose network but not from your
+host.
+
+Expect **145 passed, 2 xfailed**. The two expected failures are the
+Row-Level Security isolation tests — the policies exist but nothing enforces
+them today, tracked in [#4](https://github.com/BlueSquadron/Watari/issues/4).
+They're marked `strict=True`, so they will turn into hard failures the moment
+that's fixed, which is the signal to delete the marker.
+
+### What the property tests are
 
 Watari has 29 [Hypothesis](https://hypothesis.readthedocs.io/) suites asserting
 correctness properties rather than examples — tenant isolation, RBAC, TLP
 enforcement, evidence hash verification, OCSF round-tripping, pagination,
 case-number sequencing, module failure isolation, and more. They're the most
 valuable tests in the repo and the best place to add coverage.
-
-Many need a real PostgreSQL (they exercise Row-Level Security, which has no
-in-memory equivalent):
-
-```bash
-# create the test database once
-docker compose exec postgres createdb -U watari watari_test
-
-cd backend
-TEST_DATABASE_URL=postgresql+asyncpg://watari:watari_dev_password@localhost:5432/watari_test \
-  PYTHONPATH=. pytest tests/property -q
-```
-
-⚠️ Two caveats until [#3](https://github.com/BlueSquadron/Watari/issues/3) lands:
-
-- You'll need `pip install psycopg2-binary` first, or 23 suites error at setup.
-- **Run the property tests from your host, not inside the API container.**
-  `backend/alembic/env.py` lets the ambient `DATABASE_URL` override the
-  configured URL, so `docker compose exec api pytest tests/property` would
-  migrate — and on teardown, `downgrade base` — your **development** database,
-  wiping the seeded data. The command above runs locally against
-  `watari_test` and is safe.
 
 ### Frontend
 

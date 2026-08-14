@@ -48,7 +48,7 @@ async def test_audit_entry_contains_all_required_fields(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
     auth = _make_auth(user.id, tenant.id)
     entry = await audit_service.record(
@@ -76,7 +76,7 @@ async def test_service_account_entries_are_flagged(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
     auth = _make_auth(user.id, tenant.id, is_service=True)
     entry = await audit_service.record(

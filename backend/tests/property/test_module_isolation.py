@@ -52,7 +52,7 @@ async def test_module_exception_recorded_as_failed(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     get_registry().register("test.boom", _BoomModule)
@@ -86,7 +86,7 @@ async def test_module_failure_does_not_affect_other_modules(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     get_registry().register("test.boom", _BoomModule)

@@ -147,7 +147,17 @@ async def test_alert_to_case_resolution_flow(
     ).scalars().all()
     event_types = {e.event_type for e in timeline}
     assert "case_created" in event_types
-    assert "case_closed" in event_types
+    # Closing is recorded as a lifecycle status transition carrying from/to,
+    # not as a distinct `case_closed` type — see `update_case` in
+    # src/services/cases.py.
+    assert "status_changed" in event_types
+    closures = [
+        e
+        for e in timeline
+        if e.event_type == "status_changed"
+        and e.event_metadata.get("to") == CaseStatus.CLOSED.value
+    ]
+    assert len(closures) == 1
 
 
 # ---------------------------------------------------------------------------

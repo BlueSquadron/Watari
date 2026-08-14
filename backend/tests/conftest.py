@@ -39,20 +39,37 @@ TEST_DATABASE_URL = os.getenv(
 )
 
 
-@pytest.fixture(scope="session")
-def event_loop() -> "asyncio.AbstractEventLoop":
-    """Provide a single event loop for all async tests in the session."""
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+def _assert_disposable_database(url: str) -> None:
+    """Refuse to migrate/drop anything that isn't obviously a test database.
+
+    The session teardown runs `alembic downgrade base`, which drops every
+    table. Running the suite against a development database would silently
+    destroy it, so require the database name to say it is for tests.
+    """
+    from sqlalchemy.engine import make_url
+
+    database = make_url(url).database or ""
+    if "test" not in database.lower():
+        pytest.exit(
+            f"Refusing to run migrations against database {database!r}: the test "
+            "suite drops every table on teardown. Point TEST_DATABASE_URL at a "
+            "dedicated database whose name contains 'test' "
+            "(e.g. postgresql+asyncpg://watari:...@localhost:5432/watari_test).",
+            returncode=1,
+        )
 
 
 @pytest_asyncio.fixture(scope="session")
 async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
-    """Create the async engine and apply schema once per test session."""
+    """Create the async engine and apply schema once per test session.
+
+    Teardown runs `downgrade base`, so this must never be pointed at a
+    database anyone cares about — hence the guard below.
+    """
     from alembic import command
     from alembic.config import Config
-    from sqlalchemy import create_engine
+
+    _assert_disposable_database(TEST_DATABASE_URL)
 
     engine = create_async_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
@@ -61,26 +78,17 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     config.set_main_option("script_location", str(backend_dir / "alembic"))
     config.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
 
-    # Alembic needs a synchronous driver URL.
-    sync_url = TEST_DATABASE_URL.replace("+asyncpg", "")
-
-    sync_engine = create_engine(sync_url)
-    try:
-        with sync_engine.begin():
-            command.upgrade(config, "head")
-    finally:
-        sync_engine.dispose()
+    # `alembic/env.py` drives migrations through an async engine of its own, so
+    # the URL configured above is all it needs — no synchronous driver here.
+    # It calls `asyncio.run()`, which cannot be nested inside this fixture's
+    # running loop, so hand the migration to a worker thread that has none.
+    await asyncio.to_thread(command.upgrade, config, "head")
 
     try:
         yield engine
     finally:
-        sync_engine = create_engine(sync_url)
-        try:
-            with sync_engine.begin():
-                command.downgrade(config, "base")
-        finally:
-            sync_engine.dispose()
         await engine.dispose()
+        await asyncio.to_thread(command.downgrade, config, "base")
 
 
 @pytest_asyncio.fixture

@@ -60,7 +60,7 @@ async def test_merge_preserves_observables_and_timeline(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     # Create a target and N source cases

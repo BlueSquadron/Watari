@@ -49,7 +49,7 @@ async def test_correlating_cases_match_exactly(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     target_value = "203.0.113.42"

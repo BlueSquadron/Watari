@@ -20,8 +20,15 @@ if config.config_file_name is not None:
 # `DATABASE_URL` is set by docker-compose and by src.utils.settings; honour it
 # here so `alembic upgrade head` works both inside the API container and from
 # a developer's shell.
+#
+# A URL a caller set explicitly on the Config always wins, though: the test
+# suite configures its own database and then drops every table on teardown, so
+# letting an ambient DATABASE_URL redirect it at the development database
+# would destroy that database.
+_PLACEHOLDER_URL = "driver://user:pass@localhost/dbname"
+
 _db_url = os.getenv("DATABASE_URL")
-if _db_url:
+if _db_url and config.get_main_option("sqlalchemy.url", "") in ("", _PLACEHOLDER_URL):
     config.set_main_option("sqlalchemy.url", _db_url)
 
 target_metadata = Base.metadata

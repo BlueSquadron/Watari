@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 class TimelineEntryCreate(BaseModel):
@@ -39,7 +39,14 @@ class TimelineEntryResponse(BaseModel):
     category: str | None
     actor_id: UUID | None
     is_automatic: bool
-    event_metadata: dict[str, Any] = Field(alias="metadata")
+    # The ORM maps the `metadata` column to `event_metadata` to avoid colliding
+    # with SQLAlchemy's declarative `Base.metadata`. Validate from the attribute
+    # name (a bare `alias` would resolve `metadata` to the MetaData registry),
+    # but keep serializing as `metadata` so the API response shape is unchanged.
+    event_metadata: dict[str, Any] = Field(
+        validation_alias=AliasChoices("event_metadata", "metadata"),
+        serialization_alias="metadata",
+    )
     linked_asset_ids: list[UUID] = Field(default_factory=list)
     created_at: datetime
 

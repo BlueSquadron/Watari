@@ -21,6 +21,7 @@ from hypothesis import strategies as st
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.api.routers.timeline import _response_with_links
 from src.schemas.cases import CaseCreate, CaseSeverity
 from src.schemas.timeline import TimelineEntryCreate, TimelineFilters
 from src.services import cases as case_service
@@ -54,7 +55,7 @@ async def test_timeline_ordering_and_non_null_fields(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     case = await case_service.create_case(
@@ -89,3 +90,51 @@ async def test_timeline_ordering_and_non_null_fields(
         assert e.event_timestamp is not None
         assert e.event_type
         assert e.description
+
+
+@pytest.mark.asyncio
+async def test_timeline_response_exposes_metadata_as_a_dict(
+    db_session: AsyncSession,
+    tenant_factory,
+    user_factory,
+) -> None:
+    """Regression for #1.
+
+    `TimelineEntryResponse` serializes its `event_metadata` field under the
+    public name `metadata`. Validating that alias against a SQLAlchemy model
+    resolves `Base.metadata` — the declarative `MetaData` registry — instead of
+    the JSONB column, which made every timeline request 500.
+    """
+    tenant = await tenant_factory()
+    user = await user_factory(tenant.id)
+    await db_session.execute(
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
+            tid=str(tenant.id)
+        )
+    )
+    case = await case_service.create_case(
+        db_session,
+        tenant_id=tenant.id,
+        created_by=user.id,
+        payload=CaseCreate(title="C", severity=CaseSeverity.LOW, tags=[], custom_fields={}),
+    )
+    entry = await timeline_service.create_manual_entry(
+        db_session,
+        case_id=case.id,
+        actor_id=user.id,
+        payload=TimelineEntryCreate(
+            event_type="manual",
+            event_timestamp=datetime(2025, 1, 1, tzinfo=UTC),
+            description="metadata round trip",
+            metadata={"source": "regression-test"},
+        ),
+    )
+
+    response = _response_with_links(entry, [])
+    assert response.event_metadata == {"source": "regression-test"}
+
+    # The wire format must keep the `metadata` key — this is a public response
+    # shape, so the fix must not rename the field.
+    dumped = response.model_dump(by_alias=True)
+    assert dumped["metadata"] == {"source": "regression-test"}
+    assert "event_metadata" not in dumped

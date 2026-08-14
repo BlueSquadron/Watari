@@ -28,7 +28,20 @@ pytestmark = pytest.mark.skipif(
     reason="Requires PostgreSQL test database; set TEST_DATABASE_URL or DATABASE_URL",
 )
 
+# The RLS policies themselves are correct, but nothing enforces them: the
+# `watari` role is a superuser (superusers bypass RLS unconditionally) and the
+# tables are ENABLE'd rather than FORCE'd, so the owner bypasses them too.
+# Tenant isolation currently rests on the service layer's explicit tenant
+# predicates alone. Tracked in
+# https://github.com/BlueSquadron/Watari/issues/4 — strict=True so these turn
+# into hard failures, and this marker must be removed, the moment it is fixed.
+rls_not_enforced = pytest.mark.xfail(
+    reason="RLS is inert: superuser connection + tables not FORCE'd (see #4)",
+    strict=True,
+)
 
+
+@rls_not_enforced
 @pytest.mark.asyncio
 @settings(
     max_examples=20,
@@ -68,7 +81,9 @@ async def test_rls_isolates_tenants_on_select(
     # For each tenant context the SELECT must return only that tenant's cases
     for tenant, expected_count in tenants:
         await db_session.execute(
-            text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant.id))
+            text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
+                tid=str(tenant.id)
+            )
         )
         result = await db_session.execute(select(Case))
         rows = result.scalars().all()
@@ -81,6 +96,7 @@ async def test_rls_isolates_tenants_on_select(
         )
 
 
+@rls_not_enforced
 @pytest.mark.asyncio
 async def test_rls_denies_cross_tenant_access(
     db_session: AsyncSession,
@@ -114,13 +130,13 @@ async def test_rls_denies_cross_tenant_access(
     await db_session.flush()
 
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant_a.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant_a.id))
     )
     rows = (await db_session.execute(select(Case))).scalars().all()
     assert [r.title for r in rows] == ["A1"]
 
     await db_session.execute(
-        text("SET LOCAL app.current_tenant = :tid").bindparams(tid=str(tenant_b.id))
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant_b.id))
     )
     rows = (await db_session.execute(select(Case))).scalars().all()
     assert [r.title for r in rows] == ["B1"]
@@ -132,7 +148,11 @@ async def test_platform_admin_bypass_sees_all(
     tenant_factory,
     user_factory,
 ) -> None:
-    """Platform admin bypass policy returns rows across tenants."""
+    """Platform admin bypass policy returns rows across tenants.
+
+    Note: while #4 is open this passes for the wrong reason — with RLS inert
+    every query sees every tenant. Re-verify it when #4 lands.
+    """
     tenant_a = await tenant_factory(name="A")
     tenant_b = await tenant_factory(name="B")
     user_a = await user_factory(tenant_a.id)
