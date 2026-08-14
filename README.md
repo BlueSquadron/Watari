@@ -341,7 +341,7 @@ Ingest an alert from any OCSF-compliant detector:
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/tenants/{tenant_id}/alerts \
-  -H "Authorization: Bearer $TOKEN" \
+  -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{
     "activity_id": 1,
@@ -377,10 +377,6 @@ Responses use a consistent envelope:
   "meta": { "page": 1, "page_size": 25, "total_count": 142, "total_pages": 6 }
 }
 ```
-
-Service-account API keys are the intended credential for this and the plumbing
-is nearly complete, but no endpoint accepts `X-API-Key` yet — use a bearer
-token until [#15](https://github.com/BlueSquadron/Watari/issues/15) lands.
 
 **→ [The integration guide](docs/integration.md)** walks through authentication,
 service accounts, alert ingestion, deduplication, triage, case creation,

@@ -25,7 +25,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 
 from .context import AuthContext, Role
-from .dependencies import CurrentUserDep
+from .unified import PrincipalDep
 
 
 class Action(StrEnum):
@@ -154,15 +154,23 @@ PERMISSION_MATRIX: dict[Role, frozenset[Permission]] = {
     Role.TENANT_ADMIN: _TENANT_ADMIN,
     # Platform admin permissions are handled via the explicit bypass below.
     Role.PLATFORM_ADMIN: frozenset(),
-    # Service accounts inherit from the role stored on the user row; the
-    # `_permissions_for` helper handles that by looking at the user role
-    # and mapping to either analyst or read_only permissions.
-    Role.API_SERVICE_ACCOUNT: frozenset(),
+    # Service accounts are automation: they ingest alerts and read/write the
+    # case data that follows from them, which is exactly the analyst set.
+    # Deliberately not tenant_admin — a key cannot manage users, tenants or
+    # tenant configuration. Per-account scoping is worth having, but needs
+    # somewhere to store the grant; see the note in `_permissions_for`.
+    Role.API_SERVICE_ACCOUNT: _ANALYST,
 }
 
 
 def _permissions_for(role: Role) -> frozenset[Permission]:
-    """Return the effective permission set for a role."""
+    """Return the effective permission set for a role.
+
+    Permissions are resolved from the role alone. Narrowing an individual
+    service account below the analyst set would mean persisting a grant per
+    key — the `users.permissions` column exists for it but nothing reads or
+    writes it yet.
+    """
     if role == Role.PLATFORM_ADMIN:
         # Platform admins bypass checks, but we still compute a union for
         # introspection purposes.
@@ -196,7 +204,7 @@ def require_permission(resource: Resource, action: Action) -> Callable[..., Auth
         ): ...
     """
 
-    async def _dep(auth: CurrentUserDep) -> AuthContext:
+    async def _dep(auth: PrincipalDep) -> AuthContext:
         if not has_permission(auth, resource, action):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -214,7 +222,7 @@ def require_any_permission(
 
     perms = tuple(permissions)
 
-    async def _dep(auth: CurrentUserDep) -> AuthContext:
+    async def _dep(auth: PrincipalDep) -> AuthContext:
         if auth.is_platform_admin or any(has_permission(auth, r, a) for r, a in perms):
             return auth
         raise HTTPException(

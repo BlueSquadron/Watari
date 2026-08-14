@@ -69,24 +69,6 @@ useful contribution. Please check the
 [issue tracker](https://github.com/BlueSquadron/Watari/issues) first in case
 someone got there ahead of you.
 
-### 🔌 Service-account API keys aren't accepted anywhere — [#15](https://github.com/BlueSquadron/Watari/issues/15)
-
-**Impact: high, and very visible.** OCSF ingestion from any detector is the
-headline feature, and `X-API-Key` — the credential the README and the whole
-integration guide use for it — returns 401 on every endpoint. The same request
-with a bearer token returns 201, so only the credential type is missing.
-
-Most of the plumbing exists: key generation, hashing, rotation, a seeded
-service account, and `src/auth/unified.py` with a `get_principal` dependency
-that accepts *either* a JWT or an API key. Nothing references it —
-`require_permission` builds on the JWT-only `get_current_user`. Separately,
-`Role.API_SERVICE_ACCOUNT` maps to an empty permission set, so a key would 403
-even once it authenticates.
-
-Good contribution if you want something with a clear finish line and real
-user-visible payoff. The issue has the full write-up. Wants tests — there is
-no coverage of API-key auth today, which is why this went unnoticed.
-
 ### 🎨 Smaller things
 
 - Leaflet marker icons 404 on the case Map tab (the default icon asset isn't bundled by Vite — a well-known Leaflet + bundler papercut).
