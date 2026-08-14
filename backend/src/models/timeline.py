@@ -13,9 +13,7 @@ from .base import TS, Base
 
 class TimelineEntry(Base):
     __tablename__ = "timeline_entries"
-    __table_args__ = (
-        Index("idx_timeline_case_timestamp", "case_id", "event_timestamp"),
-    )
+    __table_args__ = (Index("idx_timeline_case_timestamp", "case_id", "event_timestamp"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -36,15 +34,11 @@ class TimelineEntry(Base):
     actor_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=True
     )
-    is_automatic: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="true"
-    )
+    is_automatic: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     event_metadata: Mapped[dict] = mapped_column(
         "metadata", JSONB, nullable=False, server_default="{}"
     )
-    created_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
 
     # Relationships
     case: Mapped["Case"] = relationship("Case", back_populates="timeline_entries")  # noqa: F821

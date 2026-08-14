@@ -21,9 +21,7 @@ from src.schemas.timeline import (
 )
 from src.services import timeline as timeline_service
 
-router = APIRouter(
-    prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/timeline", tags=["timeline"]
-)
+router = APIRouter(prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/timeline", tags=["timeline"])
 
 
 def _check(auth: AuthContext, tenant_id: UUID) -> None:
@@ -31,9 +29,7 @@ def _check(auth: AuthContext, tenant_id: UUID) -> None:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Cross-tenant access denied")
 
 
-def _response_with_links(
-    entry, linked_asset_ids: list[UUID]
-) -> TimelineEntryResponse:
+def _response_with_links(entry, linked_asset_ids: list[UUID]) -> TimelineEntryResponse:
     return TimelineEntryResponse.model_validate(entry).model_copy(
         update={"linked_asset_ids": linked_asset_ids}
     )
@@ -45,9 +41,7 @@ async def list_timeline(
     case_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TIMELINE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TIMELINE, Action.READ))],
     event_type: str | None = None,
     category: str | None = None,
     actor_id: UUID | None = None,
@@ -85,9 +79,7 @@ async def add_manual_entry(
     case_id: UUID,
     payload: TimelineEntryCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TIMELINE, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TIMELINE, Action.CREATE))],
 ) -> ApiResponse[TimelineEntryResponse]:
     _check(auth, tenant_id)
     entry = await timeline_service.create_manual_entry(
@@ -104,9 +96,7 @@ async def update_entry(
     entry_id: UUID,
     payload: TimelineEntryUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TIMELINE, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TIMELINE, Action.UPDATE))],
 ) -> ApiResponse[TimelineEntryResponse]:
     _check(auth, tenant_id)
     entry = await timeline_service.update_entry(db, entry_id, payload)
@@ -120,9 +110,7 @@ async def delete_entry(
     case_id: UUID,
     entry_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TIMELINE, Action.DELETE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TIMELINE, Action.DELETE))],
 ) -> None:
     _check(auth, tenant_id)
     await timeline_service.delete_entry(db, entry_id)
@@ -133,9 +121,7 @@ async def get_swimlane(
     tenant_id: UUID,
     case_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.TIMELINE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.TIMELINE, Action.READ))],
     cluster_threshold_seconds: int = Query(default=300, ge=1),
 ) -> ApiResponse[TimelineSwimlaneResponse]:
     _check(auth, tenant_id)
@@ -146,9 +132,7 @@ async def get_swimlane(
     links = await timeline_service.get_asset_links(db, [e.id for e in entries])
     responses = [_response_with_links(e, links.get(e.id, [])) for e in entries]
     return ApiResponse(
-        data=TimelineSwimlaneResponse(
-            entries=responses, clusters=clusters, lanes=lanes
-        )
+        data=TimelineSwimlaneResponse(entries=responses, clusters=clusters, lanes=lanes)
     )
 
 

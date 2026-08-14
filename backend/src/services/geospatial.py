@@ -50,10 +50,7 @@ def haversine_km(a: GeoPoint, b: GeoPoint) -> float:
     lat2 = math.radians(b.latitude)
     d_lat = math.radians(b.latitude - a.latitude)
     d_lng = math.radians(b.longitude - a.longitude)
-    h = (
-        math.sin(d_lat / 2) ** 2
-        + math.cos(lat1) * math.cos(lat2) * math.sin(d_lng / 2) ** 2
-    )
+    h = math.sin(d_lat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(d_lng / 2) ** 2
     return 2 * r_earth_km * math.asin(math.sqrt(h))
 
 
@@ -91,9 +88,7 @@ def cluster_radius_km(zoom: int) -> float:
     return _ZOOM_RADIUS_KM.get(zoom, _ZOOM_RADIUS_KM[max(_ZOOM_RADIUS_KM)])
 
 
-def cluster_points(
-    points: list[tuple[int, GeoPoint]], zoom: int
-) -> list[Cluster]:
+def cluster_points(points: list[tuple[int, GeoPoint]], zoom: int) -> list[Cluster]:
     """Group points that fall within ``cluster_radius_km(zoom)`` of each other.
 
     Uses a greedy single-linkage approach: iterate sorted points, each

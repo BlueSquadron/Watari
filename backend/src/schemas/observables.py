@@ -66,9 +66,7 @@ class ObservableResponse(BaseModel):
     updated_at: datetime
     seen_in_cases_count: int | None = Field(
         default=None,
-        description=(
-            "Number of OTHER cases in the same tenant containing this observable"
-        ),
+        description=("Number of OTHER cases in the same tenant containing this observable"),
     )
 
 

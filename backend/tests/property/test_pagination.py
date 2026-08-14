@@ -32,13 +32,9 @@ from src.schemas.common import (
     page_size=st.integers(min_value=1, max_value=200),
 )
 @settings(max_examples=300)
-def test_build_pagination_meta_matches_ceil(
-    total: int, page: int, page_size: int
-) -> None:
+def test_build_pagination_meta_matches_ceil(total: int, page: int, page_size: int) -> None:
     """total_pages SHALL equal ceil(total_count / page_size)."""
-    meta = build_pagination_meta(
-        total_count=total, page=page, page_size=page_size
-    )
+    meta = build_pagination_meta(total_count=total, page=page, page_size=page_size)
     expected_pages = 0 if total == 0 else math.ceil(total / page_size)
     assert meta.total_pages == expected_pages
     assert meta.total_count == total
@@ -78,6 +74,4 @@ def test_all_pages_cover_total_count(total: int, page_size: int) -> None:
 def test_empty_collection_returns_zero_pages() -> None:
     """Empty collections have total_pages == 0, not 1."""
     meta = build_pagination_meta(total_count=0, page=1, page_size=25)
-    assert meta == PaginationMeta(
-        page=1, page_size=25, total_count=0, total_pages=0
-    )
+    assert meta == PaginationMeta(page=1, page_size=25, total_count=0, total_pages=0)

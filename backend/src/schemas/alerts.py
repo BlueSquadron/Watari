@@ -373,9 +373,7 @@ class AlertPromote(BaseModel):
         default=None,
         description="If provided, merge into existing case; else create new case",
     )
-    new_case_title: str | None = Field(
-        default=None, description="Required if case_id is None"
-    )
+    new_case_title: str | None = Field(default=None, description="Required if case_id is None")
 
 
 class AlertDismiss(BaseModel):

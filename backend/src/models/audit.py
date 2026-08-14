@@ -32,18 +32,14 @@ class AuditLog(Base):
     )
     action: Mapped[str] = mapped_column(String(100), nullable=False)
     resource_type: Mapped[str] = mapped_column(String(100), nullable=False)
-    resource_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), nullable=True
-    )
+    resource_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     details: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
     source_ip: Mapped[str | None] = mapped_column(String(45), nullable=True)
     user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_service_account: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"
     )
-    created_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
 
     # Relationships
     user: Mapped["User"] = relationship("User")  # noqa: F821

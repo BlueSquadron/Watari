@@ -69,9 +69,7 @@ def test_events_within_threshold_cluster(threshold: int, gaps: list[int]) -> Non
     gaps=st.lists(st.integers(min_value=0, max_value=500), min_size=1, max_size=15),
 )
 @settings(max_examples=200)
-def test_events_beyond_threshold_split_clusters(
-    threshold: int, gaps: list[int]
-) -> None:
+def test_events_beyond_threshold_split_clusters(threshold: int, gaps: list[int]) -> None:
     """Any two events separated by > threshold SHALL NOT share a cluster."""
     offsets = []
     acc = 0

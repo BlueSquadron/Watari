@@ -174,9 +174,7 @@ def test_ocsf_fields_survive_ingest_and_serialization(
     assert response.raw_data == payload.raw_data
 
     # Confidence round-trip
-    expected_confidence = (
-        payload.confidence_id.value if payload.confidence_id is not None else None
-    )
+    expected_confidence = payload.confidence_id.value if payload.confidence_id is not None else None
     assert response.confidence_id == expected_confidence
     assert response.confidence_score == payload.confidence_score
 

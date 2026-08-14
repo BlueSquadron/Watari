@@ -72,12 +72,16 @@ async def test_case_numbers_are_sequential(
     # Scope the read-back explicitly. This property is about numbering, not
     # isolation, and the fixture's connection may see other tenants' rows.
     rows = (
-        await db_session.execute(
-            select(Case.case_number)
-            .where(Case.tenant_id == tenant.id)
-            .order_by(Case.case_number)
+        (
+            await db_session.execute(
+                select(Case.case_number)
+                .where(Case.tenant_id == tenant.id)
+                .order_by(Case.case_number)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     expected = list(range(1, n + 1))
     assert list(rows) == expected, f"Expected sequential 1..{n}, got {list(rows)}"
 
@@ -117,18 +121,14 @@ async def test_case_numbers_are_per_tenant(
     # Scope each read-back explicitly — this property is about per-tenant
     # numbering, not about isolation (see test_tenant_isolation.py for that).
     rows_1 = sorted(
-        (
-            await db_session.execute(
-                select(Case.case_number).where(Case.tenant_id == tenant_1.id)
-            )
-        ).scalars().all()
+        (await db_session.execute(select(Case.case_number).where(Case.tenant_id == tenant_1.id)))
+        .scalars()
+        .all()
     )
     rows_2 = sorted(
-        (
-            await db_session.execute(
-                select(Case.case_number).where(Case.tenant_id == tenant_2.id)
-            )
-        ).scalars().all()
+        (await db_session.execute(select(Case.case_number).where(Case.tenant_id == tenant_2.id)))
+        .scalars()
+        .all()
     )
 
     assert rows_1 == [1, 2, 3]

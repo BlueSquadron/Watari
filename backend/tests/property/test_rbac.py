@@ -52,9 +52,7 @@ def _make_context(role: Role, is_service_account: bool = False) -> AuthContext:
     resource=st.sampled_from(_RESOURCES),
     action=st.sampled_from(_ACTIONS),
 )
-def test_permission_decision_matches_matrix(
-    role: Role, resource: Resource, action: Action
-) -> None:
+def test_permission_decision_matches_matrix(role: Role, resource: Resource, action: Action) -> None:
     """has_permission(auth, resource, action) == (permission in matrix[role])."""
     auth = _make_context(role)
     decision = has_permission(auth, resource, action)
@@ -123,9 +121,7 @@ def test_tenant_admin_can_manage_users() -> None:
         (Resource.DASHBOARD, Action.READ),
     ],
 )
-def test_every_role_can_read_basic_resources(
-    resource: Resource, action: Action
-) -> None:
+def test_every_role_can_read_basic_resources(resource: Resource, action: Action) -> None:
     """All non-service-account roles can at least read basic case data."""
     for role in (Role.READ_ONLY, Role.ANALYST, Role.TENANT_ADMIN, Role.PLATFORM_ADMIN):
         auth = _make_context(role)

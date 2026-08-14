@@ -59,21 +59,21 @@ async def delete_mapping(db: AsyncSession, mapping_id: UUID) -> None:
     await db.flush()
 
 
-async def list_mappings_for_case(
-    db: AsyncSession, case_id: UUID
-) -> list[AttackMapping]:
+async def list_mappings_for_case(db: AsyncSession, case_id: UUID) -> list[AttackMapping]:
     rows = (
-        await db.execute(
-            select(AttackMapping).where(AttackMapping.case_id == case_id)
-        )
-    ).scalars().all()
+        (await db.execute(select(AttackMapping).where(AttackMapping.case_id == case_id)))
+        .scalars()
+        .all()
+    )
     return list(rows)
 
 
 async def list_reference(db: AsyncSession) -> list[AttackReference]:
     rows = (
-        await db.execute(select(AttackReference).order_by(AttackReference.technique_id))
-    ).scalars().all()
+        (await db.execute(select(AttackReference).order_by(AttackReference.technique_id)))
+        .scalars()
+        .all()
+    )
     return list(rows)
 
 

@@ -52,9 +52,7 @@ async def _load_user_from_token(token: str, db: AsyncSession) -> AuthContext:
     if payload.token_type != "access":
         raise _CREDENTIALS_EXCEPTION
 
-    user = (
-        await db.execute(select(User).where(User.id == payload.sub))
-    ).scalar_one_or_none()
+    user = (await db.execute(select(User).where(User.id == payload.sub))).scalar_one_or_none()
     if user is None or not user.is_active:
         raise _CREDENTIALS_EXCEPTION
 
@@ -65,9 +63,7 @@ async def _load_user_from_token(token: str, db: AsyncSession) -> AuthContext:
         raise _SESSION_EXPIRED_EXCEPTION
 
     # Touch the session TTL to extend it based on continued activity.
-    await touch_session(
-        redis, user.id, payload.session_id, user.inactivity_timeout_minutes
-    )
+    await touch_session(redis, user.id, payload.session_id, user.inactivity_timeout_minutes)
 
     return AuthContext(
         user_id=user.id,
@@ -84,9 +80,7 @@ async def _scope_session(session: AsyncSession, auth: AuthContext) -> None:
     """Apply `auth`'s tenant to the request-scoped session, for RLS."""
     await apply_tenant_context(
         session,
-        TenantContext(
-            tenant_id=auth.tenant_id, is_platform_admin=auth.is_platform_admin
-        ),
+        TenantContext(tenant_id=auth.tenant_id, is_platform_admin=auth.is_platform_admin),
     )
 
 

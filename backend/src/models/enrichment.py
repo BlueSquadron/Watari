@@ -20,13 +20,9 @@ class EnrichmentSource(BaseModel, Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     type: Mapped[str] = mapped_column(String(100), nullable=False)
     config: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
-    supported_observable_types: Mapped[list[str]] = mapped_column(
-        ARRAY(String), nullable=False
-    )
+    supported_observable_types: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
     is_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
-    timeout_seconds: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default="30"
-    )
+    timeout_seconds: Mapped[int] = mapped_column(Integer, nullable=False, server_default="30")
 
     # Relationships
     results: Mapped[list["EnrichmentResult"]] = relationship(
@@ -63,14 +59,10 @@ class EnrichmentResult(Base):
     status: Mapped[str] = mapped_column(String(50), nullable=False)
     result_data: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    queried_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    queried_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
 
     # Relationships
     observable: Mapped["Observable"] = relationship(  # noqa: F821
         "Observable", back_populates="enrichment_results"
     )
-    source: Mapped["EnrichmentSource"] = relationship(
-        "EnrichmentSource", back_populates="results"
-    )
+    source: Mapped["EnrichmentSource"] = relationship("EnrichmentSource", back_populates="results")

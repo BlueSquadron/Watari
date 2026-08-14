@@ -27,9 +27,7 @@ async def search(
     tenant_id: UUID,
     payload: SearchRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.SEARCH, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.SEARCH, Action.READ))],
 ) -> ApiResponse[SearchResponse]:
     _check(auth, tenant_id)
     result = await search_service.search(db, tenant_id, payload)

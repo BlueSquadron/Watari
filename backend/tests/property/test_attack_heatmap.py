@@ -44,7 +44,8 @@ def test_case_count_equals_distinct_case_ids(
     for cell in cells:
         key = (cell.tactic_id, cell.technique_id)
         related = {
-            case_id for tactic, technique, case_id, _sev in mappings
+            case_id
+            for tactic, technique, case_id, _sev in mappings
             if (tactic, technique) == key and case_id is not None
         }
         assert cell.case_count == len(related)

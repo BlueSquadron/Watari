@@ -40,9 +40,7 @@ async def _get_folder_or_404(db: AsyncSession, folder_id: UUID) -> NoteFolder:
     return folder
 
 
-async def _would_create_cycle(
-    db: AsyncSession, folder_id: UUID, new_parent_id: UUID
-) -> bool:
+async def _would_create_cycle(db: AsyncSession, folder_id: UUID, new_parent_id: UUID) -> bool:
     """True if moving folder_id under new_parent_id would create a cycle."""
     if folder_id == new_parent_id:
         return True
@@ -55,15 +53,14 @@ async def _would_create_cycle(
             return True
         visited.add(current)
         parent = (
-            await db.execute(
-                select(NoteFolder.parent_id).where(NoteFolder.id == current)
-            )
+            await db.execute(select(NoteFolder.parent_id).where(NoteFolder.id == current))
         ).scalar_one_or_none()
         current = parent
     return False
 
 
 # ---- Folders ----
+
 
 async def list_folders(db: AsyncSession, case_id: UUID) -> list[NoteFolder]:
     return list(
@@ -73,13 +70,13 @@ async def list_folders(db: AsyncSession, case_id: UUID) -> list[NoteFolder]:
                 .where(NoteFolder.case_id == case_id)
                 .order_by(NoteFolder.sort_order.asc(), NoteFolder.name.asc())
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     )
 
 
-async def create_folder(
-    db: AsyncSession, case_id: UUID, payload: NoteFolderCreate
-) -> NoteFolder:
+async def create_folder(db: AsyncSession, case_id: UUID, payload: NoteFolderCreate) -> NoteFolder:
     case = await _get_case_or_404(db, case_id)
     if payload.parent_id is not None:
         parent = await _get_folder_or_404(db, payload.parent_id)
@@ -100,9 +97,7 @@ async def create_folder(
     return folder
 
 
-async def update_folder(
-    db: AsyncSession, folder_id: UUID, payload: NoteFolderUpdate
-) -> NoteFolder:
+async def update_folder(db: AsyncSession, folder_id: UUID, payload: NoteFolderUpdate) -> NoteFolder:
     folder = await _get_folder_or_404(db, folder_id)
     data = payload.model_dump(exclude_unset=True)
     if "parent_id" in data and data["parent_id"] is not None:
@@ -126,6 +121,7 @@ async def delete_folder(db: AsyncSession, folder_id: UUID) -> None:
 
 # ---- Notes ----
 
+
 async def list_notes(
     db: AsyncSession,
     case_id: UUID,
@@ -139,8 +135,10 @@ async def list_notes(
         base = base.where(Note.folder_id == folder_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(base.order_by(Note.updated_at.desc()).limit(limit).offset(offset))
-    ).scalars().all()
+        (await db.execute(base.order_by(Note.updated_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 

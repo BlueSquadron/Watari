@@ -38,13 +38,16 @@ async def _get_module_or_404(db: AsyncSession, module_id: UUID) -> Module:
 
 # --- Module CRUD -------------------------------------------------------
 
+
 async def list_modules(
     db: AsyncSession, *, limit: int = 100, offset: int = 0
 ) -> tuple[list[Module], int]:
     total = (await db.execute(select(func.count()).select_from(Module))).scalar_one()
     rows = (
-        await db.execute(select(Module).order_by(Module.name.asc()).limit(limit).offset(offset))
-    ).scalars().all()
+        (await db.execute(select(Module).order_by(Module.name.asc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -71,9 +74,7 @@ async def register_module(db: AsyncSession, payload: ModuleRegister) -> Module:
     return module
 
 
-async def update_module(
-    db: AsyncSession, module_id: UUID, payload: ModuleUpdate
-) -> Module:
+async def update_module(db: AsyncSession, module_id: UUID, payload: ModuleUpdate) -> Module:
     module = await _get_module_or_404(db, module_id)
     data = payload.model_dump(exclude_unset=True)
     for key, value in data.items():
@@ -107,14 +108,19 @@ async def list_executions(
         base = base.where(ModuleExecution.case_id == case_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(
-            base.order_by(ModuleExecution.created_at.desc()).limit(limit).offset(offset)
+        (
+            await db.execute(
+                base.order_by(ModuleExecution.created_at.desc()).limit(limit).offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
 # --- Execution ---------------------------------------------------------
+
 
 async def execute_module(
     db: AsyncSession,
@@ -151,9 +157,7 @@ async def execute_module(
     module_cls = registry.get(module.entry_point)
     if module_cls is None:
         execution.status = "failed"
-        execution.error_message = (
-            f"Module entry_point '{module.entry_point}' is not registered"
-        )
+        execution.error_message = f"Module entry_point '{module.entry_point}' is not registered"
         execution.completed_at = datetime.now(UTC)
         await db.flush()
         await db.refresh(execution)
@@ -195,12 +199,14 @@ async def dispatch_event(
     """
     # Find matching modules
     rows = (
-        await db.execute(
-            select(Module)
-            .where(Module.is_enabled.is_(True))
-            .where(Module.type == "processor")
+        (
+            await db.execute(
+                select(Module).where(Module.is_enabled.is_(True)).where(Module.type == "processor")
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     matched = [m for m in rows if event.value in (m.subscribed_events or [])]
 
     queued: list[UUID] = []

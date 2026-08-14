@@ -77,9 +77,5 @@ def test_every_filtered_item_satisfies_all_conditions(
 
 
 def test_empty_result_when_no_items() -> None:
-    filtered = [
-        i
-        for i in []
-        if filter_match(i, query="x")
-    ]
+    filtered = [i for i in [] if filter_match(i, query="x")]
     assert filtered == []

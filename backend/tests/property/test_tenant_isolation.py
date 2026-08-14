@@ -29,6 +29,7 @@ pytestmark = pytest.mark.skipif(
     reason="Requires PostgreSQL test database; set TEST_DATABASE_URL or DATABASE_URL",
 )
 
+
 async def _enforce_rls(db_session: AsyncSession) -> None:
     """Drop the platform-admin bypass that `db_session` sets by default.
 
@@ -199,9 +200,7 @@ async def test_platform_admin_bypass_sees_all(
     # ...and the same query, without the bypass, must not.
     await _enforce_rls(db_session)
     await db_session.execute(
-        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
-            tid=str(tenant_a.id)
-        )
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant_a.id))
     )
     rows = (await db_session.execute(select(Case))).scalars().all()
     assert [r.title for r in rows] == ["A1"]

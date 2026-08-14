@@ -41,12 +41,8 @@ async def list_alerts(
     tenant_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ALERT, Action.READ))
-    ],
-    workflow_status: Annotated[
-        AlertStatus | None, Query(alias="status")
-    ] = None,
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ALERT, Action.READ))],
+    workflow_status: Annotated[AlertStatus | None, Query(alias="status")] = None,
     severity_id: Annotated[int | None, Query(ge=0, le=99)] = None,
     product_name: Annotated[str | None, Query(alias="product")] = None,
     created_after: datetime | None = None,
@@ -78,9 +74,7 @@ async def ingest_alert(
     tenant_id: UUID,
     payload: DetectionFindingIngest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ALERT, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ALERT, Action.CREATE))],
 ) -> ApiResponse[AlertResponse]:
     _check(auth, tenant_id)
     alert, _was_duplicate = await alert_service.ingest_alert(db, tenant_id, payload)
@@ -92,16 +86,12 @@ async def get_alert(
     tenant_id: UUID,
     alert_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ALERT, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ALERT, Action.READ))],
 ) -> ApiResponse[AlertResponse]:
     _check(auth, tenant_id)
     alert = await alert_service._get_alert_or_404(db, alert_id)
     if alert.tenant_id != tenant_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Alert not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Alert not found")
     return ApiResponse(data=alert_service.alert_to_response(alert))
 
 
@@ -111,9 +101,7 @@ async def dismiss_alert(
     alert_id: UUID,
     payload: AlertDismiss,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ALERT, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ALERT, Action.UPDATE))],
 ) -> ApiResponse[AlertResponse]:
     _check(auth, tenant_id)
     alert = await alert_service.dismiss_alert(db, alert_id, payload)
@@ -126,14 +114,10 @@ async def promote_alert(
     alert_id: UUID,
     payload: AlertPromote,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.ALERT, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.ALERT, Action.UPDATE))],
 ) -> ApiResponse[CaseResponse]:
     _check(auth, tenant_id)
-    _alert, case = await alert_service.promote_alert(
-        db, alert_id, payload, actor_id=auth.user_id
-    )
+    _alert, case = await alert_service.promote_alert(db, alert_id, payload, actor_id=auth.user_id)
     return ApiResponse(data=CaseResponse.model_validate(case))
 
 

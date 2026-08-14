@@ -82,9 +82,7 @@ class Alert(BaseModel, Base):
     )
 
     # --- Watari workflow state (not OCSF) ---
-    status: Mapped[str] = mapped_column(
-        String(50), nullable=False, server_default="pending"
-    )
+    status: Mapped[str] = mapped_column(String(50), nullable=False, server_default="pending")
     dismiss_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
     promoted_to_case_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("cases.id"), nullable=True

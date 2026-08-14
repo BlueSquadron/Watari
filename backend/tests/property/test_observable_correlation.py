@@ -36,9 +36,7 @@ pytestmark = pytest.mark.skipif(
     deadline=None,
 )
 @given(
-    case_has_observable=st.lists(
-        st.booleans(), min_size=3, max_size=6
-    ),
+    case_has_observable=st.lists(st.booleans(), min_size=3, max_size=6),
 )
 async def test_correlating_cases_match_exactly(
     case_has_observable: list[bool],
@@ -69,9 +67,7 @@ async def test_correlating_cases_match_exactly(
                 db_session,
                 case_id=case.id,
                 created_by=user.id,
-                payload=ObservableCreate(
-                    type=ObservableType.IP, value=target_value
-                ),
+                payload=ObservableCreate(type=ObservableType.IP, value=target_value),
             )
             expected_case_ids.add(case.id)
         # Always add a distinct observable so every case has something
@@ -79,9 +75,7 @@ async def test_correlating_cases_match_exactly(
             db_session,
             case_id=case.id,
             created_by=user.id,
-            payload=ObservableCreate(
-                type=ObservableType.IP, value=f"10.0.0.{i + 1}"
-            ),
+            payload=ObservableCreate(type=ObservableType.IP, value=f"10.0.0.{i + 1}"),
         )
 
     actual_case_ids = set(

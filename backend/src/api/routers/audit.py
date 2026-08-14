@@ -28,9 +28,7 @@ async def list_logs(
     tenant_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.AUDIT_LOG, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.AUDIT_LOG, Action.READ))],
     user_id: UUID | None = None,
     action: str | None = None,
     resource_type: str | None = None,

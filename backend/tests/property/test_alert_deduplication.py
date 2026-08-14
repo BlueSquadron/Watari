@@ -91,9 +91,7 @@ def test_derive_falls_back_to_uid() -> None:
     key_b=st.one_of(st.none(), st.text(min_size=1, max_size=32)),
 )
 @settings(max_examples=200)
-def test_dedup_iff_keys_match_and_existing_is_pending(
-    key_a: str, key_b: str | None
-) -> None:
+def test_dedup_iff_keys_match_and_existing_is_pending(key_a: str, key_b: str | None) -> None:
     """Two alerts dedup iff the effective keys are equal AND the existing
     alert is still in the ``pending`` state."""
     ingest = _make_ingest(uid="never-used", dedup_key=key_a)

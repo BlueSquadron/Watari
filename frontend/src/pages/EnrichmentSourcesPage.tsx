@@ -31,7 +31,9 @@ export function EnrichmentSourcesPage() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
   if (isLoading || !data) return <LoadingOverlay label="Loading sources" />;
 
@@ -63,7 +65,9 @@ export function EnrichmentSourcesPage() {
           {sources.length === 0 ? (
             <TableEmpty colSpan={5}>No sources yet.</TableEmpty>
           ) : (
-            sources.map((s) => <SourceRow key={s.id} source={s} tenantId={tenantId} />)
+            sources.map((s) => (
+              <SourceRow key={s.id} source={s} tenantId={tenantId} />
+            ))
           )}
         </tbody>
       </Table>

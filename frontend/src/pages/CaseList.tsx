@@ -59,7 +59,9 @@ export function CaseList() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
 
   return (
@@ -80,7 +82,10 @@ export function CaseList() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Select value={status} onChange={(e) => setStatus(e.target.value as CaseStatus | "")}>
+        <Select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as CaseStatus | "")}
+        >
           {STATUSES.map((s) => (
             <option key={s || "any"} value={s}>
               {s ? s.replace("_", " ") : "Any status"}
@@ -115,10 +120,7 @@ export function CaseList() {
           <tbody>
             {data?.data.length ? (
               data.data.map((c) => (
-                <TR
-                  key={c.id}
-                  onClick={() => navigate(`/cases/${c.id}`)}
-                >
+                <TR key={c.id} onClick={() => navigate(`/cases/${c.id}`)}>
                   <TD className="font-mono text-watari-text-dark-secondary">
                     #{c.case_number}
                   </TD>

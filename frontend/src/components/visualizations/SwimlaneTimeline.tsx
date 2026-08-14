@@ -73,11 +73,16 @@ export function SwimlaneTimeline({ caseId }: { caseId: UUID }) {
     };
   }, [data]);
 
-  if (isLoading || !prepared) return <LoadingOverlay label="Loading timeline" />;
+  if (isLoading || !prepared)
+    return <LoadingOverlay label="Loading timeline" />;
 
-  const width = Math.max(MIN_WIDTH, containerRef.current?.clientWidth ?? MIN_WIDTH);
+  const width = Math.max(
+    MIN_WIDTH,
+    containerRef.current?.clientWidth ?? MIN_WIDTH,
+  );
   const innerWidth = width - MARGIN.left - MARGIN.right;
-  const height = MARGIN.top + MARGIN.bottom + prepared.lanes.length * LANE_HEIGHT;
+  const height =
+    MARGIN.top + MARGIN.bottom + prepared.lanes.length * LANE_HEIGHT;
 
   if (prepared.entries.length === 0) {
     return (
@@ -95,7 +100,7 @@ export function SwimlaneTimeline({ caseId }: { caseId: UUID }) {
 
   const hoveredEntry =
     hoveredId !== null
-      ? prepared.entries.find((e) => e.id === hoveredId) ?? null
+      ? (prepared.entries.find((e) => e.id === hoveredId) ?? null)
       : null;
 
   return (
@@ -166,7 +171,10 @@ export function SwimlaneTimeline({ caseId }: { caseId: UUID }) {
             {/* Lane labels — rendered outside the zoomed area so they stay anchored */}
             <Group top={MARGIN.top}>
               {prepared.lanes.map((lane, i) => (
-                <g key={lane.key} transform={`translate(0, ${i * LANE_HEIGHT})`}>
+                <g
+                  key={lane.key}
+                  transform={`translate(0, ${i * LANE_HEIGHT})`}
+                >
                   <rect
                     x={0}
                     y={0}

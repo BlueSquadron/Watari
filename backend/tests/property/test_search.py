@@ -57,9 +57,7 @@ def test_empty_query_always_accepts(haystack: str) -> None:
 
 
 def test_multiple_filters_compose() -> None:
-    assert filter_match(
-        "malware incident", query="malware", status="open", status_field="open"
-    )
+    assert filter_match("malware incident", query="malware", status="open", status_field="open")
     # One mismatching field blocks the hit
     assert not filter_match(
         "malware incident", query="malware", status="open", status_field="closed"
@@ -92,9 +90,7 @@ async def test_search_returns_a_hit_from_every_entity_type(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
-            tid=str(tenant.id)
-        )
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     term = "zzsearchable"
@@ -142,9 +138,7 @@ async def test_search_returns_a_hit_from_every_entity_type(
     )
     await db_session.flush()
 
-    response = await search_service.search(
-        db_session, tenant.id, SearchRequest(query=term)
-    )
+    response = await search_service.search(db_session, tenant.id, SearchRequest(query=term))
 
     found = {hit.entity_type for hit in response.hits}
     assert found == set(SearchEntityType), f"missing hits for {set(SearchEntityType) - found}"
@@ -162,9 +156,7 @@ async def test_search_matches_alert_message_not_just_title(
     tenant = await tenant_factory()
     await user_factory(tenant.id)
     await db_session.execute(
-        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
-            tid=str(tenant.id)
-        )
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
 
     db_session.add(

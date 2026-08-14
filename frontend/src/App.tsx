@@ -80,58 +80,25 @@ export default function App() {
           >
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-              path="/cases"
-              element={<CaseList />}
-            />
+            <Route path="/cases" element={<CaseList />} />
             <Route
               path="/cases/new"
               element={<Navigate to="/cases" replace />}
             />
-            <Route
-              path="/cases/:caseId"
-              element={<CaseDetail />}
-            />
-            <Route
-              path="/alerts"
-              element={<AlertQueue />}
-            />
-            <Route
-              path="/alerts/:alertId"
-              element={<AlertDetail />}
-            />
-            <Route
-              path="/search"
-              element={<SearchPage />}
-            />
-            <Route
-              path="/attack"
-              element={<AttackMatrix />}
-            />
-            <Route
-              path="/admin/users"
-              element={<UserManagement />}
-            />
-            <Route
-              path="/admin/tenants"
-              element={<TenantManagement />}
-            />
-            <Route
-              path="/admin/templates"
-              element={<CaseTemplatesPage />}
-            />
+            <Route path="/cases/:caseId" element={<CaseDetail />} />
+            <Route path="/alerts" element={<AlertQueue />} />
+            <Route path="/alerts/:alertId" element={<AlertDetail />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/attack" element={<AttackMatrix />} />
+            <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/admin/tenants" element={<TenantManagement />} />
+            <Route path="/admin/templates" element={<CaseTemplatesPage />} />
             <Route
               path="/admin/enrichment"
               element={<EnrichmentSourcesPage />}
             />
-            <Route
-              path="/admin/modules"
-              element={<ModuleManagement />}
-            />
-            <Route
-              path="/admin/audit"
-              element={<AuditLogViewer />}
-            />
+            <Route path="/admin/modules" element={<ModuleManagement />} />
+            <Route path="/admin/audit" element={<AuditLogViewer />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

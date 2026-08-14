@@ -30,13 +30,9 @@ class Asset(BaseModel, Base):
     type: Mapped[str] = mapped_column(String(50), nullable=False)
     ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
     domain: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    is_compromised: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
-    )
+    is_compromised: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    custom_attributes: Mapped[dict] = mapped_column(
-        JSONB, nullable=False, server_default="{}"
-    )
+    custom_attributes: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
     created_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )

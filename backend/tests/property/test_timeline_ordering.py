@@ -40,9 +40,7 @@ pytestmark = pytest.mark.skipif(
     deadline=None,
 )
 @given(
-    offsets=st.lists(
-        st.integers(min_value=0, max_value=86400), min_size=1, max_size=8
-    ),
+    offsets=st.lists(st.integers(min_value=0, max_value=86400), min_size=1, max_size=8),
     order=st.sampled_from(["asc", "desc"]),
 )
 async def test_timeline_ordering_and_non_null_fields(
@@ -108,9 +106,7 @@ async def test_timeline_response_exposes_metadata_as_a_dict(
     tenant = await tenant_factory()
     user = await user_factory(tenant.id)
     await db_session.execute(
-        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
-            tid=str(tenant.id)
-        )
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant.id))
     )
     case = await case_service.create_case(
         db_session,

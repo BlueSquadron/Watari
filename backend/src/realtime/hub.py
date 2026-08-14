@@ -86,16 +86,12 @@ class WebSocketHub:
 
     # -------- Connection management ---------
 
-    async def connect_case(
-        self, websocket: WebSocket, case_id: str, user_id: str
-    ) -> None:
+    async def connect_case(self, websocket: WebSocket, case_id: str, user_id: str) -> None:
         async with self._lock:
             self._case_connections[case_id].add(websocket)
         await self._touch_presence(case_id, user_id)
 
-    async def disconnect_case(
-        self, websocket: WebSocket, case_id: str, user_id: str
-    ) -> None:
+    async def disconnect_case(self, websocket: WebSocket, case_id: str, user_id: str) -> None:
         async with self._lock:
             self._case_connections[case_id].discard(websocket)
             if not self._case_connections[case_id]:
@@ -134,12 +130,8 @@ class WebSocketHub:
             timestamp=datetime.now(UTC).isoformat(),
         )
         # Fan out to case subscribers AND tenant activity feed
-        await self._redis.publish(
-            _CASE_CHANNEL.format(case_id=case_id), event.to_json()
-        )
-        await self._redis.publish(
-            _TENANT_CHANNEL.format(tenant_id=tenant_id), event.to_json()
-        )
+        await self._redis.publish(_CASE_CHANNEL.format(case_id=case_id), event.to_json())
+        await self._redis.publish(_TENANT_CHANNEL.format(tenant_id=tenant_id), event.to_json())
 
     async def publish_tenant_event(
         self,
@@ -159,9 +151,7 @@ class WebSocketHub:
             actor_display_name=actor_display_name,
             timestamp=datetime.now(UTC).isoformat(),
         )
-        await self._redis.publish(
-            _TENANT_CHANNEL.format(tenant_id=tenant_id), event.to_json()
-        )
+        await self._redis.publish(_TENANT_CHANNEL.format(tenant_id=tenant_id), event.to_json())
 
     # -------- Presence ---------
 

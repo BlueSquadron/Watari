@@ -49,9 +49,7 @@ _path_segments = st.text(
     suppress_health_check=[HealthCheck.function_scoped_fixture],
     deadline=None,
 )
-def test_404_responses_conform_to_api_error(
-    path_parts: list[str], client: TestClient
-) -> None:
+def test_404_responses_conform_to_api_error(path_parts: list[str], client: TestClient) -> None:
     """Any 404 from a GET to an unknown path returns a well-formed ApiError."""
     path = "/" + "/".join(path_parts)
     response = client.get(path)

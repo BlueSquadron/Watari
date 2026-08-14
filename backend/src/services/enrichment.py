@@ -28,9 +28,7 @@ from .timeline_recorder import record_event
 
 async def _get_source_or_404(db: AsyncSession, source_id: UUID) -> EnrichmentSource:
     source = (
-        await db.execute(
-            select(EnrichmentSource).where(EnrichmentSource.id == source_id)
-        )
+        await db.execute(select(EnrichmentSource).where(EnrichmentSource.id == source_id))
     ).scalar_one_or_none()
     if source is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Enrichment source {source_id} not found")
@@ -43,10 +41,14 @@ async def list_sources(
     base = select(EnrichmentSource).where(EnrichmentSource.tenant_id == tenant_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(
-            base.order_by(EnrichmentSource.created_at.desc()).limit(limit).offset(offset)
+        (
+            await db.execute(
+                base.order_by(EnrichmentSource.created_at.desc()).limit(limit).offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -100,10 +102,14 @@ async def list_results(
     base = select(EnrichmentResult).where(EnrichmentResult.observable_id == observable_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(
-            base.order_by(EnrichmentResult.queried_at.desc()).limit(limit).offset(offset)
+        (
+            await db.execute(
+                base.order_by(EnrichmentResult.queried_at.desc()).limit(limit).offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -123,10 +129,10 @@ async def trigger_enrichment(
     """
     # Fetch observables
     observables = (
-        await db.execute(
-            select(Observable).where(Observable.id.in_(payload.observable_ids))
-        )
-    ).scalars().all()
+        (await db.execute(select(Observable).where(Observable.id.in_(payload.observable_ids))))
+        .scalars()
+        .all()
+    )
     if not observables:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No observables found")
 
@@ -141,9 +147,7 @@ async def trigger_enrichment(
 
     job_ids: list[str] = []
     for obs in observables:
-        matching = [
-            s for s in sources if obs.type in s.supported_observable_types
-        ]
+        matching = [s for s in sources if obs.type in s.supported_observable_types]
         for src in matching:
             # Queue the Celery job (best-effort; if broker unavailable, fall through
             # to a synchronous placeholder so the result row still exists).

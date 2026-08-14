@@ -15,9 +15,7 @@ from .timeline_recorder import record_event
 
 
 async def _get_case_or_404(db: AsyncSession, case_id: UUID) -> Case:
-    case = (
-        await db.execute(select(Case).where(Case.id == case_id))
-    ).scalar_one_or_none()
+    case = (await db.execute(select(Case).where(Case.id == case_id))).scalar_one_or_none()
     if case is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -27,9 +25,7 @@ async def _get_case_or_404(db: AsyncSession, case_id: UUID) -> Case:
 
 
 async def _get_task_or_404(db: AsyncSession, task_id: UUID) -> Task:
-    task = (
-        await db.execute(select(Task).where(Task.id == task_id))
-    ).scalar_one_or_none()
+    task = (await db.execute(select(Task).where(Task.id == task_id))).scalar_one_or_none()
     if task is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -42,16 +38,18 @@ async def list_tasks(
     db: AsyncSession, case_id: UUID, *, limit: int = 100, offset: int = 0
 ) -> tuple[list[Task], int]:
     base = select(Task).where(Task.case_id == case_id)
-    total = (
-        await db.execute(select(func.count()).select_from(base.subquery()))
-    ).scalar_one()
+    total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(
-            base.order_by(Task.sort_order.asc(), Task.created_at.asc())
-            .limit(limit)
-            .offset(offset)
+        (
+            await db.execute(
+                base.order_by(Task.sort_order.asc(), Task.created_at.asc())
+                .limit(limit)
+                .offset(offset)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -109,9 +107,7 @@ async def update_task(
             tenant_id=task.tenant_id,
             case_id=task.case_id,
             event_type="task_status_changed",
-            description=(
-                f"Task '{task.title}' status changed from {old_status} to {task.status}"
-            ),
+            description=(f"Task '{task.title}' status changed from {old_status} to {task.status}"),
             category="task",
             actor_id=actor_id,
             metadata={"task_id": str(task.id), "from": old_status, "to": task.status},

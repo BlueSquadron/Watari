@@ -19,9 +19,7 @@ class SearchEntityType(StrEnum):
 
 class SearchRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)
-    entity_types: list[SearchEntityType] = Field(
-        default_factory=lambda: list(SearchEntityType)
-    )
+    entity_types: list[SearchEntityType] = Field(default_factory=lambda: list(SearchEntityType))
     limit: int = Field(default=50, ge=1, le=500)
 
 

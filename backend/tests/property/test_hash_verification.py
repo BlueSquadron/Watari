@@ -33,9 +33,7 @@ def test_compute_sha256_matches_hashlib(content: bytes) -> None:
     flip_index=st.integers(min_value=0, max_value=4095),
 )
 @settings(max_examples=100)
-def test_hash_mismatch_detected_when_content_modified(
-    content: bytes, flip_index: int
-) -> None:
+def test_hash_mismatch_detected_when_content_modified(content: bytes, flip_index: int) -> None:
     """Changing a single byte SHALL produce a different hash."""
     declared = hashlib.sha256(content).hexdigest()
     if flip_index >= len(content):

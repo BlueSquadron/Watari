@@ -105,8 +105,12 @@ async def test_case_created_from_template_inherits_attributes(
 
     # Tasks: one per template task entry
     task_titles = (
-        await db_session.execute(
-            select(Task.title).where(Task.case_id == case.id).order_by(Task.sort_order.asc())
+        (
+            await db_session.execute(
+                select(Task.title).where(Task.case_id == case.id).order_by(Task.sort_order.asc())
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     assert list(task_titles) == template_task_titles

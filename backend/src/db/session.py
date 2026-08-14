@@ -55,9 +55,7 @@ def get_tenant_context(request: Request) -> TenantContext | None:
     )
 
 
-async def apply_tenant_context(
-    session: AsyncSession, tenant_context: TenantContext
-) -> None:
+async def apply_tenant_context(session: AsyncSession, tenant_context: TenantContext) -> None:
     """Scope `session` to a tenant for the remainder of its transaction.
 
     Must be called before the session is used to read or write tenant data:

@@ -28,11 +28,7 @@ from src.services.validators import validate_observable
 # ---------------------------------------------------------------------------
 
 
-@given(
-    octets=st.lists(
-        st.integers(min_value=0, max_value=255), min_size=4, max_size=4
-    )
-)
+@given(octets=st.lists(st.integers(min_value=0, max_value=255), min_size=4, max_size=4))
 @settings(max_examples=100)
 def test_valid_ipv4_accepted(octets: list[int]) -> None:
     value = ".".join(str(o) for o in octets)

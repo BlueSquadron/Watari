@@ -51,9 +51,7 @@ class PaginationParams(BaseModel):
         return (self.page - 1) * self.page_size
 
 
-def build_pagination_meta(
-    total_count: int, page: int, page_size: int
-) -> PaginationMeta:
+def build_pagination_meta(total_count: int, page: int, page_size: int) -> PaginationMeta:
     """Compute PaginationMeta from total row count and current paging params."""
     total_pages = (total_count + page_size - 1) // page_size if page_size > 0 else 0
     return PaginationMeta(

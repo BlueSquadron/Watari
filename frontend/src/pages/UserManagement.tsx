@@ -26,7 +26,8 @@ export function UserManagement() {
   const tenantId = useTenantStore((s) => s.activeTenantId);
   const qc = useQueryClient();
   const [showUserDialog, setShowUserDialog] = useState(false);
-  const [showServiceAccountDialog, setShowServiceAccountDialog] = useState(false);
+  const [showServiceAccountDialog, setShowServiceAccountDialog] =
+    useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", tenantId],
@@ -41,7 +42,9 @@ export function UserManagement() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
   if (isLoading || !data) return <LoadingOverlay label="Loading users" />;
 
@@ -57,7 +60,10 @@ export function UserManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => setShowServiceAccountDialog(true)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowServiceAccountDialog(true)}
+          >
             New API service account
           </Button>
           <Button onClick={() => setShowUserDialog(true)}>New user</Button>
@@ -213,7 +219,10 @@ function CreateUserDialog({
             />
           </Field>
           <Field label="Role">
-            <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+            <Select
+              value={role}
+              onChange={(e) => setRole(e.target.value as Role)}
+            >
               {ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
@@ -346,7 +355,9 @@ function CreateServiceAccountDialog({
           <Field label="Permissions">
             <Select
               value={role}
-              onChange={(e) => setRole(e.target.value as "analyst" | "read_only")}
+              onChange={(e) =>
+                setRole(e.target.value as "analyst" | "read_only")
+              }
             >
               <option value="analyst">Analyst (read/write)</option>
               <option value="read_only">Read-only</option>

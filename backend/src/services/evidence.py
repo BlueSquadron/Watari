@@ -24,9 +24,7 @@ async def _get_case_or_404(db: AsyncSession, case_id: UUID) -> Case:
 
 
 async def _get_evidence_or_404(db: AsyncSession, evidence_id: UUID) -> Evidence:
-    ev = (
-        await db.execute(select(Evidence).where(Evidence.id == evidence_id))
-    ).scalar_one_or_none()
+    ev = (await db.execute(select(Evidence).where(Evidence.id == evidence_id))).scalar_one_or_none()
     if ev is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Evidence {evidence_id} not found")
     return ev
@@ -38,10 +36,10 @@ async def list_evidence(
     base = select(Evidence).where(Evidence.case_id == case_id)
     total = (await db.execute(select(func.count()).select_from(base.subquery()))).scalar_one()
     rows = (
-        await db.execute(
-            base.order_by(Evidence.registered_at.desc()).limit(limit).offset(offset)
-        )
-    ).scalars().all()
+        (await db.execute(base.order_by(Evidence.registered_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -178,15 +176,11 @@ async def download_evidence_file(
         try:
             data = storage.decrypt_with_password(data, password)
         except Exception as exc:  # noqa: BLE001
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST, "Invalid password"
-            ) from exc
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid password") from exc
     return evidence, data
 
 
-async def update_evidence(
-    db: AsyncSession, evidence_id: UUID, payload: EvidenceUpdate
-) -> Evidence:
+async def update_evidence(db: AsyncSession, evidence_id: UUID, payload: EvidenceUpdate) -> Evidence:
     evidence = await _get_evidence_or_404(db, evidence_id)
     data = payload.model_dump(exclude_unset=True)
     for k, v in data.items():

@@ -42,7 +42,9 @@ export function AlertQueue() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
 
   const filtered = (data?.data ?? []).filter((a) => {

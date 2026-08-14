@@ -86,7 +86,8 @@ export function ReportGenerator({ caseId }: { caseId: UUID }) {
       setError(err instanceof Error ? err.message : "Generation failed"),
   });
 
-  if (templatesQuery.isLoading) return <LoadingOverlay label="Loading templates" />;
+  if (templatesQuery.isLoading)
+    return <LoadingOverlay label="Loading templates" />;
 
   if (templates.length === 0) {
     return (

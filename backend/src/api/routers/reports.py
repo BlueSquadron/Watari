@@ -83,9 +83,7 @@ async def generate_report(
     case_id: UUID,
     payload: ReportGenerateRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.REPORT, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.REPORT, Action.CREATE))],
 ) -> ApiResponse[ReportResponse]:
     _check(auth, tenant_id)
     report = await reports_service.generate_report(
@@ -104,14 +102,10 @@ async def preview_report(
     case_id: UUID,
     template_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.REPORT, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.REPORT, Action.READ))],
 ) -> Response:
     _check(auth, tenant_id)
-    rendered = await reports_service.preview_report(
-        db, case_id=case_id, template_id=template_id
-    )
+    rendered = await reports_service.preview_report(db, case_id=case_id, template_id=template_id)
     return Response(content=rendered, media_type="text/markdown")
 
 

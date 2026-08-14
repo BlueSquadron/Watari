@@ -54,9 +54,7 @@ def create_access_token(
     `role`, and `session_id`. Extra fields are preserved in the token.
     """
     settings = get_settings()
-    delta = expires_delta or timedelta(
-        minutes=settings.jwt_access_token_expire_minutes
-    )
+    delta = expires_delta or timedelta(minutes=settings.jwt_access_token_expire_minutes)
     payload = _build_payload(subject, _ACCESS_TOKEN_TYPE, delta)
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
@@ -64,9 +62,7 @@ def create_access_token(
 def create_refresh_token(subject: dict[str, Any]) -> str:
     """Create a long-lived refresh token (default 7 days)."""
     settings = get_settings()
-    payload = _build_payload(
-        subject, _REFRESH_TOKEN_TYPE, timedelta(days=_REFRESH_TOKEN_DAYS)
-    )
+    payload = _build_payload(subject, _REFRESH_TOKEN_TYPE, timedelta(days=_REFRESH_TOKEN_DAYS))
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 

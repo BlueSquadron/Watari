@@ -100,11 +100,13 @@ async def test_event_fires_only_subscribed_modules(
     execs = list(
         (
             await db_session.execute(
-                select(ModuleExecution).where(ModuleExecution.module_id.in_(
-                    [subscribed.id, unsubscribed.id]
-                ))
+                select(ModuleExecution).where(
+                    ModuleExecution.module_id.in_([subscribed.id, unsubscribed.id])
+                )
             )
-        ).scalars().all()
+        )
+        .scalars()
+        .all()
     )
     assert len(execs) == 1
     assert execs[0].module_id == subscribed.id

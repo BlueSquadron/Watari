@@ -156,9 +156,7 @@ async def db_session(app_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, No
         tx = await conn.begin()
         try:
             async with factory(bind=conn) as session:
-                await session.execute(
-                    text("SET LOCAL app.is_platform_admin = 'true'")
-                )
+                await session.execute(text("SET LOCAL app.is_platform_admin = 'true'"))
                 yield session
         finally:
             await tx.rollback()

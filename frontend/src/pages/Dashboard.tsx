@@ -56,7 +56,9 @@ export function Dashboard() {
 
   if (!tenantId)
     return (
-      <p className="text-sm text-watari-text-dark-secondary">No active tenant.</p>
+      <p className="text-sm text-watari-text-dark-secondary">
+        No active tenant.
+      </p>
     );
   if (isLoading || !data) return <LoadingOverlay label="Loading dashboard" />;
 
@@ -179,9 +181,7 @@ function SeverityBarChart({
       indexBy="severity"
       margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
       padding={0.3}
-      colors={(d) =>
-        SEVERITY_COLORS[d.indexValue as string] ?? "#c4a35a"
-      }
+      colors={(d) => SEVERITY_COLORS[d.indexValue as string] ?? "#c4a35a"}
       theme={NIVO_THEME}
       axisLeft={{
         tickSize: 4,
@@ -203,7 +203,11 @@ function StatusPieChart({
   if (data.length === 0) return <EmptyChart label="No cases yet." />;
   return (
     <ResponsivePie
-      data={data.map((p) => ({ id: p.status, label: p.status, value: p.count }))}
+      data={data.map((p) => ({
+        id: p.status,
+        label: p.status,
+        value: p.count,
+      }))}
       margin={{ top: 10, right: 10, bottom: 20, left: 10 }}
       innerRadius={0.55}
       padAngle={1.5}
@@ -260,7 +264,8 @@ function AnalystWorkloadChart({
 }: {
   data: DashboardMetrics["analyst_workload"];
 }) {
-  if (data.length === 0) return <EmptyChart label="No analyst workload data." />;
+  if (data.length === 0)
+    return <EmptyChart label="No analyst workload data." />;
   return (
     <ResponsiveBar
       data={data.map((p) => ({

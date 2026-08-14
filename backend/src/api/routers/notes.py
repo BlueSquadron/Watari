@@ -21,9 +21,7 @@ from src.schemas.notes import (
 )
 from src.services import notes as notes_service
 
-router = APIRouter(
-    prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/notes", tags=["notes"]
-)
+router = APIRouter(prefix="/api/v1/tenants/{tenant_id}/cases/{case_id}/notes", tags=["notes"])
 
 
 def _check(auth: AuthContext, tenant_id: UUID) -> None:
@@ -32,6 +30,7 @@ def _check(auth: AuthContext, tenant_id: UUID) -> None:
 
 
 # ---- Folders ----
+
 
 @router.get("/folders", response_model=ApiResponse[list[NoteFolderResponse]])
 async def list_folders(
@@ -89,6 +88,7 @@ async def delete_folder(
 
 
 # ---- Notes ----
+
 
 @router.get("", response_model=ApiResponse[list[NoteResponse]])
 async def list_notes(

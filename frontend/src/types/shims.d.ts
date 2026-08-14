@@ -1,7 +1,12 @@
 // Type shims for libraries that ship without typings.
 
 declare module "react-cytoscapejs" {
-  import type { Core, ElementDefinition, Stylesheet, LayoutOptions } from "cytoscape";
+  import type {
+    Core,
+    ElementDefinition,
+    Stylesheet,
+    LayoutOptions,
+  } from "cytoscape";
   import type { ComponentType, CSSProperties } from "react";
 
   interface CytoscapeComponentProps {

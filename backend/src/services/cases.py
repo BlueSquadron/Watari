@@ -36,17 +36,13 @@ async def _next_case_number(db: AsyncSession, tenant_id: UUID) -> int:
     `next_case_number(UUID)`.
     """
     result = await db.execute(
-        text("SELECT next_case_number(CAST(:tid AS uuid))").bindparams(
-            tid=str(tenant_id)
-        )
+        text("SELECT next_case_number(CAST(:tid AS uuid))").bindparams(tid=str(tenant_id))
     )
     return int(result.scalar_one())
 
 
 async def _get_case_or_404(db: AsyncSession, case_id: UUID) -> Case:
-    case = (
-        await db.execute(select(Case).where(Case.id == case_id))
-    ).scalar_one_or_none()
+    case = (await db.execute(select(Case).where(Case.id == case_id))).scalar_one_or_none()
     if case is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -72,9 +68,7 @@ async def create_case(
     template: CaseTemplate | None = None
     if payload.template_id is not None:
         template = (
-            await db.execute(
-                select(CaseTemplate).where(CaseTemplate.id == payload.template_id)
-            )
+            await db.execute(select(CaseTemplate).where(CaseTemplate.id == payload.template_id))
         ).scalar_one_or_none()
         if template is None:
             raise HTTPException(
@@ -172,19 +166,15 @@ async def list_cases(
         query = query.where(Case.created_at <= filters.created_before)
     if filters.search is not None and filters.search.strip():
         pattern = f"%{filters.search.strip()}%"
-        query = query.where(
-            (Case.title.ilike(pattern)) | (Case.description.ilike(pattern))
-        )
+        query = query.where((Case.title.ilike(pattern)) | (Case.description.ilike(pattern)))
 
-    total = (
-        await db.execute(select(func.count()).select_from(query.subquery()))
-    ).scalar_one()
+    total = (await db.execute(select(func.count()).select_from(query.subquery()))).scalar_one()
 
     rows = (
-        await db.execute(
-            query.order_by(Case.created_at.desc()).limit(limit).offset(offset)
-        )
-    ).scalars().all()
+        (await db.execute(query.order_by(Case.created_at.desc()).limit(limit).offset(offset)))
+        .scalars()
+        .all()
+    )
     return list(rows), int(total)
 
 
@@ -261,13 +251,13 @@ async def update_case(
             tenant_id=case.tenant_id,
             case_id=case.id,
             event_type="assignee_changed",
-            description=(
-                f"Assignee changed from {old_assignee} to {case.assignee_id}"
-            ),
+            description=(f"Assignee changed from {old_assignee} to {case.assignee_id}"),
             category="lifecycle",
             actor_id=actor_id,
-            metadata={"from": str(old_assignee) if old_assignee else None,
-                      "to": str(case.assignee_id) if case.assignee_id else None},
+            metadata={
+                "from": str(old_assignee) if old_assignee else None,
+                "to": str(case.assignee_id) if case.assignee_id else None,
+            },
         )
 
     await db.flush()
@@ -324,19 +314,19 @@ async def merge_cases(
             .execution_options(synchronize_session=False)
         )
         observables = (
-            await db.execute(
-                select(Observable).where(Observable.case_id == src.id)
-            )
-        ).scalars().all()
+            (await db.execute(select(Observable).where(Observable.case_id == src.id)))
+            .scalars()
+            .all()
+        )
         for obs in observables:
             obs.case_id = target.id
 
         # Transfer timeline entries
         entries = (
-            await db.execute(
-                select(TimelineEntry).where(TimelineEntry.case_id == src.id)
-            )
-        ).scalars().all()
+            (await db.execute(select(TimelineEntry).where(TimelineEntry.case_id == src.id)))
+            .scalars()
+            .all()
+        )
         for entry in entries:
             entry.case_id = target.id
 

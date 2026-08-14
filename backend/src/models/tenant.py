@@ -13,9 +13,7 @@ class Tenant(BaseModel, Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     settings: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default="{}")
-    custom_fields_schema: Mapped[list] = mapped_column(
-        JSONB, nullable=False, server_default="[]"
-    )
+    custom_fields_schema: Mapped[list] = mapped_column(JSONB, nullable=False, server_default="[]")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
 
     # Relationships

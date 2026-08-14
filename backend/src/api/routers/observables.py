@@ -36,9 +36,7 @@ async def list_observables(
     case_id: UUID,
     pagination: Annotated[PaginationParams, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.READ))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.READ))],
 ) -> ApiResponse[list[ObservableResponse]]:
     _check(auth, tenant_id)
     rows, total = await observable_service.list_observables(
@@ -69,9 +67,7 @@ async def create_observable(
     case_id: UUID,
     payload: ObservableCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.CREATE))],
 ) -> ApiResponse[ObservableResponse]:
     _check(auth, tenant_id)
     obs = await observable_service.create_observable(
@@ -90,9 +86,7 @@ async def create_observables_bulk(
     case_id: UUID,
     payload: ObservableBulkCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.CREATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.CREATE))],
 ) -> ApiResponse[list[ObservableResponse]]:
     _check(auth, tenant_id)
     items = await observable_service.create_observables_bulk(
@@ -108,9 +102,7 @@ async def update_observable(
     observable_id: UUID,
     payload: ObservableUpdate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.UPDATE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.UPDATE))],
 ) -> ApiResponse[ObservableResponse]:
     _check(auth, tenant_id)
     obs = await observable_service.update_observable(db, observable_id, payload)
@@ -123,9 +115,7 @@ async def delete_observable(
     case_id: UUID,
     observable_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    auth: Annotated[
-        AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.DELETE))
-    ],
+    auth: Annotated[AuthContext, Depends(require_permission(Resource.OBSERVABLE, Action.DELETE))],
 ) -> None:
     _check(auth, tenant_id)
     await observable_service.delete_observable(db, observable_id)

@@ -44,15 +44,11 @@ class Evidence(Base):
     integrity_mismatch: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"
     )
-    tags: Mapped[list[str]] = mapped_column(
-        ARRAY(String), nullable=False, server_default="{}"
-    )
+    tags: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False, server_default="{}")
     registered_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
-    registered_at: Mapped[datetime] = mapped_column(
-        TS, nullable=False, server_default=func.now()
-    )
+    registered_at: Mapped[datetime] = mapped_column(TS, nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         TS, nullable=False, server_default=func.now(), onupdate=func.now()
     )
