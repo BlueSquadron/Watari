@@ -34,9 +34,9 @@ def _check(auth: AuthContext, tenant_id: UUID) -> None:
 def _response_with_links(
     entry, linked_asset_ids: list[UUID]
 ) -> TimelineEntryResponse:
-    data = TimelineEntryResponse.model_validate(entry).model_dump(by_alias=True)
-    data["linked_asset_ids"] = linked_asset_ids
-    return TimelineEntryResponse.model_validate(data)
+    return TimelineEntryResponse.model_validate(entry).model_copy(
+        update={"linked_asset_ids": linked_asset_ids}
+    )
 
 
 @router.get("", response_model=ApiResponse[list[TimelineEntryResponse]])
