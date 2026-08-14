@@ -27,7 +27,10 @@ if config.config_file_name is not None:
 # would destroy that database.
 _PLACEHOLDER_URL = "driver://user:pass@localhost/dbname"
 
-_db_url = os.getenv("DATABASE_URL")
+# Migrations need the owner role: they create tables and the
+# application role itself. ADMIN_DATABASE_URL is that role;
+# DATABASE_URL is the unprivileged app role and cannot run DDL.
+_db_url = os.getenv("ADMIN_DATABASE_URL") or os.getenv("DATABASE_URL")
 if _db_url and config.get_main_option("sqlalchemy.url", "") in ("", _PLACEHOLDER_URL):
     config.set_main_option("sqlalchemy.url", _db_url)
 

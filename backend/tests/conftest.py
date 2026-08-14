@@ -14,6 +14,20 @@ because Row-Level Security policies and the `next_case_number` PL/pgSQL
 function cannot be exercised against an in-memory substitute. Set
 `TEST_DATABASE_URL` (or reuse `DATABASE_URL`) to point at a database that
 the current role may create/drop tables in.
+
+Two roles are involved, mirroring production:
+
+    TEST_DATABASE_URL       the owner. Runs the migrations, which create the
+                            schema and the application role itself.
+    TEST_APP_DATABASE_URL   the unprivileged application role, which RLS
+                            actually applies to. `db_session` uses this, so
+                            tests run against the same enforcement the API
+                            does. Derived from TEST_DATABASE_URL by default.
+
+`db_session` opts into the platform-admin bypass, because most suites are
+testing something other than isolation and would otherwise have to establish a
+tenant context before every single insert. Tests that are about isolation turn
+it off explicitly — see `tests/property/test_tenant_isolation.py`.
 """
 
 from __future__ import annotations
@@ -26,6 +40,7 @@ from collections.abc import AsyncGenerator, Awaitable, Callable
 
 import pytest
 import pytest_asyncio
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -37,6 +52,20 @@ TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL",
     "postgresql+asyncpg://watari:watari_dev_password@localhost:5432/watari_test",
 )
+
+
+def _default_app_url() -> str:
+    """Swap the owner credentials for the application role's, same database."""
+    from sqlalchemy.engine import make_url
+
+    url = make_url(TEST_DATABASE_URL)
+    return url.set(
+        username=os.getenv("APP_DB_USER", "watari_app"),
+        password=os.getenv("APP_DB_PASSWORD", "watari_app_dev_password"),
+    ).render_as_string(hide_password=False)
+
+
+TEST_APP_DATABASE_URL = os.getenv("TEST_APP_DATABASE_URL") or _default_app_url()
 
 
 def _assert_disposable_database(url: str) -> None:
@@ -71,6 +100,7 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
 
     _assert_disposable_database(TEST_DATABASE_URL)
 
+    # The owner engine, for migrations and teardown only.
     engine = create_async_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
     backend_dir = pathlib.Path(__file__).resolve().parents[1]
@@ -91,19 +121,43 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
         await asyncio.to_thread(command.downgrade, config, "base")
 
 
+@pytest_asyncio.fixture(scope="session")
+async def app_engine(test_engine: AsyncEngine) -> AsyncGenerator[AsyncEngine, None]:
+    """Engine for the unprivileged application role.
+
+    Depends on `test_engine` so the migrations — which create this very role —
+    have run first.
+    """
+    engine = create_async_engine(TEST_APP_DATABASE_URL, pool_pre_ping=True)
+    try:
+        yield engine
+    finally:
+        await engine.dispose()
+
+
 @pytest_asyncio.fixture
-async def db_session(test_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
+async def db_session(app_engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
     """Yield a per-test session wrapped in a rolled-back transaction.
 
     Each test gets its own session bound to a connection-level transaction
     which is rolled back on teardown, so database state never leaks between
     tests.
+
+    Runs as the application role, so Row-Level Security applies exactly as it
+    does in the API. The platform-admin bypass is switched on by default:
+    without it every fixture that inserts a user or a case would first have to
+    establish a tenant context, which is noise for the 27 suites that are not
+    about isolation. Tests that *are* about isolation set
+    `app.is_platform_admin` to 'false' themselves.
     """
-    factory = async_sessionmaker(test_engine, expire_on_commit=False)
-    async with test_engine.connect() as conn:
+    factory = async_sessionmaker(app_engine, expire_on_commit=False)
+    async with app_engine.connect() as conn:
         tx = await conn.begin()
         try:
             async with factory(bind=conn) as session:
+                await session.execute(
+                    text("SET LOCAL app.is_platform_admin = 'true'")
+                )
                 yield session
         finally:
             await tx.rollback()

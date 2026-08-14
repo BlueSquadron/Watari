@@ -21,7 +21,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from src.auth.context import AuthContext, Role
-from src.db import async_session_factory
+from src.db import admin_session_factory
 from src.models import AuditLog
 from src.schemas.audit import AuditLogFilters
 
@@ -114,7 +114,7 @@ class AuditMiddleware(BaseHTTPMiddleware):
                 and request.method in _MUTATING_METHODS
                 and response.status_code < 500
             ):
-                async with async_session_factory() as session:
+                async with admin_session_factory() as session:
                     await record(
                         session,
                         auth=auth,
