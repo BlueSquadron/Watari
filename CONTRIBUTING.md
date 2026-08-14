@@ -120,15 +120,44 @@ The alert branch of the search query filters on `Alert.description`, which
 doesn't exist on the model. Check what the field is actually called and whether
 the other branches (cases, observables, assets, notes) have the same problem.
 
-### 🔧 DB-backed property tests can't run out of the box — [#3](https://github.com/BlueSquadron/Watari/issues/3)
+### 🔒 Row-Level Security is enabled but never enforced — [#4](https://github.com/BlueSquadron/Watari/issues/4)
 
-**Impact: medium — it blocks new contributors from running the full suite.**
+**Impact: high.** This is the platform's headline security property, and right
+now tenant isolation rests entirely on the service layer's explicit
+`WHERE tenant_id = ...` predicates. Any query that forgets one silently returns
+another tenant's rows.
 
-23 of the property tests error at setup with `ModuleNotFoundError: No module
-named 'psycopg2'`. `backend/tests/conftest.py:65` strips `+asyncpg` from the
-test URL to build a synchronous engine for schema setup, but no synchronous
-driver is declared anywhere in `pyproject.toml`. Adding `psycopg2-binary` to the
-`dev` extra should do it.
+The policies in `0002_row_level_security.py` are correct. Two things stop them
+from ever applying:
+
+1. The app connects as `watari`, which is a **superuser** — superusers bypass
+   RLS unconditionally.
+2. The tables are `ENABLE ROW LEVEL SECURITY` but not `FORCE`, so the table
+   owner — also `watari` — bypasses them too.
+
+See for yourself, with one tenant in context:
+
+```console
+$ docker compose exec -T postgres psql -U watari -d watari \
+  -c "BEGIN;
+      SELECT set_config('app.current_tenant','<acme-tenant-uuid>',true);
+      SELECT count(DISTINCT tenant_id) AS tenants_visible FROM cases;
+      ROLLBACK;"
+
+ tenants_visible
+-----------------
+               2
+```
+
+`backend/tests/property/test_tenant_isolation.py` catches this — its two
+isolation tests are marked `xfail(strict=True)`, so they become hard failures
+the moment it's fixed.
+
+This is a **big** one, not a starter task. It needs a non-superuser application
+role, a `FORCE ROW LEVEL SECURITY` migration, and a fix to the dependency
+ordering that stops `get_db` from ever seeing the auth context — landed
+together. Any one alone either changes nothing or takes the application down.
+The issue has the full write-up.
 
 ### 🧹 Hypothesis cache is committed to the repo
 

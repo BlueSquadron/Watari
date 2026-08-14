@@ -98,9 +98,10 @@ think.
 
 It sits where TheHive and DFIR-IRIS sit, with three things it does differently:
 
-- **Real multi-tenancy.** Tenant isolation is enforced by PostgreSQL
-  Row-Level Security at the database level, not by a `customer` column and
-  careful WHERE clauses. One deployment, many customers, no leaks.
+- **Real multi-tenancy.** Tenant isolation is designed around PostgreSQL
+  Row-Level Security at the database level rather than a `customer` column
+  alone — one deployment, many customers. *(The policies ship, but aren't
+  enforced yet — see [Project status](#project-status).)*
 - **OCSF-native ingestion.** Alerts are [OCSF 1.8.0 Detection
   Findings](https://schema.ocsf.io/1.8.0/classes/detection_finding). Any
   compliant producer — Wazuh, Suricata, CrowdStrike, AWS Security Hub, your
@@ -113,8 +114,17 @@ It sits where TheHive and DFIR-IRIS sit, with three things it does differently:
 **Alpha (v0.1.0).** The data model, API surface, and multi-tenancy are
 substantial and covered by 29 property-based test suites. The UI is complete
 enough to work a case end to end. Expect rough edges, and expect the schema to
-move before 1.0. See [known gaps](CONTRIBUTING.md#known-gaps--good-first-issues)
-for what's currently broken — several of them are excellent first contributions.
+move before 1.0.
+
+The one gap worth knowing before you deploy anything real: **Row-Level Security
+is shipped but not enforced.** The policies are correct, but the application
+connects as a superuser and the tables aren't `FORCE`d, so tenant isolation
+currently rests on the service layer's own `tenant_id` predicates rather than
+on the database. Tracked in
+[#4](https://github.com/BlueSquadron/Watari/issues/4).
+
+See [known gaps](CONTRIBUTING.md#known-gaps--good-first-issues) for the rest —
+several are excellent first contributions.
 
 ---
 
@@ -178,7 +188,14 @@ without touching the mouse.
 ### Keep tenants apart
 
 Platform admins manage tenants and switch between them. Everyone else never
-sees another tenant exists — enforced in Postgres, not in application code.
+sees another tenant exists.
+
+> **Alpha caveat:** every tenant-scoped query carries its own `tenant_id`
+> predicate, and the Postgres Row-Level Security policies meant to back that up
+> are in place — but they are not currently enforced, because the app connects
+> as a superuser and the tables aren't `FORCE`d. Isolation today rests on the
+> application layer alone. Tracked in
+> [#4](https://github.com/BlueSquadron/Watari/issues/4).
 
 <img src="docs/images/tenants.jpg" alt="Tenant management page listing Acme Corp Security and GlobalBank CSIRT with a switch action" width="100%">
 
@@ -223,7 +240,7 @@ checklist.
 
 | | TheHive | DFIR-IRIS | FIR | Catalyst | **Watari** |
 |---|---|---|---|---|---|
-| Multi-tenant isolation | Limited | Customer field | No | No | **PostgreSQL RLS** |
+| Multi-tenant isolation | Limited | Customer field | No | No | **PostgreSQL RLS** \* |
 | OCSF native ingest | No | No | No | No | **OCSF 1.8.0** |
 | Real-time collaboration | No | No | No | No | **WebSocket** |
 | Swimlane timeline | No | List view | No | No | **Visual + clustering** |
@@ -236,9 +253,12 @@ checklist.
 | Command palette | No | No | No | No | **Cmd+K** |
 | Stack | Scala/Play | Python/Flask | Python/Django | Go | **FastAPI + React 18** |
 
+\* The RLS policies ship but are not enforced yet — see
+[Project status](#project-status).
+
 Watari is younger and less battle-tested than TheHive or DFIR-IRIS. If you need
-something proven in production today, use those. If you want a modern stack with
-real tenant isolation and you're willing to help shape it, you're in the right place.
+something proven in production today, use those. If you want a modern stack and
+you're willing to help shape it, you're in the right place.
 
 ---
 
