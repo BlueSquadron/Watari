@@ -69,66 +69,44 @@ useful contribution. Please check the
 [issue tracker](https://github.com/BlueSquadron/Watari/issues) first in case
 someone got there ahead of you.
 
-### 🐛 `GET /timeline` returns 500 whenever a case has entries — [#1](https://github.com/BlueSquadron/Watari/issues/1)
+### 🔒 Row-Level Security is enabled but never enforced — [#4](https://github.com/BlueSquadron/Watari/issues/4)
 
-**Impact: high.** This breaks the Timeline tab, the Swimlane view, *and* the
-entity Graph (the graph component waits on all three of its queries, so a
-timeline failure leaves it showing zero nodes). Three headline features are dark
-because of one line.
+**Impact: high.** This is the platform's headline security property, and right
+now tenant isolation rests entirely on the service layer's explicit
+`WHERE tenant_id = ...` predicates. Any query that forgets one silently returns
+another tenant's rows.
 
-Reproduce:
+The policies in `0002_row_level_security.py` are correct. Two things stop them
+from ever applying:
 
-```bash
-TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
-  -H 'Content-Type: application/json' \
-  -d '{"username":"acme-admin","password":"password"}' | jq -r .data.access_token)
-# any seeded case with timeline entries
-curl -s "http://localhost:8000/api/v1/tenants/$TENANT/cases/$CASE/timeline" \
-  -H "Authorization: Bearer $TOKEN"
+1. The app connects as `watari`, which is a **superuser** — superusers bypass
+   RLS unconditionally.
+2. The tables are `ENABLE ROW LEVEL SECURITY` but not `FORCE`, so the table
+   owner — also `watari` — bypasses them too.
+
+See for yourself, with one tenant in context:
+
+```console
+$ docker compose exec -T postgres psql -U watari -d watari \
+  -c "BEGIN;
+      SELECT set_config('app.current_tenant','<acme-tenant-uuid>',true);
+      SELECT count(DISTINCT tenant_id) AS tenants_visible FROM cases;
+      ROLLBACK;"
+
+ tenants_visible
+-----------------
+               2
 ```
 
-```
-pydantic_core.ValidationError: 1 validation error for TimelineEntryResponse
-metadata
-  Input should be a valid dictionary [input_value=MetaData(), input_type=MetaData]
-```
+`backend/tests/property/test_tenant_isolation.py` catches this — its two
+isolation tests are marked `xfail(strict=True)`, so they become hard failures
+the moment it's fixed.
 
-Cause: `TimelineEntryResponse` declares `event_metadata: dict = Field(alias="metadata")`
-(`backend/src/schemas/timeline.py:42`). The ORM model maps the same column as
-`event_metadata` (`backend/src/models/timeline.py:42`), so when
-`_response_with_links` calls `model_validate(entry)`
-(`backend/src/api/routers/timeline.py:37`) Pydantic resolves the `metadata`
-alias against the SQLAlchemy declarative `MetaData` class attribute instead of
-the JSONB column.
-
-Fix direction: validate from the ORM attribute name rather than the alias, or
-rename the response field so it stops colliding with `Base.metadata`. Please add
-a regression test — `backend/tests/property/test_timeline_ordering.py` is the
-natural home.
-
-### 🐛 `POST /search` returns 500 — [#2](https://github.com/BlueSquadron/Watari/issues/2) · good first issue
-
-**Impact: high.** Full-text search is a headline feature and the Search page
-returns nothing.
-
-```
-AttributeError: type object 'Alert' has no attribute 'description'
-  backend/src/services/search.py:139
-```
-
-The alert branch of the search query filters on `Alert.description`, which
-doesn't exist on the model. Check what the field is actually called and whether
-the other branches (cases, observables, assets, notes) have the same problem.
-
-### 🔧 DB-backed property tests can't run out of the box — [#3](https://github.com/BlueSquadron/Watari/issues/3)
-
-**Impact: medium — it blocks new contributors from running the full suite.**
-
-23 of the property tests error at setup with `ModuleNotFoundError: No module
-named 'psycopg2'`. `backend/tests/conftest.py:65` strips `+asyncpg` from the
-test URL to build a synchronous engine for schema setup, but no synchronous
-driver is declared anywhere in `pyproject.toml`. Adding `psycopg2-binary` to the
-`dev` extra should do it.
+This is a **big** one, not a starter task. It needs a non-superuser application
+role, a `FORCE ROW LEVEL SECURITY` migration, and a fix to the dependency
+ordering that stops `get_db` from ever seeing the auth context — landed
+together. Any one alone either changes nothing or takes the application down.
+The issue has the full write-up.
 
 ### 🧹 Hypothesis cache is committed to the repo
 
@@ -141,7 +119,7 @@ and `git rm -r --cached backend/.hypothesis`.
 - Leaflet marker icons 404 on the case Map tab (the default icon asset isn't bundled by Vite — a well-known Leaflet + bundler papercut).
 - The dashboard's "open cases by severity" bars render as hairlines at some viewport widths.
 - The audit log page is empty after seeding, even though the seed script's docstring says it records audit entries.
-- There is no CI. A GitHub Actions workflow running ruff, mypy, `tsc --noEmit`, and pytest would catch all of the above.
+- There is no CI. A GitHub Actions workflow running ruff, mypy, `tsc --noEmit`, and pytest would have caught the 500s fixed in #1, #2 and #5 before they were ever committed, and would keep them from coming back.
 
 Found something else? [Open an issue](https://github.com/BlueSquadron/Watari/issues/new/choose).
 

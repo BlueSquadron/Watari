@@ -98,9 +98,10 @@ think.
 
 It sits where TheHive and DFIR-IRIS sit, with three things it does differently:
 
-- **Real multi-tenancy.** Tenant isolation is enforced by PostgreSQL
-  Row-Level Security at the database level, not by a `customer` column and
-  careful WHERE clauses. One deployment, many customers, no leaks.
+- **Real multi-tenancy.** Tenant isolation is designed around PostgreSQL
+  Row-Level Security at the database level rather than a `customer` column
+  alone — one deployment, many customers. *(The policies ship, but aren't
+  enforced yet — see [Project status](#project-status).)*
 - **OCSF-native ingestion.** Alerts are [OCSF 1.8.0 Detection
   Findings](https://schema.ocsf.io/1.8.0/classes/detection_finding). Any
   compliant producer — Wazuh, Suricata, CrowdStrike, AWS Security Hub, your
@@ -113,8 +114,17 @@ It sits where TheHive and DFIR-IRIS sit, with three things it does differently:
 **Alpha (v0.1.0).** The data model, API surface, and multi-tenancy are
 substantial and covered by 29 property-based test suites. The UI is complete
 enough to work a case end to end. Expect rough edges, and expect the schema to
-move before 1.0. See [known gaps](CONTRIBUTING.md#known-gaps--good-first-issues)
-for what's currently broken — several of them are excellent first contributions.
+move before 1.0.
+
+The one gap worth knowing before you deploy anything real: **Row-Level Security
+is shipped but not enforced.** The policies are correct, but the application
+connects as a superuser and the tables aren't `FORCE`d, so tenant isolation
+currently rests on the service layer's own `tenant_id` predicates rather than
+on the database. Tracked in
+[#4](https://github.com/BlueSquadron/Watari/issues/4).
+
+See [known gaps](CONTRIBUTING.md#known-gaps--good-first-issues) for the rest —
+several are excellent first contributions.
 
 ---
 
@@ -143,6 +153,24 @@ Each case opens onto everything attached to it — timeline, swimlane, graph, ma
 ATT&CK, observables, assets, evidence, notes, tasks, and reports.
 
 <img src="docs/images/case-detail.jpg" alt="Case detail header showing case number, severity, status, timestamps, and the tab strip for timeline, swimlane, graph, map, ATT&CK, observables, assets, evidence, notes, tasks and reports" width="100%">
+
+### Reconstruct what happened
+
+The timeline records itself. Case creation, status transitions, observables,
+assets, task movement — every one lands automatically, and analysts add manual
+entries for the things only a human saw.
+
+<img src="docs/images/case-timeline.jpg" alt="Case timeline listing five entries in chronological order: case created, three observables added, and a status change from new to in progress, above a form for adding a manual entry" width="100%">
+
+The same events on a swimlane, one lane per actor or asset, with bursts of
+activity clustered automatically. Scroll to zoom, drag to pan.
+
+<img src="docs/images/case-swimlane.jpg" alt="Swimlane timeline showing five events across two user lanes on a time axis, with a shaded cluster marking a burst of activity" width="100%">
+
+And as a graph: the case at the centre, everything it contains around it, and
+dashed edges out to the other cases that share an indicator with it.
+
+<img src="docs/images/case-graph.jpg" alt="Entity relationship graph with the case node at the centre linked to IP addresses, a domain, a SHA256 hash and three hosts, plus dashed correlation edges pointing to two other cases" width="100%">
 
 ### Track the indicators
 
@@ -175,10 +203,22 @@ without touching the mouse.
 
 <img src="docs/images/command-palette.jpg" alt="Command palette overlay with a search field and quick navigation entries" width="100%">
 
+Or search everything at once — cases, observables, assets, notes and alerts —
+grouped by type, with each hit linking back to the case it belongs to.
+
+<img src="docs/images/search.jpg" alt="Search results for the query suspicious, grouped by entity type, showing ten alert hits from Wazuh, Falcon, Suricata and Proofpoint with their signatures and affected hosts" width="100%">
+
 ### Keep tenants apart
 
 Platform admins manage tenants and switch between them. Everyone else never
-sees another tenant exists — enforced in Postgres, not in application code.
+sees another tenant exists.
+
+> **Alpha caveat:** every tenant-scoped query carries its own `tenant_id`
+> predicate, and the Postgres Row-Level Security policies meant to back that up
+> are in place — but they are not currently enforced, because the app connects
+> as a superuser and the tables aren't `FORCE`d. Isolation today rests on the
+> application layer alone. Tracked in
+> [#4](https://github.com/BlueSquadron/Watari/issues/4).
 
 <img src="docs/images/tenants.jpg" alt="Tenant management page listing Acme Corp Security and GlobalBank CSIRT with a switch action" width="100%">
 
@@ -223,7 +263,7 @@ checklist.
 
 | | TheHive | DFIR-IRIS | FIR | Catalyst | **Watari** |
 |---|---|---|---|---|---|
-| Multi-tenant isolation | Limited | Customer field | No | No | **PostgreSQL RLS** |
+| Multi-tenant isolation | Limited | Customer field | No | No | **PostgreSQL RLS** \* |
 | OCSF native ingest | No | No | No | No | **OCSF 1.8.0** |
 | Real-time collaboration | No | No | No | No | **WebSocket** |
 | Swimlane timeline | No | List view | No | No | **Visual + clustering** |
@@ -236,9 +276,12 @@ checklist.
 | Command palette | No | No | No | No | **Cmd+K** |
 | Stack | Scala/Play | Python/Flask | Python/Django | Go | **FastAPI + React 18** |
 
+\* The RLS policies ship but are not enforced yet — see
+[Project status](#project-status).
+
 Watari is younger and less battle-tested than TheHive or DFIR-IRIS. If you need
-something proven in production today, use those. If you want a modern stack with
-real tenant isolation and you're willing to help shape it, you're in the right place.
+something proven in production today, use those. If you want a modern stack and
+you're willing to help shape it, you're in the right place.
 
 ---
 
