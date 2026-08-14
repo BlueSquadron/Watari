@@ -58,7 +58,9 @@ async def create_asset(
     )
     db.add(asset)
     try:
-        await db.flush()
+        async with db.begin_nested():
+            db.add(asset)
+            await db.flush()
     except IntegrityError as exc:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
