@@ -69,6 +69,45 @@ if [ ! -f .env ]; then
   ok "Created .env from .env.example"
 else
   ok ".env already present (left untouched)"
+
+  # An .env written before Row-Level Security landed will still point
+  # DATABASE_URL at the superuser that owns the schema. Everything appears to
+  # work — and tenant isolation is silently not enforced. Fail loudly instead.
+  missing=""
+  for key in APP_DB_USER APP_DB_PASSWORD ADMIN_DATABASE_URL; do
+    grep -q "^${key}=" .env || missing="${missing} ${key}"
+  done
+
+  owner=$(grep -E '^POSTGRES_USER=' .env | cut -d= -f2- || true)
+  owner_on_request_path=0
+  if [ -n "$owner" ] && grep -qE "^DATABASE_URL=.*//${owner}:" .env; then
+    owner_on_request_path=1
+  fi
+
+  if [ -n "$missing" ] || [ "$owner_on_request_path" -eq 1 ]; then
+    echo
+    bold "Your .env predates the Row-Level Security change."
+    echo
+    [ -n "$missing" ] && echo "  Missing keys:$missing"
+    [ "$owner_on_request_path" -eq 1 ] && \
+      echo "  DATABASE_URL still connects as '${owner}', which owns the schema and"
+    [ "$owner_on_request_path" -eq 1 ] && \
+      echo "  bypasses every RLS policy — tenant isolation would not be enforced."
+    echo
+    echo "  Add to .env:"
+    echo
+    echo "    APP_DB_USER=watari_app"
+    echo "    APP_DB_PASSWORD=watari_app_dev_password"
+    echo "    ADMIN_DATABASE_URL=postgresql+asyncpg://${owner:-watari}:<password>@postgres:5432/watari"
+    echo
+    echo "  and point DATABASE_URL at the unprivileged role:"
+    echo
+    echo "    DATABASE_URL=postgresql+asyncpg://watari_app:watari_app_dev_password@postgres:5432/watari"
+    echo
+    echo "  Compare against .env.example, which has the full annotated set."
+    die "Refusing to start with a configuration that disables tenant isolation."
+  fi
+  ok "Environment has the roles this release needs"
 fi
 
 # 3. Optional reset -------------------------------------------------------

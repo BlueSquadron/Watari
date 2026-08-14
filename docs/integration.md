@@ -4,6 +4,14 @@ This guide walks through integrating external systems with Watari using the REST
 
 All examples assume a local stack running on `http://localhost:8000`. Replace the host with your production URL in real deployments.
 
+> **⚠️ API keys are not accepted yet.** The `X-API-Key` header used throughout
+> this guide currently returns `401` — no endpoint is wired to the
+> service-account dependency, tracked in
+> [#15](https://github.com/BlueSquadron/Watari/issues/15). Until that lands,
+> swap `-H "X-API-Key: $API_KEY"` for `-H "Authorization: Bearer $TOKEN"` in
+> every example below and they work as written. Everything else in this guide
+> is accurate.
+
 ## Table of contents
 
 1. [Authentication](#1-authentication)
@@ -30,7 +38,7 @@ Watari supports two authentication modes:
 | Mode | Who | Header | How to obtain |
 |---|---|---|---|
 | JWT bearer | Human users, long-running session-based clients | `Authorization: Bearer <token>` | `POST /api/v1/auth/login` |
-| API key | Service accounts, automation | `X-API-Key: <key>` | Created by a tenant admin (see §2) |
+| API key | Service accounts, automation | `X-API-Key: <key>` | Created by a tenant admin (see §2) — **not accepted by any endpoint yet, see [#15](https://github.com/BlueSquadron/Watari/issues/15)** |
 
 ### Logging in with username/password
 
