@@ -25,10 +25,11 @@ from fastapi.security import APIKeyHeader
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db import get_db_unscoped
+from src.db import get_db, get_db_unscoped
 from src.models import User
 
 from .context import AuthContext, Role
+from .dependencies import _scope_session
 
 _API_KEY_PREFIX = "wat_"
 _API_KEY_ENTROPY_BYTES = 32  # -> 43 base64 chars
@@ -105,16 +106,19 @@ async def get_service_account(
     request: Request,
     api_key: Annotated[str | None, Security(_api_key_scheme)],
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
+    scoped_db: Annotated[AsyncSession, Depends(get_db)],
 ) -> AuthContext:
     """FastAPI dependency for service-account-only endpoints.
 
-    Stashes the resolved `AuthContext` on `request.state` so the DB
-    session dependency can pick up the tenant for RLS.
+    Scopes the request session to the service account's tenant so RLS is in
+    force before the endpoint runs — see `get_current_user` for why this
+    happens here rather than in `get_db`.
     """
     if api_key is None:
         raise _UNAUTHORIZED
     auth_context = await _load_service_account(api_key, db)
     request.state.auth_context = auth_context
+    await _scope_session(scoped_db, auth_context)
     return auth_context
 
 
@@ -122,6 +126,7 @@ async def get_service_account_optional(
     request: Request,
     api_key: Annotated[str | None, Security(_api_key_scheme)],
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
+    scoped_db: Annotated[AsyncSession, Depends(get_db)],
 ) -> AuthContext | None:
     """Like `get_service_account` but returns None when no API key is present."""
     if api_key is None:
@@ -131,6 +136,7 @@ async def get_service_account_optional(
     except HTTPException:
         return None
     request.state.auth_context = auth_context
+    await _scope_session(scoped_db, auth_context)
     return auth_context
 
 

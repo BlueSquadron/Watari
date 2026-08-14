@@ -14,7 +14,7 @@ from jose import JWTError
 from sqlalchemy import select
 
 from src.auth.jwt import decode_token
-from src.db import async_session_factory
+from src.db import admin_session_factory
 from src.models import User
 from src.realtime import get_hub
 
@@ -31,7 +31,7 @@ async def _authenticate_ws(token: str) -> User | None:
         return None
     if payload.token_type != "access":
         return None
-    async with async_session_factory() as session:
+    async with admin_session_factory() as session:
         user = (
             await session.execute(select(User).where(User.id == payload.sub))
         ).scalar_one_or_none()

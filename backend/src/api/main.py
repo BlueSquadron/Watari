@@ -28,7 +28,7 @@ from src.api.routers import templates as templates_router
 from src.api.routers import tenants as tenants_router
 from src.api.routers import timeline as timeline_router
 from src.api.routers import users as users_router
-from src.db.engine import engine
+from src.db.engine import admin_engine, engine
 from src.realtime import get_hub
 from src.utils import get_settings
 
@@ -51,6 +51,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     finally:
         await hub.stop()
         await engine.dispose()
+        await admin_engine.dispose()
 
 
 app = FastAPI(

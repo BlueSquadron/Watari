@@ -49,7 +49,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
 from src.auth import Role, generate_api_key, hash_api_key, hash_password
-from src.db import async_session_factory
+from src.db import admin_session_factory
 from src.models import (
     Alert,
     Asset,
@@ -938,7 +938,7 @@ Case #{{ case.case_number }}
 
 
 async def main() -> None:
-    async with async_session_factory() as session:
+    async with admin_session_factory() as session:
         await set_platform_admin(session)
         await seed_attack_reference(session)
 

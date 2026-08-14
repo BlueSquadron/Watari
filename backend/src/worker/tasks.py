@@ -29,10 +29,10 @@ async def _execute_enrichment(observable_id: str, source_id: str) -> dict[str, A
     from uuid import UUID
 
     from sqlalchemy import select
-    from src.db import async_session_factory
+    from src.db import admin_session_factory
     from src.models import EnrichmentResult, EnrichmentSource, Observable
 
-    async with async_session_factory() as session:
+    async with admin_session_factory() as session:
         obs = (
             await session.execute(
                 select(Observable).where(Observable.id == UUID(observable_id))
@@ -90,10 +90,10 @@ async def _execute_processor_module(
 ) -> dict[str, Any]:
     from uuid import UUID
 
-    from src.db import async_session_factory
+    from src.db import admin_session_factory
     from src.services import modules as module_service
 
-    async with async_session_factory() as session:
+    async with admin_session_factory() as session:
         execution = await module_service.execute_module(
             session,
             module_id=UUID(module_id),
@@ -117,10 +117,10 @@ def generate_report_task(case_id: str, template_id: str, format: str) -> dict[st
 async def _generate_report(case_id: str, template_id: str, format: str) -> dict[str, Any]:
     from uuid import UUID
 
-    from src.db import async_session_factory
+    from src.db import admin_session_factory
     from src.services import reports as reports_service
 
-    async with async_session_factory() as session:
+    async with admin_session_factory() as session:
         report = await reports_service.generate_report(
             session,
             case_id=UUID(case_id),

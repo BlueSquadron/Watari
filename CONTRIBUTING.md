@@ -69,51 +69,6 @@ useful contribution. Please check the
 [issue tracker](https://github.com/BlueSquadron/Watari/issues) first in case
 someone got there ahead of you.
 
-### 🔒 Row-Level Security is enabled but never enforced — [#4](https://github.com/BlueSquadron/Watari/issues/4)
-
-**Impact: high.** This is the platform's headline security property, and right
-now tenant isolation rests entirely on the service layer's explicit
-`WHERE tenant_id = ...` predicates. Any query that forgets one silently returns
-another tenant's rows.
-
-The policies in `0002_row_level_security.py` are correct. Two things stop them
-from ever applying:
-
-1. The app connects as `watari`, which is a **superuser** — superusers bypass
-   RLS unconditionally.
-2. The tables are `ENABLE ROW LEVEL SECURITY` but not `FORCE`, so the table
-   owner — also `watari` — bypasses them too.
-
-See for yourself, with one tenant in context:
-
-```console
-$ docker compose exec -T postgres psql -U watari -d watari \
-  -c "BEGIN;
-      SELECT set_config('app.current_tenant','<acme-tenant-uuid>',true);
-      SELECT count(DISTINCT tenant_id) AS tenants_visible FROM cases;
-      ROLLBACK;"
-
- tenants_visible
------------------
-               2
-```
-
-`backend/tests/property/test_tenant_isolation.py` catches this — its two
-isolation tests are marked `xfail(strict=True)`, so they become hard failures
-the moment it's fixed.
-
-This is a **big** one, not a starter task. It needs a non-superuser application
-role, a `FORCE ROW LEVEL SECURITY` migration, and a fix to the dependency
-ordering that stops `get_db` from ever seeing the auth context — landed
-together. Any one alone either changes nothing or takes the application down.
-The issue has the full write-up.
-
-### 🧹 Hypothesis cache is committed to the repo
-
-154 of the 403 tracked files are `backend/.hypothesis/constants/*` — local test
-cache that shouldn't be in version control. Add `.hypothesis/` to `.gitignore`
-and `git rm -r --cached backend/.hypothesis`.
-
 ### 🎨 Smaller things
 
 - Leaflet marker icons 404 on the case Map tab (the default icon asset isn't bundled by Vite — a well-known Leaflet + bundler papercut).
@@ -158,19 +113,34 @@ docker compose exec postgres createdb -U watari watari_test
 
 cd backend
 TEST_DATABASE_URL=postgresql+asyncpg://watari:watari_dev_password@localhost:5432/watari_test \
+TEST_APP_DATABASE_URL=postgresql+asyncpg://watari_app:watari_app_dev_password@localhost:5432/watari_test \
 S3_ENDPOINT_URL=http://localhost:9000 \
   PYTHONPATH=. pytest tests/ -q
 ```
+
+Two database URLs, mirroring production. `TEST_DATABASE_URL` is the owner and
+runs the migrations — which create the application role itself.
+`TEST_APP_DATABASE_URL` is that unprivileged role, and it is what `db_session`
+connects as, so the tests are subject to the same Row-Level Security the API
+is. It defaults to the owner URL with the credentials swapped, so you can
+usually omit it.
 
 `S3_ENDPOINT_URL` is only needed for the integration tests: the default points
 at `minio:9000`, which resolves inside the Compose network but not from your
 host.
 
-Expect **145 passed, 2 xfailed**. The two expected failures are the
-Row-Level Security isolation tests — the policies exist but nothing enforces
-them today, tracked in [#4](https://github.com/BlueSquadron/Watari/issues/4).
-They're marked `strict=True`, so they will turn into hard failures the moment
-that's fixed, which is the signal to delete the marker.
+Expect **148 passed**.
+
+`db_session` switches on the platform-admin RLS bypass by default — otherwise
+every fixture that inserts a user or a case would first have to establish a
+tenant context, which is noise for the suites that aren't about isolation. If
+you are writing a test that checks isolation, turn it off first:
+
+```python
+await db_session.execute(text("SET LOCAL app.is_platform_admin = 'false'"))
+```
+
+See `tests/property/test_tenant_isolation.py`.
 
 ### What the property tests are
 
@@ -230,6 +200,33 @@ cd frontend && npx prettier --write "src/**/*.{ts,tsx,css}" && npm run lint
 ---
 
 ## Working with the database
+
+### Two roles, and why it matters
+
+Watari connects with two PostgreSQL roles, and picking the wrong one silently
+disables tenant isolation:
+
+| | Role | Used by | RLS |
+|---|---|---|---|
+| `DATABASE_URL` | `watari_app` | the request path (`get_db`) | **enforced** |
+| `ADMIN_DATABASE_URL` | `watari` | migrations, seeding, worker, auth lookups (`get_db_unscoped`) | bypassed |
+
+`watari_app` is unprivileged and is not the table owner, so the Row-Level
+Security policies genuinely apply to it. A session on it that has no tenant
+context matches **no rows** — RLS fails closed, so a missing context shows up
+as an empty result, never as another tenant's data.
+
+The context is applied by the authentication dependency, not by `get_db`:
+routers declare `db` before `auth`, so `get_db` is resolved first and cannot
+know who the caller is. `get_current_user` calls `apply_tenant_context` on the
+request's session once it has resolved them. If you add a new auth dependency,
+it has to do the same, or every query behind it returns nothing.
+
+Reach for `get_db_unscoped` only when the work is genuinely cross-tenant. If a
+normal query comes back empty, the tenant context is missing — that is the bug,
+and switching to an unscoped session hides it.
+
+### Migrations
 
 Schema changes need an Alembic migration:
 

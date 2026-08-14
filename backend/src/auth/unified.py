@@ -19,11 +19,11 @@ from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db import get_db_unscoped
+from src.db import get_db, get_db_unscoped
 
 from .api_keys import _load_service_account  # internal reuse
 from .context import AuthContext
-from .dependencies import OAUTH2_SCHEME, _load_user_from_token
+from .dependencies import OAUTH2_SCHEME, _load_user_from_token, _scope_session
 
 _api_key_scheme = APIKeyHeader(name="X-API-Key", auto_error=False)
 
@@ -39,15 +39,18 @@ async def get_principal(
     token: Annotated[str | None, Depends(OAUTH2_SCHEME)],
     api_key: Annotated[str | None, Security(_api_key_scheme)],
     db: Annotated[AsyncSession, Depends(get_db_unscoped)],
+    scoped_db: Annotated[AsyncSession, Depends(get_db)],
 ) -> AuthContext:
     """Return the AuthContext for either a JWT-authenticated user or a service account."""
     if token is not None:
         auth = await _load_user_from_token(token, db)
         request.state.auth_context = auth
+        await _scope_session(scoped_db, auth)
         return auth
     if api_key is not None:
         auth = await _load_service_account(api_key, db)
         request.state.auth_context = auth
+        await _scope_session(scoped_db, auth)
         return auth
     raise _UNAUTHORIZED
 

@@ -19,7 +19,18 @@ class Settings(BaseSettings):
     )
 
     # Database
+    #
+    # `database_url` is the request path. It must point at an unprivileged role
+    # (neither SUPERUSER nor BYPASSRLS, and not the table owner) or Row-Level
+    # Security will not be enforced — see migration 0003.
     database_url: str = (
+        "postgresql+asyncpg://watari_app:watari_app_dev_password@postgres:5432/watari"
+    )
+
+    # `admin_database_url` is the owner role, used where work is legitimately
+    # cross-tenant and RLS must not apply: migrations, seeding, the Celery
+    # worker, audit writes, and authentication lookups.
+    admin_database_url: str = (
         "postgresql+asyncpg://watari:watari_dev_password@postgres:5432/watari"
     )
 

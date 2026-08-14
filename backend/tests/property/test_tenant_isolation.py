@@ -28,20 +28,25 @@ pytestmark = pytest.mark.skipif(
     reason="Requires PostgreSQL test database; set TEST_DATABASE_URL or DATABASE_URL",
 )
 
-# The RLS policies themselves are correct, but nothing enforces them: the
-# `watari` role is a superuser (superusers bypass RLS unconditionally) and the
-# tables are ENABLE'd rather than FORCE'd, so the owner bypasses them too.
-# Tenant isolation currently rests on the service layer's explicit tenant
-# predicates alone. Tracked in
-# https://github.com/BlueSquadron/Watari/issues/4 — strict=True so these turn
-# into hard failures, and this marker must be removed, the moment it is fixed.
-rls_not_enforced = pytest.mark.xfail(
-    reason="RLS is inert: superuser connection + tables not FORCE'd (see #4)",
-    strict=True,
-)
+async def _enforce_rls(db_session: AsyncSession) -> None:
+    """Drop the platform-admin bypass that `db_session` sets by default.
+
+    Without this the tests below would pass vacuously, which is exactly how
+    the original RLS bug hid for so long.
+    """
+    await db_session.execute(text("SET LOCAL app.is_platform_admin = 'false'"))
 
 
-@rls_not_enforced
+async def _allow_setup(db_session: AsyncSession) -> None:
+    """Restore the bypass so a test can build its fixtures.
+
+    Hypothesis re-runs the test body many times against the same session, so
+    a test that switches enforcement on must switch it back before the next
+    example tries to insert.
+    """
+    await db_session.execute(text("SET LOCAL app.is_platform_admin = 'true'"))
+
+
 @pytest.mark.asyncio
 @settings(
     max_examples=20,
@@ -62,6 +67,8 @@ async def test_rls_isolates_tenants_on_select(
     user_factory,
 ) -> None:
     """RLS policies prevent queries from returning rows from other tenants."""
+    await _allow_setup(db_session)
+
     tenants: list[tuple[object, int]] = []
     for i, count in enumerate(case_counts):
         tenant = await tenant_factory(name=f"Tenant {i}")
@@ -77,6 +84,9 @@ async def test_rls_isolates_tenants_on_select(
             db_session.add(case)
         await db_session.flush()
         tenants.append((tenant, count))
+
+    # Setup is done; from here the session is an ordinary tenant user.
+    await _enforce_rls(db_session)
 
     # For each tenant context the SELECT must return only that tenant's cases
     for tenant, expected_count in tenants:
@@ -96,7 +106,6 @@ async def test_rls_isolates_tenants_on_select(
         )
 
 
-@rls_not_enforced
 @pytest.mark.asyncio
 async def test_rls_denies_cross_tenant_access(
     db_session: AsyncSession,
@@ -129,6 +138,9 @@ async def test_rls_denies_cross_tenant_access(
     )
     await db_session.flush()
 
+    # Setup is done; from here the session is an ordinary tenant user.
+    await _enforce_rls(db_session)
+
     await db_session.execute(
         text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(tid=str(tenant_a.id))
     )
@@ -150,8 +162,9 @@ async def test_platform_admin_bypass_sees_all(
 ) -> None:
     """Platform admin bypass policy returns rows across tenants.
 
-    Note: while #4 is open this passes for the wrong reason — with RLS inert
-    every query sees every tenant. Re-verify it when #4 lands.
+    Asserts both directions, because "sees everything" is also what a broken
+    RLS setup looks like: with the bypass off and a tenant in context, the
+    same query must narrow to that tenant.
     """
     tenant_a = await tenant_factory(name="A")
     tenant_b = await tenant_factory(name="B")
@@ -181,3 +194,46 @@ async def test_platform_admin_bypass_sees_all(
     await db_session.execute(text("SET LOCAL app.is_platform_admin = 'true'"))
     rows = (await db_session.execute(select(Case))).scalars().all()
     assert sorted(r.title for r in rows) == ["A1", "B1"]
+
+    # ...and the same query, without the bypass, must not.
+    await _enforce_rls(db_session)
+    await db_session.execute(
+        text("SELECT set_config('app.current_tenant', :tid, true)").bindparams(
+            tid=str(tenant_a.id)
+        )
+    )
+    rows = (await db_session.execute(select(Case))).scalars().all()
+    assert [r.title for r in rows] == ["A1"]
+
+
+@pytest.mark.asyncio
+async def test_session_without_tenant_context_sees_nothing(
+    db_session: AsyncSession,
+    tenant_factory,
+    user_factory,
+) -> None:
+    """RLS fails closed.
+
+    A session that is neither a platform admin nor scoped to a tenant must
+    return no rows at all — not every row. This is the property that decides
+    whether a missing tenant context is an outage or a data leak, and it is
+    why `get_db` may hand out an unscoped session safely.
+    """
+    tenant = await tenant_factory(name="A")
+    user = await user_factory(tenant.id)
+    db_session.add(
+        Case(
+            tenant_id=tenant.id,
+            case_number=1,
+            title="A1",
+            severity="low",
+            created_by=user.id,
+        )
+    )
+    await db_session.flush()
+
+    # No tenant ever set on this transaction, and no bypass.
+    await _enforce_rls(db_session)
+
+    rows = (await db_session.execute(select(Case))).scalars().all()
+    assert rows == []
